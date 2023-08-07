@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css' integrity='sha512-ixlOZJxl8aj1Cz0mKjyFTJQx/s+U6wo0o6P+CZPRJX+gze3Jh8Fro/mTyLr5r/Vx+uV7J8RvRfZp5+X9fivG7A==' crossorigin='anonymous' referrerpolicy='no-referrer' />
+    <style>
+        body {
+            background-color: #f1f1f1;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .logo-container {
+            display: flex;
+            align-items: center;
+        }
+        .logo {
+            width: 100px;
+            height: 100px;
+            margin-right: 20px;
+        }
+        .logo-text {
+            font-size: 36px;
+            font-weight: bold;
+        }
+        .form-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            width: 60%;
+            margin-top: 20px;
+        }
+        label {
+            display: block;
+            width: 100%;
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 16px;
+            color: #333;
+        }
+        input[type='text'] {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+        input[type='submit'] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .toggle-label {
+            margin-right: 10px;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            -webkit-transition: .4s;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: '';
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            -webkit-transition: .4s;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+        input:focus + .slider {
+            box-shadow: 0 0 1px #2196F3;
+        }
+        input:checked + .slider:before {
+            -webkit-transform: translateX(26px);
+            -ms-transform: translateX(26px);
+            transform: translateX(26px);
+        }
+    </style>
+    <script>
+        function updateConfig() {
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    var configData = JSON.parse(xhr.responseText);
+                    document.getElementById('ip').value = configData.ip || '';
+                    document.getElementById('code').value = configData.code || '';
+                    document.getElementById('id').value = configData.id || '';
+                    document.getElementById('replicateLedState').checked = configData.replicateled || false;
+                    document.getElementById('errorDetection').checked = configData.errordetection || false;
+                    document.getElementById('finishIndication').checked = configData.finishindication || false;
+                }
+            };
+            xhr.open('GET', '/getConfig', true);
+            xhr.send();
+        }
+        window.onload = function() {
+            updateConfig();
+        };
+    </script>
+</head>
+
+<body>
+    <div class='container'>
+        <div class='logo-container'>
+            <img class='logo' src='https://dutchdevelop.com/wp-content/uploads/2023/08/Icon-square.png' alt='Logo'>
+            <span class='logo-text'>BLLEDController</span>
+        </div>
+        <div class='form-container'>
+            <h1>BL LED Controller Setup Page</h1>
+            <p>
+                This page allows you to set up your BL LED controller by configuring your MQTT broker, access code, and serial ID.
+            </p>
+            <form method='POST' action='/submitSetup'>
+                <label>IP:</label>
+                <input type='text' id='ip' name='ip' title='Enter the IP address of your MQTT broker' value=''><br>
+                <label>Access Code:</label>
+                <input type='text' id='code' name='code' title='Enter the access code for your MQTT broker' value=''><br>
+                <label>Serial ID:</label>
+                <input type='text' id='id' name='id' title='Enter the serial ID for your device' value=''><br>
+                <div class='toggle-container'>
+                    <span class='toggle-label'>Replicate LED State:</span>
+                    <label class='toggle-switch'>
+                        <input type='checkbox' id='replicateLedState' name='replicateLedState'>
+                        <span class='slider'></span>
+                    </label>
+                </div>
+                <div class='toggle-container'>
+                    <span class='toggle-label'>Error Detection:</span>
+                    <label class='toggle-switch'>
+                        <input type='checkbox' id='errorDetection' name='errorDetection'>
+                        <span class='slider'></span>
+                    </label>
+                </div>
+                <div class='toggle-container'>
+                    <span class='toggle-label'>Finish Indication:</span>
+                    <label class='toggle-switch'>
+                        <input type='checkbox' id='finishIndication' name='finishIndication'>
+                        <span class='slider'></span>
+                    </label>
+                </div>
+                <input type='submit' value='Save'>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>
