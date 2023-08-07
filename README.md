@@ -13,7 +13,7 @@ For detailed setup instructions, please visit the [dutchdevelop.com/bl-led-contr
 
 ### License
 
-The BL Led Controller is released under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0) license. See the [LICENSE](https://github.com/DutchDevelop/BambulabLedController/blob/main/LICENSE) file for more details.
+The BL Led Controller is released under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0) license. See the [LICENSE](https://github.com/DutchDevelop/BLLEDController/blob/main/LICENSE) file for more details.
 
 ### Credits
 [DutchDeveloper]: Lead programmer
