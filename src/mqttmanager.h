@@ -85,7 +85,7 @@ void ParseCallback(JsonDocument &messageobject){
         Changed = true;
     }
 
-    if (Changed == true){
+    if (Changed == true || ((millis() - printerVariables.finishstartms) <= 300000 && printerVariables.gcodeState == "FINISH")){ // if its finished we want to update as much as possible so we can turn it back to normal later
         updateleds();
     }
 }

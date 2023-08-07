@@ -214,7 +214,10 @@ build/esp32dev/src/main.cpp.o: src/main.cpp \
  /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/libraries/LittleFS/src/LittleFS.h \
  /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/libraries/FS/src/FS.h \
  src/types.h src/web-server.h src/leds.h src/mqttparsingutility.h \
- src/www/setupPage.h src/mqttmanager.h \
+ .pio/libdeps/esp32dev/ESPHTTPUpdateServer/src/ESPHTTPUpdateServer.h \
+ /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/libraries/HTTPUpdate/src/HTTPUpdate.h \
+ /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFiClient.h \
+ /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/libraries/HTTPClient/src/HTTPClient.h \
  /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/libraries/WiFiClientSecure/src/WiFiClientSecure.h \
  /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/libraries/WiFiClientSecure/src/ssl_client.h \
  /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/mbedtls/mbedtls/include/mbedtls/platform.h \
@@ -254,4 +257,6 @@ build/esp32dev/src/main.cpp.o: src/main.cpp \
  /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/mbedtls/port/include/aes/esp_aes.h \
  /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/hal/include/hal/aes_types.h \
  /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/mbedtls/mbedtls/include/mbedtls/error.h \
+ /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/cores/esp32/StreamString.h \
+ src/www/setupPage.h src/www/updatePage.h src/mqttmanager.h \
  .pio/libdeps/esp32dev/PubSubClient/src/PubSubClient.h

@@ -8,19 +8,24 @@
 
 #if defined(ESP32)
     #include <WiFi.h>
-    #include <WebServer.h>
+    #include <WebServer.h> 
+    #include <ESPHTTPUpdateServer.h>
 #elif defined(ESP8266)
     #include <ESP8266WiFi.h>
     #include <ESP8266WebServer.h>
+    #include <ESP8266HTTPUpdateServer.h>
 #endif
 
 #if defined(ESP32)
     WebServer webServer(80);
+    ESPHTTPUpdateServer httpUpdater;
 #elif defined(ESP8266)
     ESP8266WebServer webServer(80);
+    ESP8266HTTPUpdateServer httpUpdater; 
 #endif
 
 #include "www/setupPage.h"
+#include "www/updatePage.h"
 
 bool isAuthorized() {
   return webServer.authenticate("BLLC", printerConfig.password);
@@ -33,6 +38,15 @@ void handleSetup(){
     }
     String dataType = "text/html";
     webServer.send(200, dataType, (const char*)setupPage_html);
+}
+
+void handleUpdate(){
+    if (!isAuthorized()){
+        webServer.requestAuthentication();
+        return;
+    }
+    String dataType = "text/html";
+    webServer.send(200, dataType, (const char*)updatePage_html);
 }
 
 void submitSetup(){
@@ -78,6 +92,9 @@ void setupWebserver(){
     webServer.on("/", handleSetup);
     webServer.on("/submitSetup",HTTP_POST,submitSetup);
     webServer.on("/getConfig", handleGetConfig);
+    webServer.on("/update",HTTP_GET,handleUpdate);
+
+    httpUpdater.setup(&webServer);
     webServer.begin();
 
     Serial.println(F("Webserver started"));

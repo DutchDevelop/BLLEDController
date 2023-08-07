@@ -25,6 +25,9 @@ int currentWarm = 0;
 int currentCold = 0;
 
 void tweenToColor(int targetRed, int targetGreen, int targetBlue, int targetWarm, int targetCold, int duration) {
+    if (targetRed == currentRed && targetGreen == currentGreen && targetBlue == currentBlue && targetWarm == currentWarm && targetCold == currentCold){
+        return; // already at that color
+    }
     float stepTime = (float)duration / 255.0;
     int redStep = (targetRed - currentRed) / 255;
     int greenStep = (targetGreen - currentGreen) / 255;
