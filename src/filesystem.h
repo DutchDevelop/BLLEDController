@@ -74,7 +74,6 @@ void loadFileSystem(){
             Serial.println(F("Generatign new password"));
             char* pw = generateRandomString(8);
             strcpy(printerConfig.password,pw);
-            Serial.println(pw);
         }
 
         Serial.println(F("Loaded config"));

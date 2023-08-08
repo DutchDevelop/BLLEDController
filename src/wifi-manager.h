@@ -21,6 +21,9 @@ bool shouldSaveConfig = true;
 void processConfig(){
     if(hasFileSystem()){
         loadFileSystem();
+    }else{
+        saveFileSystem();
+        loadFileSystem();
     }
 }
 
@@ -44,10 +47,12 @@ void setupWifi(){
     WiFiManagerParameter printerIpParameter("printerIp", "Printer Ip", printerConfig.printerIP, 16);
     WiFiManagerParameter accessCodeParameter("accessCode", "Access Code", printerConfig.accessCode, 9);
     WiFiManagerParameter serialNumberParameter("serialNumber", "Serial", printerConfig.serialNumber, 16);
+    WiFiManagerParameter configPasswordParameter("configpassword", "Config Password", printerConfig.password, 8);
 
     wifiManager.addParameter(&printerIpParameter);
     wifiManager.addParameter(&accessCodeParameter);
     wifiManager.addParameter(&serialNumberParameter);
+    wifiManager.addParameter(&configPasswordParameter);
 
     wifiManager.setConfigPortalTimeout(180);
     wifiManager.setAPCallback(configModeCallback);
@@ -64,6 +69,7 @@ void setupWifi(){
     strcpy(printerConfig.printerIP,printerIpParameter.getValue());
     strcpy(printerConfig.accessCode,accessCodeParameter.getValue());
     strcpy(printerConfig.serialNumber,serialNumberParameter.getValue());
+    strcpy(printerConfig.password,configPasswordParameter.getValue());
 
     saveFileSystem();
 
