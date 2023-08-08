@@ -59,6 +59,7 @@ void submitSetup(){
         printerConfig.replicatestate = webServer.arg("replicateLedState") == "on";
         printerConfig.errordetection = webServer.arg("errorDetection") == "on";
         printerConfig.finishindication = webServer.arg("finishIndication") == "on";
+        printerConfig.debuging = webServer.arg("debuging") == "on";
 
         saveFileSystem();
         updateleds();
@@ -79,6 +80,7 @@ void handleGetConfig(){
     doc["replicateled"] = printerConfig.replicatestate;
     doc["errordetection"] = printerConfig.errordetection;
     doc["finishindication"] = printerConfig.finishindication;
+    doc["debuging"] = printerConfig.debuging;
 
     String jsonString;
     serializeJson(doc, jsonString);

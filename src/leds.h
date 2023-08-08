@@ -13,9 +13,9 @@
 #elif defined(ESP32)
     const int redPin = 19;
     const int greenPin = 18;
-    const int bluePin = 5;
-    const int warmPin = 5;
-    const int coldPin = 5;
+    const int bluePin = 21;
+    const int warmPin = 22;
+    const int coldPin = 23;
 #endif
 
 int currentRed = 0;

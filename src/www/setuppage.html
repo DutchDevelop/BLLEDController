@@ -130,6 +130,7 @@
                     document.getElementById('replicateLedState').checked = configData.replicateled || false;
                     document.getElementById('errorDetection').checked = configData.errordetection || false;
                     document.getElementById('finishIndication').checked = configData.finishindication || false;
+                    document.getElementById('debuging').checked = configData.debuging || false;
                 }
             };
             xhr.open('GET', '/getConfig', true);
@@ -177,6 +178,13 @@
                     <span class='toggle-label'>Finish Indication:</span>
                     <label class='toggle-switch'>
                         <input type='checkbox' id='finishIndication' name='finishIndication'>
+                        <span class='slider'></span>
+                    </label>
+                </div>
+                <div class='toggle-container'>
+                    <span class='toggle-label'>Debuging:</span>
+                    <label class='toggle-switch'>
+                        <input type='checkbox' id='debuging' name='debuging'>
                         <span class='slider'></span>
                     </label>
                 </div>

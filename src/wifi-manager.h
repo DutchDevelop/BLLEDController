@@ -21,9 +21,6 @@ bool shouldSaveConfig = true;
 void processConfig(){
     if(hasFileSystem()){
         loadFileSystem();
-    }else{
-        saveFileSystem();
-        loadFileSystem();
     }
 }
 

@@ -52,6 +52,13 @@ void connectMqtt(){
 }
 
 void ParseCallback(JsonDocument &messageobject){
+
+    if (printerConfig.debuging){
+        Serial.println("");
+        serializeJson(messageobject, Serial);
+        Serial.println("");
+    }
+
     bool Changed = false;
     if (messageobject["print"].containsKey("stg_cur")){
         printerVariables.stage = messageobject["print"]["stg_cur"];
@@ -93,9 +100,6 @@ void ParseCallback(JsonDocument &messageobject){
 void mqttCallback(char *topic, byte *payload, unsigned int length){
     DynamicJsonDocument messageobject(4096);
     auto deserializeError = deserializeJson(messageobject, payload, length);
-    //Serial.println("");
-    //serializeJson(messageobject, Serial);
-    //Serial.println("");
     if (!deserializeError){
         if (!messageobject.containsKey("print")) {
             return;

@@ -24,6 +24,7 @@ extern "C"
         bool replicatestate = true;
         bool errordetection = true;
         bool finishindication = true;
+        bool debuging = true;
         char printerIP[16];
         char accessCode[9];
         char serialNumber[16];
