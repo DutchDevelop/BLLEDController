@@ -36,8 +36,8 @@ void handleSetup(){
         webServer.requestAuthentication();
         return;
     }
-    String dataType = "text/html";
-    webServer.send(200, dataType, (const char*)setupPage_html);
+    webServer.sendHeader(F("Content-Encoding"), F("gzip"));
+    webServer.send_P(200, "text/html", (const char*)setupPage_html_gz, (int)setupPage_html_gz_len);
 }
 
 void handleUpdate(){
@@ -45,8 +45,8 @@ void handleUpdate(){
         webServer.requestAuthentication();
         return;
     }
-    String dataType = "text/html";
-    webServer.send(200, dataType, (const char*)updatePage_html);
+    webServer.sendHeader(F("Content-Encoding"), F("gzip"));
+    webServer.send_P(200, "text/html", (const char*)updatepPage_html_gz, (int)updatePage_html_gz_len);
 }
 
 void submitSetup(){

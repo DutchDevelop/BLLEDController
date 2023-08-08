@@ -28,6 +28,7 @@
         "vector": "cpp",
         "filesystem": "cpp",
         "fstream": "cpp",
-        "locale": "cpp"
+        "locale": "cpp",
+        "random": "cpp"
     }
 }

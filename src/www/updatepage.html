@@ -4,7 +4,7 @@
 <head>
     <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css' integrity='sha512-ixlOZJxl8aj1Cz0mKjyFTJQx/s+U6wo0o6P+CZPRJX+gze3Jh8Fro/mTyLr5r/Vx+uV7J8RvRfZp5+X9fivG7A==' crossorigin='anonymous' referrerpolicy='no-referrer' />
     <style>
-               body {
+        body {
             background-color: #f1f1f1;
             font-family: Arial, sans-serif;
         }
@@ -52,7 +52,7 @@
             margin-bottom: 5px;
         }
 
-        input[type='text'] {
+        input[type='file'] {
             width: 100%;
             padding: 10px;
             font-size: 16px;
@@ -72,6 +72,21 @@
             cursor: pointer;
             margin-top: 20px;
         }
+
+        progress {
+            width: 100%;
+            height: 15px;
+            border: none;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .status-text {
+            font-weight: bold;
+            color: #4CAF50;
+            margin-top: 10px;
+        }
+
     </style>
 </head>
 
@@ -92,6 +107,7 @@
                 <progress id="progressBar" max="100" value="0"></progress><br>
                 <button id="button-send" class="button-send" type="submit" disabled>Update</button>
             </form>
+            <p class="status-text" id="status">Status: Ready</p>
             <script type="application/javascript">
                 function _(el) {
                     return document.getElementById(el);
@@ -120,18 +136,19 @@
 
                 function completeHandler(event) {
                     _("progressBar").value = 0; 
+                    _("status").textContent = "Status: Update complete!";
                 }
 
                 function startHandler(event) {
-                   
+                    _("status").textContent = "Status: Uploading...";
                 }
 
                 function errorHandler(event) {
-                   
+                    _("status").textContent = "Status: Error during update.";
                 }
 
                 function abortHandler(event) {
-                   
+                    _("status").textContent = "Status: Update aborted.";
                 }
 
                 _('upload_form').addEventListener('submit', (e) => {
