@@ -12,7 +12,7 @@
 #include <LittleFS.h>
 #include "types.h"
 
-const char *configPath = "/config.json";
+const char *configPath = "/blledconfig.json";
 
 char* generateRandomString(int length) {
   static const char charset[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -34,7 +34,7 @@ void saveFileSystem(){
     json["printerIp"] = printerConfig.printerIP;
     json["accesCode"] = printerConfig.accessCode;
     json["serialNumber"] = printerConfig.serialNumber;
-    json["password"] = printerConfig.password;
+    json["webpagePassword"] = printerConfig.webpagePassword;
 
     json["replicatestate"] =  printerConfig.replicatestate;
     json["errordetection"] =  printerConfig.errordetection;
@@ -65,23 +65,23 @@ void loadFileSystem(){
         strcpy(printerConfig.printerIP, json["printerIp"]);
         strcpy(printerConfig.accessCode, json["accesCode"]);
         strcpy(printerConfig.serialNumber, json["serialNumber"]);
-        strcpy(printerConfig.password,json["password"]);
+        strcpy(printerConfig.webpagePassword,json["webpagePassword"]);
 
         printerConfig.replicatestate = json["replicatestate"];
         printerConfig.errordetection = json["errordetection"];
         printerConfig.finishindication =  json["finishindication"];
 
-        if (strlen(printerConfig.password) == 0){
-            Serial.println(F("Generatign new password"));
-            char* pw = generateRandomString(8);
-            strcpy(printerConfig.password,pw);
-        }
 
         Serial.println(F("Loaded config"));
     }else{
         Serial.println(F("Failed loading config"));
         Serial.println(F("Clearing config"));
         LittleFS.remove(configPath);
+
+        Serial.println(F("Generating new password"));
+        char* pw = generateRandomString(8);
+        strcpy(printerConfig.webpagePassword,pw);
+
     }
 
     configFile.close();

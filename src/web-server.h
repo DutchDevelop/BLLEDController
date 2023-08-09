@@ -28,7 +28,7 @@
 #include "www/updatePage.h"
 
 bool isAuthorized() {
-  return webServer.authenticate("BLLC", printerConfig.password);
+  return webServer.authenticate("BLLC", printerConfig.webpagePassword);
 }
 
 void handleSetup(){

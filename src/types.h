@@ -28,7 +28,7 @@ extern "C"
         char printerIP[16];
         char accessCode[9];
         char serialNumber[16];
-        char password[8];
+        char webpagePassword[8];
     } PrinterConfig;
 
     PrinterConfig printerConfig;

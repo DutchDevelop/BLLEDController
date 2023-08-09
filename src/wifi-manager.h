@@ -19,9 +19,9 @@ WiFiManager wifiManager;
 bool shouldSaveConfig = true;
 
 void processConfig(){
-    if(hasFileSystem()){
+   // if(hasFileSystem()){
         loadFileSystem();
-    }
+   // }
 }
 
 void restartprocess(){
@@ -41,15 +41,15 @@ void setupWifi(){
 
     processConfig();
 
+    WiFiManagerParameter webpagePasswordParameter("webpagePassword", "Webpage Password", printerConfig.webpagePassword, 8);
     WiFiManagerParameter printerIpParameter("printerIp", "Printer Ip", printerConfig.printerIP, 16);
     WiFiManagerParameter accessCodeParameter("accessCode", "Access Code", printerConfig.accessCode, 9);
     WiFiManagerParameter serialNumberParameter("serialNumber", "Serial", printerConfig.serialNumber, 16);
-    WiFiManagerParameter configPasswordParameter("configpassword", "Config Password", printerConfig.password, 8);
 
+    wifiManager.addParameter(&webpagePasswordParameter);
     wifiManager.addParameter(&printerIpParameter);
     wifiManager.addParameter(&accessCodeParameter);
     wifiManager.addParameter(&serialNumberParameter);
-    wifiManager.addParameter(&configPasswordParameter);
 
     wifiManager.setConfigPortalTimeout(180);
     wifiManager.setAPCallback(configModeCallback);
@@ -66,7 +66,7 @@ void setupWifi(){
     strcpy(printerConfig.printerIP,printerIpParameter.getValue());
     strcpy(printerConfig.accessCode,accessCodeParameter.getValue());
     strcpy(printerConfig.serialNumber,serialNumberParameter.getValue());
-    strcpy(printerConfig.password,configPasswordParameter.getValue());
+    strcpy(printerConfig.webpagePassword,webpagePasswordParameter.getValue());
 
     saveFileSystem();
 
@@ -74,7 +74,7 @@ void setupWifi(){
     Serial.print(F("Head over to http://"));
     Serial.println(WiFi.localIP());
     Serial.print(F("Login Details User: BLLC, Password: "));
-    Serial.println(printerConfig.password);
+    Serial.println(printerConfig.webpagePassword);
     Serial.println(F("To configure further"));
     Serial.println(F("-------------------------------------"));
 }
