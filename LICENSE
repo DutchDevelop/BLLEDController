@@ -1,18 +1,21 @@
-Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
+BLLEDController and Firmware License - Version 2.0
 
-This is a human-readable summary of (and not a substitute for) the CC BY-NC-SA 4.0 license.
+This license ("License") governs the use, distribution, and modification of the Bambulanb Controller's code, firmware, forks, and firmware of forks ("Material"). By using, distributing, or modifying the Material, you agree to abide by the terms and conditions of this License.
 
 You are free to:
 
-- Share: copy and redistribute the material in any medium or format
-- Adapt: remix, transform, and build upon the material
+- Share: Copy and redistribute the Material in any medium or format.
+- Adapt: Remix, transform, and build upon the Material.
 
 Under the following terms:
 
 - Attribution: You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
-- Non-commercial: You may not use the material for commercial purposes.
-- Share-alike: If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
+- Non-commercial: You may not use the Material for commercial purposes.
+- Device and DIY Non-Commercial Restriction: The Material may only be used for the "bambulanb controller" device or for non-commercial DIY projects.
+- Share-alike: If you remix, transform, or build upon the Material, you must distribute your contributions under the same license as the original.
 
 No additional restrictions: You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
 
-For more information, please refer to the full text of the CC BY-NC-SA 4.0 license at <https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode>.
+For the full text of the CC BY-NC-SA 4.0 license, please visit: https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode
+
+This License is based on the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. The terms of that license apply to the extent they do not conflict with the terms of this License.
