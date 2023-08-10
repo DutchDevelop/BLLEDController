@@ -71,14 +71,15 @@ void tweenToColor(int targetRed, int targetGreen, int targetBlue, int targetWarm
 }
 
 void updateleds(){
+    if (printerConfig.debuging){
+        Serial.println(F("Updating leds"));
 
-    Serial.println(F("Updating leds"));
-
-    Serial.println(printerVariables.stage);
-    Serial.println(printerVariables.gcodeState);
-    Serial.println(printerVariables.ledstate);
-    Serial.println(printerVariables.hmsstate);
-    Serial.println(printerVariables.parsedHMS);
+        Serial.println(printerVariables.stage);
+        Serial.println(printerVariables.gcodeState);
+        Serial.println(printerVariables.ledstate);
+        Serial.println(printerVariables.hmsstate);
+        Serial.println(printerVariables.parsedHMS);
+    }
 
     //OFF
 
@@ -167,6 +168,13 @@ void setupLeds() {
     pinMode(coldPin, OUTPUT);
     pinMode(warmPin, OUTPUT);
     updateleds();
+}
+
+void ledsloop(){
+   if((millis() - printerVariables.finishstartms) >= 300000 && printerVariables.gcodeState == "FINISH"){
+        printerVariables.gcodeState == "IDLE";
+        updateleds();
+   }
 }
 
 #endif

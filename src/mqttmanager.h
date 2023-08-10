@@ -35,7 +35,7 @@ void pushall(){ //Provided by WolfwithSword
 void connectMqtt(){
     device_topic = String("device/") + printerConfig.serialNumber;
     report_topic = device_topic + String("/report");
-    request_topic = device_topic + String("/report");
+    request_topic = device_topic + String("/request");
     if (!mqttClient.connected() && (millis() - mqttattempt) >= 3000){   
         if (mqttClient.connect(clientId.c_str(),"bblp",printerConfig.accessCode)){
             Serial.println(F("Connected to mqtt"));
@@ -92,7 +92,7 @@ void ParseCallback(JsonDocument &messageobject){
         Changed = true;
     }
 
-    if (Changed == true || ((millis() - printerVariables.finishstartms) <= 300000 && printerVariables.gcodeState == "FINISH")){ // if its finished we want to update as much as possible so we can turn it back to normal later
+    if (Changed == true){
         updateleds();
     }
 }
