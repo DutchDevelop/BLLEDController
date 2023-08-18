@@ -41,12 +41,12 @@ void setupWifi(){
 
     processConfig();
 
-   // WiFiManagerParameter webpagePasswordParameter("webpagePassword", "Webpage Password", printerConfig.webpagePassword, 8);
+    WiFiManagerParameter webpagePasswordParameter("webpagePassword", "Webpage Password", printerConfig.webpagePassword, 8);
     WiFiManagerParameter printerIpParameter("printerIp", "Printer Ip", printerConfig.printerIP, 16);
     WiFiManagerParameter accessCodeParameter("accessCode", "Access Code", printerConfig.accessCode, 9);
     WiFiManagerParameter serialNumberParameter("serialNumber", "Serial", printerConfig.serialNumber, 16);
 
-   // wifiManager.addParameter(&webpagePasswordParameter);
+    wifiManager.addParameter(&webpagePasswordParameter);
     wifiManager.addParameter(&printerIpParameter);
     wifiManager.addParameter(&accessCodeParameter);
     wifiManager.addParameter(&serialNumberParameter);
@@ -66,7 +66,7 @@ void setupWifi(){
     strcpy(printerConfig.printerIP,printerIpParameter.getValue());
     strcpy(printerConfig.accessCode,accessCodeParameter.getValue());
     strcpy(printerConfig.serialNumber,serialNumberParameter.getValue());
-    //strcpy(printerConfig.webpagePassword,webpagePasswordParameter.getValue());
+    strcpy(printerConfig.webpagePassword,webpagePasswordParameter.getValue());
 
     saveFileSystem();
 
