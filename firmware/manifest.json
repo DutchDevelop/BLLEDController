@@ -12,9 +12,7 @@
     {
       "chipFamily": "ESP32",
       "parts": [
-        { "path": "bootloader.bin", "offset": 0 },
-        { "path": "partitions.bin", "offset": 16384 },
-        { "path": "esp32dev/BLLC_V07.bin", "offset": 32768 }
+        { "path": "esp32dev/BLLC_V07.bin", "offset": 0 }
         ]
     }
   ]
