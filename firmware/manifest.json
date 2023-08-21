@@ -1,6 +1,6 @@
 {
   "name": "BLController",
-  "version": "0.0.7",
+  "version": "0.0.71",
   "new_install_prompt_erase": true,
   "builds": [
     {
@@ -12,7 +12,8 @@
     {
       "chipFamily": "ESP32",
       "parts": [
-        { "path": "partitions.bin", "offset": 0 },
+        { "path": "bootloader.bin", "offset": 0 },
+        { "path": "partitions.bin", "offset": 16384 },
         { "path": "esp32dev/BLLC_V07.bin", "offset": 32768 }
         ]
     }
