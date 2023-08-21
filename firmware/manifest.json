@@ -1,6 +1,6 @@
 {
   "name": "BLController",
-  "version": "0.0.71",
+  "version": "0.0.72",
   "new_install_prompt_erase": true,
   "builds": [
     {
