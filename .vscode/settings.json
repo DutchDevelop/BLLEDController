@@ -30,5 +30,6 @@
         "fstream": "cpp",
         "locale": "cpp",
         "random": "cpp"
-    }
+    },
+    "cmake.configureOnOpen": false
 }

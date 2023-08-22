@@ -110,7 +110,7 @@ void updateleds(){
             return;
         }
 
-        if (printerVariables.parsedHMS == "Fetal"){
+        if (printerVariables.parsedHMS == "Fatal"){
             tweenToColor(255,0,0,0,0,500); //RED
             return;
         }
