@@ -2,7 +2,6 @@
 #define _BLLEDWIFI_MANAGER
 
 #include <Arduino.h>
-#include <WiFiManager.h>
 #include <ArduinoJson.h> 
 
 #if defined(ESP32)
@@ -14,62 +13,39 @@
 #include "filesystem.h"
 #include "types.h"
 
-WiFiManager wifiManager;
-
 bool shouldSaveConfig = true;
-
-void processConfig(){
-   // if(hasFileSystem()){
-        loadFileSystem();
-   // }
-}
+int connectionAttempts = 0;
+const int maxConnectionAttempts = 3;
 
 void restartprocess(){
-    wifiManager.resetSettings();
     deleteFileSystem();
     delay(3000);
 }
 
-void configModeCallback(WiFiManager *myWiFiManager) {
+void configModeCallback() {
   Serial.println("Entered config mode");
   Serial.print("AP IP address: ");
   Serial.println(WiFi.softAPIP());
 }
 
 void setupWifi(){
-   // restartprocess();
+    loadFileSystem();
 
-    processConfig();
-
-    WiFiManagerParameter webpagePasswordParameter("webpagePassword", "Webpage Password", printerConfig.webpagePassword, 8);
-    WiFiManagerParameter printerIpParameter("printerIp", "Printer Ip", printerConfig.printerIP, 16);
-    WiFiManagerParameter accessCodeParameter("accessCode", "Access Code", printerConfig.accessCode, 9);
-    WiFiManagerParameter serialNumberParameter("serialNumber", "Serial", printerConfig.serialNumber, 16);
-
-    wifiManager.addParameter(&webpagePasswordParameter);
-    wifiManager.addParameter(&printerIpParameter);
-    wifiManager.addParameter(&accessCodeParameter);
-    wifiManager.addParameter(&serialNumberParameter);
-
-    wifiManager.setConfigPortalTimeout(180);
-    wifiManager.setAPCallback(configModeCallback);
-
-    if (!wifiManager.autoConnect("BLLEDController")){
-        Serial.println(F("Failed to create accesspoint"));
-        delay(5000);
-        restartprocess();
-        ESP.restart();
-        delay(5000);
+    Serial.println(F("-------------------------------------"));
+    while (connectionAttempts < maxConnectionAttempts) {
+        if (WiFi.status() != WL_CONNECTED){
+            Serial.print(F("Connecting to WIFI.. "));
+            Serial.println(globalVariables.SSID);
+            Serial.println(globalVariables.APPW);
+            WiFi.begin(globalVariables.SSID, globalVariables.APPW);
+            delay(2000);
+        };
+        connectionAttempts++;
+    }
+    if (WiFi.status() != WL_CONNECTED){
+        Serial.println(F("Failed to connect to wifi."));
         return;
     }
-
-    strcpy(printerConfig.printerIP,printerIpParameter.getValue());
-    strcpy(printerConfig.accessCode,accessCodeParameter.getValue());
-    strcpy(printerConfig.serialNumber,serialNumberParameter.getValue());
-    strcpy(printerConfig.webpagePassword,webpagePasswordParameter.getValue());
-
-    saveFileSystem();
-
     Serial.println(F("-------------------------------------"));
     Serial.print(F("Head over to http://"));
     Serial.println(WiFi.localIP());

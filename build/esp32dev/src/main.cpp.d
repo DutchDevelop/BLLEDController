@@ -129,7 +129,9 @@ build/esp32dev/src/main.cpp.o: src/main.cpp \
  /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/spi_flash/include/esp_spi_flash.h \
  /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/spi_flash/include/esp_spi_flash_counters.h \
  /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_hw_support/include/soc/esp32/spiram.h \
- src/wifi-manager.h .pio/libdeps/esp32dev/WiFiManager/WiFiManager.h \
+ src/wifi-manager.h .pio/libdeps/esp32dev/ArduinoJson/src/ArduinoJson.h \
+ .pio/libdeps/esp32dev/ArduinoJson/src/ArduinoJson.hpp \
+ .pio/libdeps/esp32dev/ArduinoJson/src/ArduinoJson/Configuration.hpp \
  /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFi.h \
  /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/cores/esp32/Print.h \
  /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/cores/esp32/IPv6Address.h \
@@ -189,34 +191,19 @@ build/esp32dev/src/main.cpp.o: src/main.cpp \
  /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFiUdp.h \
  /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/cores/esp32/Udp.h \
  /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/cores/esp32/cbuf.h \
- /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_wifi/include/esp_wifi.h \
- /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_wifi/include/esp_wifi_types.h \
- /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_wifi/include/esp_private/esp_wifi_private.h \
- /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_wifi/include/esp_wifi_crypto_types.h \
- /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_wifi/include/esp_private/wifi_os_adapter.h \
- /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_wifi/include/esp_wifi_default.h \
- /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/libraries/Update/src/Update.h \
- /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/cores/esp32/MD5Builder.h \
- /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_rom/include/esp_rom_md5.h \
+ src/filesystem.h \
+ /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/libraries/FS/src/FS.h \
+ /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/libraries/LittleFS/src/LittleFS.h \
+ src/types.h src/web-server.h src/leds.h src/mqttparsingutility.h \
  /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/libraries/WebServer/src/WebServer.h \
  /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/libraries/WebServer/src/HTTP_Method.h \
  /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/nghttp/port/include/http_parser.h \
  /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/libraries/WebServer/src/Uri.h \
  /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/libraries/WebServer/src/detail/RequestHandler.h \
- /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/libraries/DNSServer/src/DNSServer.h \
- /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFiUdp.h \
- .pio/libdeps/esp32dev/WiFiManager/wm_strings_en.h \
- .pio/libdeps/esp32dev/WiFiManager/wm_consts_en.h \
- .pio/libdeps/esp32dev/ArduinoJson/src/ArduinoJson.h \
- .pio/libdeps/esp32dev/ArduinoJson/src/ArduinoJson.hpp \
- .pio/libdeps/esp32dev/ArduinoJson/src/ArduinoJson/Configuration.hpp \
- src/filesystem.h \
- /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/libraries/FS/src/FS.h \
- /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/libraries/LittleFS/src/LittleFS.h \
- src/types.h src/web-server.h src/leds.h src/mqttparsingutility.h \
  .pio/libdeps/esp32dev/ESPHTTPUpdateServer/src/ESPHTTPUpdateServer.h \
  /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/libraries/HTTPUpdate/src/HTTPUpdate.h \
  /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFiClient.h \
+ /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFiUdp.h \
  /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/libraries/HTTPClient/src/HTTPClient.h \
  /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/libraries/WiFiClientSecure/src/WiFiClientSecure.h \
  /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/libraries/WiFiClientSecure/src/ssl_client.h \
@@ -257,6 +244,19 @@ build/esp32dev/src/main.cpp.o: src/main.cpp \
  /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/mbedtls/port/include/aes/esp_aes.h \
  /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/hal/include/hal/aes_types.h \
  /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/mbedtls/mbedtls/include/mbedtls/error.h \
+ /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/libraries/Update/src/Update.h \
+ /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/cores/esp32/MD5Builder.h \
+ /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_rom/include/esp_rom_md5.h \
  /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/cores/esp32/StreamString.h \
  src/www/setupPage.h src/www/updatePage.h src/mqttmanager.h \
- .pio/libdeps/esp32dev/PubSubClient/src/PubSubClient.h
+ .pio/libdeps/esp32dev/PubSubClient/src/PubSubClient.h \
+ .pio/libdeps/esp32dev/WiFiManager/WiFiManager.h \
+ /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_wifi/include/esp_wifi.h \
+ /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_wifi/include/esp_wifi_types.h \
+ /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_wifi/include/esp_private/esp_wifi_private.h \
+ /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_wifi/include/esp_wifi_crypto_types.h \
+ /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_wifi/include/esp_private/wifi_os_adapter.h \
+ /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_wifi/include/esp_wifi_default.h \
+ /Users/dutchdeveloper/.platformio/packages/framework-arduinoespressif32/libraries/DNSServer/src/DNSServer.h \
+ .pio/libdeps/esp32dev/WiFiManager/wm_strings_en.h \
+ .pio/libdeps/esp32dev/WiFiManager/wm_consts_en.h src/serialmanager.h

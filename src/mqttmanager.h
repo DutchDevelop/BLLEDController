@@ -41,7 +41,7 @@ void connectMqtt(){
             Serial.println(F("Connected to mqtt"));
             Serial.println(report_topic);
             mqttClient.subscribe(report_topic.c_str());
-            pushall();
+            //pushall();
             printerVariables.online = true;
             updateleds();
         }else{
@@ -115,7 +115,7 @@ void setupMqtt(){
     Serial.println(F("Setting up MQTT with ip: "));
     Serial.println(printerConfig.printerIP);
     wifiSecureClient.setInsecure();
-    mqttClient.setBufferSize(4096); 
+    mqttClient.setBufferSize(2096); //4096
     mqttClient.setServer(printerConfig.printerIP, 8883);
     mqttClient.setCallback(mqttCallback);
     //mqttClient.setSocketTimeout(20);

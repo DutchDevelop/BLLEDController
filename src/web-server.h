@@ -2,7 +2,6 @@
 #define _BLLEDWEB_SERVER
 
 #include <Arduino.h>
-#include <WiFiManager.h>
 #include <ArduinoJson.h> 
 #include "leds.h"
 
@@ -90,7 +89,7 @@ void handleGetConfig(){
 
 void setupWebserver(){
     Serial.println(F("Setting up webserver"));
-
+    
     webServer.on("/", handleSetup);
     webServer.on("/submitSetup",HTTP_POST,submitSetup);
     webServer.on("/getConfig", handleGetConfig);

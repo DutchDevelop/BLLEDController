@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css' integrity='sha512-ixlOZJxl8aj1Cz0mKjyFTJQx/s+U6wo0o6P+CZPRJX+gze3Jh8Fro/mTyLr5r/Vx+uV7J8RvRfZp5+X9fivG7A==' crossorigin='anonymous' referrerpolicy='no-referrer' />
+        <style>
+            body {
+                background-color: #f1f1f1;
+                font-family: Arial, sans-serif;
+            }
+            .container {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+            }
+            .logo-container {
+                display: flex;
+                align-items: center;
+            }
+            .logo {
+                width: 100px;
+                height: 100px;
+                margin-right: 20px;
+            }
+            .logo-text {
+                font-size: 36px;
+                font-weight: bold;
+            }
+            .form-container {
+                background-color: white;
+                padding: 20px;
+                border-radius: 10px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+                width: 60%;
+                margin-top: 20px;
+            }
+            label {
+                display: block;
+                width: 100%;
+                margin-bottom: 5px;
+                font-weight: bold;
+                font-size: 16px;
+                color: #333;
+            }
+            input[type='text'] {
+                width: 100%;
+                padding: 10px;
+                border-radius: 5px;
+                border: 1px solid #ccc;
+                margin-bottom: 20px;
+                font-size: 16px;
+            }
+            input[type='password'] {
+                width: 100%;
+                padding: 10px;
+                border-radius: 5px;
+                border: 1px solid #ccc;
+                margin-bottom: 20px;
+                font-size: 16px;
+            }
+            button{
+                background-color: #4CAF50;
+                color: white;
+                padding: 10px;
+                border-radius: 5px;
+                border: none;
+                cursor: pointer;
+                margin-top: 20px;
+                font-size: 16px;
+                font-weight: bold;
+            }
+            input:checked + .slider {
+                background-color: #2196F3;
+            }
+            input:focus + .slider {
+                box-shadow: 0 0 1px #2196F3;
+            }
+            input:checked + .slider:before {
+                -webkit-transform: translateX(26px);
+                -ms-transform: translateX(26px);
+                transform: translateX(26px);
+            }
+        </style>
+    </head>
+  <body>
+    <div class='container'>
+        <div class='logo-container'>
+            <img class='logo' src='https://dutchdevelop.com/wp-content/uploads/2023/08/Icon-square.png' alt='Logo'>
+            <span class='logo-text'>BLLEDController</span>
+        </div>
+        <div class='form-container'>
+            <h1>BLLEDController WIFI Setup Page</h1>
+            <p>
+                This page allows you to set up your BLLEDController's WIFI By entering your WIFI details.
+            </p>   
+            <label for="ssid">SSID:</label>
+            <input type="text" id="ssid" placeholder="Enter SSID"><br>
+        
+            <label for="password">Password:</label>
+            <input type="password" id="password" placeholder="Enter Password"><br>
+
+            <label>Printer IP:</label>
+            <input type='text' id='ip' title='Enter the IP address of your MQTT broker' placeholder="Enter Printer IP"><br>
+
+            <label>Printer Access Code:</label>
+            <input type='text' id='code' title='Enter the access code for your MQTT broker' placeholder="Enter Printer Access Code"><br>
+
+            <label>Printer Serial ID:</label>
+            <input type='text' id='id' title='Enter the serial ID for your device' placeholder="Enter Printer Serial ID"><br>
+        
+            <button id="connectButton">Connect</button>
+            <button id="sendButton">Send</button><br /><br />
+            <div id="status"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+          let port;
+  
+          async function connect() {
+                port = await navigator.serial.requestPort();
+                await port.open({ baudRate: 115200 });
+                
+                console.log("Connected");
+
+                const decoder = new TextDecoderStream();
+
+                port.readable.pipeTo(decoder.writable);
+
+                const inputStream = decoder.readable;
+                const reader = inputStream.getReader();
+                
+                while (true) {
+                    const { value, done } = await reader.read();
+                    if (value) {
+                        console.log(value);
+                    }
+                    if (done) {
+                        console.log("[readLoop] DONE", done);
+                        reader.releaseLock();
+                        break;
+                    }
+                }
+          }
+  
+          async function sendCredentials() {
+            const ssid = document.getElementById("ssid").value;
+            const pass = document.getElementById("password").value;
+
+            const printerip = document.getElementById("ip").value;
+            const printercode = document.getElementById("code").value;
+            const printerserial = document.getElementById("id").value;
+  
+            const data = {
+              ssid,
+              pass,
+              printerip,
+              printercode,
+              printerserial
+            };
+  
+            const textEncoder = new TextEncoderStream();
+            const writableStreamClosed = textEncoder.readable.pipeTo(
+              port.writable
+            );
+  
+            const writer = textEncoder.writable.getWriter();
+  
+            await writer.write(JSON.stringify(data) + "\n");
+  
+            writer.releaseLock();
+  
+            document.getElementById("status").innerText =
+              "Credentials sent to ESP32";
+          }
+  
+          function writeToSerial(data) {
+            if (!port) {
+              console.error("Serial port is not open");
+              return;
+            }
+            port.write(new TextEncoder().encode(data));
+          }
+  
+          document
+            .getElementById("connectButton")
+            .addEventListener("click", connect);
+          document
+            .getElementById("sendButton")
+            .addEventListener("click", sendCredentials);
+        });
+      </script>
+
+  </body>
+</html>

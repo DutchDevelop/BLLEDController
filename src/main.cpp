@@ -5,6 +5,7 @@
 #include "filesystem.h"
 #include "types.h"
 #include "leds.h"
+#include "serialmanager.h"
 
 void setup(){
     Serial.begin(115200);
@@ -19,7 +20,7 @@ void setup(){
     delay(2000);
     tweenToColor(0,255,0,0,0,500); 
     setupWifi();
-
+    setupSerial();
     delay(2000);
     tweenToColor(0,0,255,0,0,500); 
     setupWebserver();
@@ -31,7 +32,10 @@ void setup(){
 }
 
 void loop(){
-    mqttloop();
-    webserverloop();
-    ledsloop();
+    serialLoop();
+    if (WiFi.status() == WL_CONNECTED){
+        mqttloop();
+        webserverloop();
+        ledsloop();
+    }
 }

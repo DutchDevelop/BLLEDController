@@ -30,22 +30,28 @@ char* generateRandomString(int length) {
 
 void saveFileSystem(){
     Serial.println(F("Saving config"));
-    DynamicJsonDocument json(256);
+
+    StaticJsonDocument<512> json;
+
     json["printerIp"] = printerConfig.printerIP;
-    json["accesCode"] = printerConfig.accessCode;
+    json["accessCode"] = printerConfig.accessCode;
     json["serialNumber"] = printerConfig.serialNumber;
     json["webpagePassword"] = printerConfig.webpagePassword;
 
-    json["replicatestate"] =  printerConfig.replicatestate;
-    json["errordetection"] =  printerConfig.errordetection;
-    json["finishindication"] =  printerConfig.finishindication;
+    json["replicatestate"] = printerConfig.replicatestate;
+    json["errordetection"] = printerConfig.errordetection;
+    json["finishindication"] = printerConfig.finishindication;
+
+    json["ssid"] = globalVariables.SSID;
+    json["appw"] = globalVariables.APPW;
 
     File configFile = LittleFS.open(configPath, "w");
 
-    if (!configPath){
+    if (!configFile) {
         Serial.println(F("Failed to save config"));
         return;
     }
+
     serializeJson(json, configFile);
     configFile.close();
     Serial.println(F("Config Saved"));
@@ -54,34 +60,54 @@ void saveFileSystem(){
 void loadFileSystem(){
     Serial.println(F("Loading config"));
     File configFile = LittleFS.open(configPath, "r");
+    
+    if (!configFile) {
+        Serial.println(F("Failed to open config file"));
+        Serial.println(F("Clearing config"));
+        LittleFS.remove(configPath);
+
+        Serial.println(F("Generating new password"));
+        char* pw = generateRandomString(8);
+        strcpy(printerConfig.webpagePassword, pw);
+        Serial.println("NEWPW");
+        Serial.println(printerConfig.webpagePassword);
+        saveFileSystem();
+        return;
+    }
+
     size_t size = configFile.size();
 
     std::unique_ptr<char[]> buf(new char[size]);
     configFile.readBytes(buf.get(), size);
-    DynamicJsonDocument json(1024);
+
+    // Define a StaticJsonDocument with the specified capacity
+    StaticJsonDocument<512> json;
 
     auto deserializeError = deserializeJson(json, buf.get());
-    if (!deserializeError){
+
+    if (!deserializeError) {
+        // Load configuration data from the JSON document
         strcpy(printerConfig.printerIP, json["printerIp"]);
-        strcpy(printerConfig.accessCode, json["accesCode"]);
+        strcpy(printerConfig.accessCode, json["accessCode"]);
         strcpy(printerConfig.serialNumber, json["serialNumber"]);
-        strcpy(printerConfig.webpagePassword,json["webpagePassword"]);
+        strcpy(printerConfig.webpagePassword, json["webpagePassword"]);
+
+        strcpy(globalVariables.SSID, json["ssid"]);
+        strcpy(globalVariables.APPW, json["appw"]);
 
         printerConfig.replicatestate = json["replicatestate"];
         printerConfig.errordetection = json["errordetection"];
-        printerConfig.finishindication =  json["finishindication"];
-
+        printerConfig.finishindication = json["finishindication"];
 
         Serial.println(F("Loaded config"));
-    }else{
+    } else {
         Serial.println(F("Failed loading config"));
         Serial.println(F("Clearing config"));
         LittleFS.remove(configPath);
 
         Serial.println(F("Generating new password"));
         char* pw = generateRandomString(8);
-        strcpy(printerConfig.webpagePassword,pw);
-
+        strcpy(printerConfig.webpagePassword, pw);
     }
 
     configFile.close();

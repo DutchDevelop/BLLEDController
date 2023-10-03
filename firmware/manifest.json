@@ -10,9 +10,21 @@
         ]
     },
     {
+      "chipFamily": "ESP8266",
+      "parts": [
+        { "path": "esp8266/BLLC_Expirimental_V08.bin", "offset": 0 }
+        ]
+    },
+    {
       "chipFamily": "ESP32",
       "parts": [
         { "path": "esp32dev/BLLC_V07.bin", "offset": 0 }
+        ]
+    },
+    {
+      "chipFamily": "ESP32",
+      "parts": [
+        { "path": "esp32dev/BLLC_Expirimental_V08.bin", "offset": 0 }
         ]
     }
   ]

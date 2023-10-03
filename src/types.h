@@ -19,6 +19,14 @@ extern "C"
 
     PrinterVariables printerVariables;
 
+    typedef struct GlobalVariablesStruct{
+        char SSID[20];
+        char APPW[20];
+
+    } GlobalVariables;
+
+    GlobalVariables globalVariables;
+
     typedef struct PrinterConfigStruct
     {
         bool replicatestate = true;
