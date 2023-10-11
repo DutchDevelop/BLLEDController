@@ -7,32 +7,32 @@
                 background-color: #f1f1f1;
                 font-family: Arial, sans-serif;
             }
-            .container {
+            .BLLEDcontainer {
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
                 align-items: center;
                 height: 100vh;
             }
-            .logo-container {
+            .BLLEDlogo-container {
                 display: flex;
                 align-items: center;
             }
-            .logo {
+            .BLLEDlogo {
                 width: 100px;
                 height: 100px;
                 margin-right: 20px;
             }
-            .logo-text {
+            .BLLEDlogo-text {
                 font-size: 36px;
                 font-weight: bold;
             }
-            .form-container {
+            .BLLEDform-container {
                 background-color: white;
                 padding: 20px;
                 border-radius: 10px;
                 box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-                width: 60%;
+                width: 100%;
                 margin-top: 20px;
             }
             label {
@@ -84,12 +84,12 @@
         </style>
     </head>
   <body>
-    <div class='container'>
-        <div class='logo-container'>
-            <img class='logo' src='https://dutchdevelop.com/wp-content/uploads/2023/08/Icon-square.png' alt='Logo'>
-            <span class='logo-text'>BLLEDController</span>
+    <div class='BLLEDcontainer'>
+        <div class='BLLEDlogo-container'>
+            <img class='BLLEDlogo' src='https://dutchdevelop.com/wp-content/uploads/2023/08/Icon-square.png' alt='Logo'>
+            <span class='BLLEDlogo-text'>BLLEDController</span>
         </div>
-        <div class='form-container'>
+        <div class='BLLEDform-container'>
             <h1>BLLEDController WIFI Setup Page</h1>
             <p>
                 This page allows you to set up your BLLEDController's WIFI By entering your WIFI details.
@@ -110,7 +110,7 @@
             <input type='text' id='id' title='Enter the serial ID for your device' placeholder="Enter Printer Serial ID"><br>
         
             <button id="connectButton">Connect</button>
-            <button id="sendButton">Send</button><br /><br />
+            <button id="sendButton" style="display: none;">Send</button><br /><br />
             <div id="status"></div>
         </div>
     </div>
@@ -124,6 +124,10 @@
                 await port.open({ baudRate: 115200 });
                 
                 console.log("Connected");
+
+                document.getElementById("sendButton").style.display = "inline-block";
+                document.getElementById("connectButton").style.display = "none";
+
 
                 const decoder = new TextDecoderStream();
 
