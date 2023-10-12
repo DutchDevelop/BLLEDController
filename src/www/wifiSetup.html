@@ -112,6 +112,7 @@
             <button id="connectButton">Connect</button>
             <button id="sendButton" style="display: none;">Send</button><br /><br />
             <div id="status"></div>
+            <div id="logContainer" style="margin-top: 20px; border: 1px solid #ccc; padding: 10px; max-height: 200px; overflow-y: auto;"></div>
         </div>
     </div>
 
@@ -123,7 +124,9 @@
                 port = await navigator.serial.requestPort();
                 await port.open({ baudRate: 115200 });
                 
-                console.log("Connected");
+                const logContainer = document.getElementById("logContainer");
+                logContainer.innerHTML += `<p>Connected</p>`;
+                logContainer.scrollTop = logContainer.scrollHeight;
 
                 document.getElementById("sendButton").style.display = "inline-block";
                 document.getElementById("connectButton").style.display = "none";
@@ -140,6 +143,9 @@
                     const { value, done } = await reader.read();
                     if (value) {
                         console.log(value);
+                        const logContainer = document.getElementById("logContainer");
+                        logContainer.innerHTML += `<p>${value}</p>`;
+                        logContainer.scrollTop = logContainer.scrollHeight;
                     }
                     if (done) {
                         console.log("[readLoop] DONE", done);
