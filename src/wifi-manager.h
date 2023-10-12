@@ -49,8 +49,8 @@ void setupWifi(){
     Serial.println(F("-------------------------------------"));
     Serial.print(F("Head over to http://"));
     Serial.println(WiFi.localIP());
-    Serial.print(F("Login Details User: BLLC, Password: "));
-    Serial.println(printerConfig.webpagePassword);
+    //Serial.print(F("Login Details User: BLLC, Password: "));
+    //Serial.println(printerConfig.webpagePassword);
     Serial.println(F("To configure further"));
     Serial.println(F("-------------------------------------"));
 }

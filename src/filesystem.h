@@ -36,7 +36,7 @@ void saveFileSystem(){
     json["printerIp"] = printerConfig.printerIP;
     json["accessCode"] = printerConfig.accessCode;
     json["serialNumber"] = printerConfig.serialNumber;
-    json["webpagePassword"] = printerConfig.webpagePassword;
+    //json["webpagePassword"] = printerConfig.webpagePassword;
 
     json["replicatestate"] = printerConfig.replicatestate;
     json["errordetection"] = printerConfig.errordetection;
@@ -66,11 +66,11 @@ void loadFileSystem(){
         Serial.println(F("Clearing config"));
         LittleFS.remove(configPath);
 
-        Serial.println(F("Generating new password"));
-        char* pw = generateRandomString(8);
-        strcpy(printerConfig.webpagePassword, pw);
-        Serial.println("NEWPW");
-        Serial.println(printerConfig.webpagePassword);
+        //Serial.println(F("Generating new password"));
+        //char* pw = generateRandomString(8);
+        //strcpy(printerConfig.webpagePassword, pw);
+        //Serial.println("NEWPW");
+        //Serial.println(printerConfig.webpagePassword);
         saveFileSystem();
         return;
     }
@@ -90,7 +90,7 @@ void loadFileSystem(){
         strcpy(printerConfig.printerIP, json["printerIp"]);
         strcpy(printerConfig.accessCode, json["accessCode"]);
         strcpy(printerConfig.serialNumber, json["serialNumber"]);
-        strcpy(printerConfig.webpagePassword, json["webpagePassword"]);
+        //strcpy(printerConfig.webpagePassword, json["webpagePassword"]);
 
         strcpy(globalVariables.SSID, json["ssid"]);
         strcpy(globalVariables.APPW, json["appw"]);
@@ -105,9 +105,9 @@ void loadFileSystem(){
         Serial.println(F("Clearing config"));
         LittleFS.remove(configPath);
 
-        Serial.println(F("Generating new password"));
-        char* pw = generateRandomString(8);
-        strcpy(printerConfig.webpagePassword, pw);
+        //Serial.println(F("Generating new password"));
+        //char* pw = generateRandomString(8);
+        //strcpy(printerConfig.webpagePassword, pw);
     }
 
     configFile.close();
