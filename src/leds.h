@@ -85,20 +85,32 @@ void updateleds(){
 
     if (printerVariables.online == false){ //printer offline
         tweenToColor(0,0,0,0,0,500); //OFF
+        if (printerConfig.debuging){
+            Serial.println(F("Printer offline, Turning Leds off"));
+        };
         return;
     }
     if (printerVariables.ledstate == false && printerConfig.replicatestate == true){ // replicate printer behaviour
         tweenToColor(0,0,0,0,0,500); //OFF
+        if (printerConfig.debuging){
+            Serial.println(F("Chamber light off, Turning Leds off"));
+        };
         return;
     }
 
      if (printerVariables.stage == 14){ //Cleaning nozzle
         tweenToColor(0,0,0,0,0,500); //OFF
+        if (printerConfig.debuging){
+            Serial.println(F("Cleaning nozzle, Turning Leds off"));
+        };
         return;
     }
 
     if (printerVariables.stage == 9){ //Scaning surface
         tweenToColor(0,0,0,0,0,500); //OFF
+        if (printerConfig.debuging){
+            Serial.println(F("Scanning Surface, Turning Leds off"));
+        };
         return;
     }
     
@@ -107,31 +119,49 @@ void updateleds(){
     if (printerConfig.errordetection == true){ // allow errordetection to turn ledstrip red
         if (printerVariables.parsedHMS == "Serious"){
             tweenToColor(255,0,0,0,0,500); //RED
+            if (printerConfig.debuging){
+                Serial.println(F("Serious problem, Turning Leds red"));
+            };
             return;
         }
 
         if (printerVariables.parsedHMS == "Fatal"){
             tweenToColor(255,0,0,0,0,500); //RED
+            if (printerConfig.debuging){
+                Serial.println(F("Fatal problem, Turning Leds red"));
+            };
             return;
         }
 
         if (printerVariables.stage == 6){ //Fillament runout
             tweenToColor(255,0,0,0,0,500); //RED
+            if (printerConfig.debuging){
+                Serial.println(F("Fillament runout, Turning Leds red"));
+            };
             return;
         }
 
         if (printerVariables.stage == 17){ //Front Cover Removed
             tweenToColor(255,0,0,0,0,500); //RED
+            if (printerConfig.debuging){
+                Serial.println(F("Front Cover Removed, Turning Leds red"));
+            };
             return;
         }
 
         if (printerVariables.stage == 20){ //Nozzle Temp fail
             tweenToColor(255,0,0,0,0,500); //RED
+            if (printerConfig.debuging){
+                Serial.println(F("Nozzle Temp fail, Turning Leds red"));
+            };
             return;
         }
 
         if (printerVariables.stage == 21){ //Bed Temp Fail
             tweenToColor(255,0,0,0,0,500); //RED
+            if (printerConfig.debuging){
+                Serial.println(F("Bed Temp fail, Turning Leds red"));
+            };
             return;
         }
     };
@@ -140,6 +170,9 @@ void updateleds(){
 
     if ((millis() - printerVariables.finishstartms) <= 300000 && printerVariables.gcodeState == "FINISH"){
         tweenToColor(0,255,0,0,0,500); //ON
+        if (printerConfig.debuging){
+            Serial.println(F("Finished print, Turning Leds green"));
+        };
         return;
     }
 
@@ -147,16 +180,25 @@ void updateleds(){
 
     if (printerVariables.stage == 0){ //Printing
         tweenToColor(0,0,0,255,255,500); //ON
+        if (printerConfig.debuging){
+            Serial.println(F("Printing, Turning Leds On"));
+        };
         return;
     }
 
     if (printerVariables.stage == -1){ // Idle
         tweenToColor(0,0,0,255,255,500); //ON
+        if (printerConfig.debuging){
+            Serial.println(F("Idle, Turning Leds On"));
+        };
         return;
     }
 
     if (printerVariables.stage == -2){ //Offline
         tweenToColor(0,0,0,255,255,500); //ON
+        if (printerConfig.debuging){
+            Serial.println(F("Stage -2, Turning Leds On"));
+        };
         return;
     }
 }
