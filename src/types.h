@@ -29,6 +29,7 @@ extern "C"
 
     typedef struct PrinterConfigStruct
     {
+        int brightness = 100;
         bool replicatestate = true;
         bool errordetection = true;
         bool finishindication = true;

@@ -117,6 +117,10 @@
             -ms-transform: translateX(26px);
             transform: translateX(26px);
         }
+        input[type='range'] {
+            width: 100%;
+            margin-bottom: 20px;
+        }
     </style>
     <script>
         function updateConfig() {
@@ -131,14 +135,45 @@
                     document.getElementById('errorDetection').checked = configData.errordetection || false;
                     document.getElementById('finishIndication').checked = configData.finishindication || false;
                     document.getElementById('debuging').checked = configData.debuging || false;
+                    document.getElementById('brightnessslider').value = configData.brightness || 100;
+                    document.getElementById("brightnesssliderDisplay").textContent = "Brightness: "+ (configData.brightness || 100) + "%";
                 }
             };
             xhr.open('GET', '/getConfig', true);
             xhr.send();
         }
         window.onload = function() {
+            document.getElementById("brightnessslider").addEventListener("input", function(e) {
+                document.getElementById("brightnesssliderDisplay").textContent = "Brightness: "+ e.target.value + "%";
+            });
             updateConfig();
         };
+        
+        function submitForm() {
+            event.preventDefault();
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/submitSetup', true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+  
+                    alert('Settings saved successfully!');
+                }
+            };
+
+            var formData = new FormData(document.querySelector('form'));
+            var parameters = [];
+            formData.forEach(function(value, key) {
+                parameters.push(encodeURIComponent(key) + '=' + encodeURIComponent(value));
+            });
+            var body = parameters.join('&');
+
+            xhr.send(body);
+
+            return false;
+        }
     </script>
 </head>
 
@@ -153,7 +188,7 @@
             <p>
                 This page allows you to set up your BL LED controller by configuring your MQTT broker, access code, and serial ID.
             </p>
-            <form method='POST' action='/submitSetup'>
+            <form method='POST' action='/submitSetup' onsubmit='return submitForm();'>
                 <label>IP:</label>
                 <input type='text' id='ip' name='ip' title='Enter the IP address of your MQTT broker' value=''><br>
                 <label>Access Code:</label>
@@ -188,6 +223,9 @@
                         <span class='slider'></span>
                     </label>
                 </div>
+                <label id="brightnesssliderDisplay">Brightness: 50%</label>
+                <input type="range" id="brightnessslider" name="brightnessslider" min="0" max="100" value="100"> <br>
+
                 <input type='submit' value='Save'>
             </form>
         </div>

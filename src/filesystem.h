@@ -32,7 +32,7 @@ void saveFileSystem(){
     Serial.println(F("Saving config"));
 
     StaticJsonDocument<512> json;
-
+    json["brightness"] = printerConfig.brightness;
     json["printerIp"] = printerConfig.printerIP;
     json["accessCode"] = printerConfig.accessCode;
     json["serialNumber"] = printerConfig.serialNumber;
@@ -87,6 +87,9 @@ void loadFileSystem(){
 
     if (!deserializeError) {
         // Load configuration data from the JSON document
+
+        printerConfig.brightness = json["brightness"];
+
         strcpy(printerConfig.printerIP, json["printerIp"]);
         strcpy(printerConfig.accessCode, json["accessCode"]);
         strcpy(printerConfig.serialNumber, json["serialNumber"]);

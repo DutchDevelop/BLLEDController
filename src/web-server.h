@@ -59,10 +59,12 @@ void submitSetup(){
         printerConfig.errordetection = webServer.arg("errorDetection") == "on";
         printerConfig.finishindication = webServer.arg("finishIndication") == "on";
         printerConfig.debuging = webServer.arg("debuging") == "on";
+        printerConfig.brightness = webServer.arg("brightnessslider").toInt();
 
         saveFileSystem();
         updateleds();
         handleSetup();
+
     }
 }
 
@@ -73,6 +75,7 @@ void handleGetConfig(){
     }
 
     DynamicJsonDocument doc(200);
+    doc["brightness"] = printerConfig.brightness;
     doc["ip"] = printerConfig.printerIP;
     doc["code"] = printerConfig.accessCode;
     doc["id"] = printerConfig.serialNumber;

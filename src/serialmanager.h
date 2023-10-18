@@ -34,6 +34,7 @@ void serialLoop(){
             strcpy(printerConfig.serialNumber, doc["printerserial"]);
 
             saveFileSystem();
+            ESP.restart();
        }
       
     };

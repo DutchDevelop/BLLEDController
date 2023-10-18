@@ -25,15 +25,27 @@ int currentWarm = 0;
 int currentCold = 0;
 
 void tweenToColor(int targetRed, int targetGreen, int targetBlue, int targetWarm, int targetCold, int duration) {
-    if (targetRed == currentRed && targetGreen == currentGreen && targetBlue == currentBlue && targetWarm == currentWarm && targetCold == currentCold){
+
+    float brightness = (float)printerConfig.brightness/100.0;
+
+    int brightenedRed = round(targetRed * brightness);
+    int brightenedGreen = round(targetGreen * brightness);
+    int brightenedBlue = round(targetBlue * brightness);
+    int brightenedWarm = round(targetWarm * brightness);
+    int brightenedCold = round(targetCold * brightness);
+
+    if (brightenedRed == currentRed && brightenedGreen == currentGreen && brightenedBlue == currentBlue && brightenedWarm == currentWarm && brightenedCold == currentCold){
+        if (printerConfig.debuging){
+            Serial.println(F("LEDS Trying to change to the same color."));
+        };
         return; // already at that color
     }
     float stepTime = (float)duration / 255.0;
-    int redStep = (targetRed - currentRed) / 255;
-    int greenStep = (targetGreen - currentGreen) / 255;
-    int blueStep = (targetBlue - currentBlue) / 255;
-    int warmStep = (targetWarm - currentWarm) / 255;
-    int coldStep = (targetCold - currentCold) / 255;
+    int redStep = (brightenedRed - currentRed) / 255;
+    int greenStep = (brightenedGreen - currentGreen) / 255;
+    int blueStep = (brightenedBlue - currentBlue) / 255;
+    int warmStep = (brightenedWarm - currentWarm) / 255;
+    int coldStep = (brightenedCold - currentCold) / 255;
 
      for (int i = 0; i < 256; i++) {
         currentRed += redStep;
@@ -50,11 +62,11 @@ void tweenToColor(int targetRed, int targetGreen, int targetBlue, int targetWarm
         delay(stepTime);
     }
 
-    currentRed = targetRed;
-    currentGreen = targetGreen;
-    currentBlue = targetBlue;
-    currentWarm = targetWarm;
-    currentCold = targetCold;
+    currentRed = brightenedRed;
+    currentGreen = brightenedGreen;
+    currentBlue = brightenedBlue;
+    currentWarm = brightenedWarm;
+    currentCold = brightenedCold;
 
     analogWrite(redPin, currentRed);
     analogWrite(greenPin, currentGreen);
