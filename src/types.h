@@ -21,7 +21,7 @@ extern "C"
 
     typedef struct GlobalVariablesStruct{
         char SSID[20];
-        char APPW[20];
+        char APPW[32];
 
     } GlobalVariables;
 
