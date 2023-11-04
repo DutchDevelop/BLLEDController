@@ -23,30 +23,49 @@ String device_topic;
 String report_topic;
 String request_topic;
 String clientId = "BLLED-";
-unsigned long mqttattempt = (millis()-3000);
 
-void pushall(){ //Provided by WolfwithSword
-    String message = "{\"pushing\":{\"sequence_id\":\"0\",\"command\":\"start\"}}";
-    mqttClient.publish(request_topic.c_str(), message.c_str()); //Awake Machine incase its in a deepsleep
-    message = "{\"pushing\":{\"sequence_id\":\"1\",\"command\":\"pushall\"}}";
-    mqttClient.publish(request_topic.c_str(), message.c_str()); //Send pushall
-}
+unsigned long mqttattempt = (millis()-3000);
 
 void connectMqtt(){
     device_topic = String("device/") + printerConfig.serialNumber;
     report_topic = device_topic + String("/report");
     request_topic = device_topic + String("/request");
+
     if (!mqttClient.connected() && (millis() - mqttattempt) >= 3000){   
         if (mqttClient.connect(clientId.c_str(),"bblp",printerConfig.accessCode)){
             Serial.println(F("Connected to mqtt"));
             Serial.println(report_topic);
             mqttClient.subscribe(report_topic.c_str());
-            //pushall();
             printerVariables.online = true;
             updateleds();
         }else{
-            Serial.println(F("Failed to connect to mqtt"));
-            Serial.println(mqttClient.state());
+            switch (mqttClient.state())
+            {
+            case -4: // MQTT_CONNECTION_TIMEOUT
+                Serial.println(F("MQTT TIMEOUT"));
+                break;
+            case -2: // MQTT_CONNECT_FAILED
+                Serial.println(F("MQTT CONNECT_FAILED"));
+                break;
+            case -3: // MQTT_CONNECTION_LOST
+                Serial.println(F("MQTT CONNECTION_LOST"));
+                break;
+            case -1: // MQTT_DISCONNECTED
+                Serial.println(F("MQTT DISCONNECTEDT"));
+                break;
+            case 1:
+                break;
+            case 2:
+                break;
+            case 3:
+                break;
+            case 4:
+                break;
+            case 5: // MQTT UNAUTHORIZED
+                Serial.println(F("MQTT UNAUTHORIZED"));
+                ESP.restart();
+                break;
+            }
         }
     }
 }
@@ -130,8 +149,9 @@ void mqttloop(){
         connectMqtt();
     }else{
         mqttClient.loop();
+
     }
-    delay(10);
+    delay(32);
 }
 
 #endif

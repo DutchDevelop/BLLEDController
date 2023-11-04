@@ -1,6 +1,6 @@
 {
-  "name": "BLController",
-  "version": "0.0.72",
+  "name": "BLLEDCONTROLLER",
+  "version": "stable 23.11.4",
   "new_install_prompt_erase": true,
   "builds": [
     {

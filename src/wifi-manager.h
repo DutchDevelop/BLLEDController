@@ -38,7 +38,7 @@ void setupWifi(){
             Serial.println(globalVariables.SSID);
             Serial.println(globalVariables.APPW);
             WiFi.begin(globalVariables.SSID, globalVariables.APPW);
-            delay(2000);
+            delay(8000);
         };
         connectionAttempts++;
     }
