@@ -117,7 +117,7 @@ void ParseCallback(JsonDocument &messageobject){
 }
 
 void mqttCallback(char *topic, byte *payload, unsigned int length){
-    DynamicJsonDocument messageobject(4096);
+    DynamicJsonDocument messageobject(2096);
     auto deserializeError = deserializeJson(messageobject, payload, length);
     if (!deserializeError){
         if (!messageobject.containsKey("print")) {
@@ -149,9 +149,7 @@ void mqttloop(){
         connectMqtt();
     }else{
         mqttClient.loop();
-
     }
-    delay(32);
 }
 
 #endif

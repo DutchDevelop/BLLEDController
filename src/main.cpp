@@ -37,5 +37,6 @@ void loop(){
         mqttloop();
         webserverloop();
         ledsloop();
+        //TODO: Get free heap to check for more headroom.
     }
 }
