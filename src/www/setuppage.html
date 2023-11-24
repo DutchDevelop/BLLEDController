@@ -135,6 +135,7 @@
                     document.getElementById('errorDetection').checked = configData.errordetection || false;
                     document.getElementById('finishIndication').checked = configData.finishindication || false;
                     document.getElementById('debuging').checked = configData.debuging || false;
+                    document.getElementById('turbo').checked = configData.turbo || false;
                     document.getElementById('brightnessslider').value = configData.brightness || 100;
                     document.getElementById("brightnesssliderDisplay").textContent = "Brightness: "+ (configData.brightness || 100) + "%";
                 }
@@ -184,9 +185,9 @@
             <span class='logo-text'>BLLEDController</span>
         </div>
         <div class='form-container'>
-            <h1>BL LED Controller Setup Page</h1>
+            <h1>BL LED Controller Settings Page</h1>
             <p>
-                This page allows you to set up your BL LED controller by configuring your MQTT broker, access code, and serial ID.
+                This page allows you to change the MQTT broker info and any additional settings.
             </p>
             <form method='POST' action='/submitSetup' onsubmit='return submitForm();'>
                 <label>IP:</label>
@@ -213,6 +214,13 @@
                     <span class='toggle-label'>Finish Indication:</span>
                     <label class='toggle-switch'>
                         <input type='checkbox' id='finishIndication' name='finishIndication'>
+                        <span class='slider'></span>
+                    </label>
+                </div>
+                <div class='toggle-container'>
+                    <span class='toggle-label'>Turbo Mode:</span>
+                    <label class='toggle-switch'>
+                        <input type='checkbox' id='turbo' name='turbo'>
                         <span class='slider'></span>
                     </label>
                 </div>

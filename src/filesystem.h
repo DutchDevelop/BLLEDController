@@ -59,18 +59,23 @@ void saveFileSystem(){
 
 void loadFileSystem(){
     Serial.println(F("Loading config"));
-    File configFile = LittleFS.open(configPath, "r");
     
-    if (!configFile) {
-        Serial.println(F("Failed to open config file"));
-        Serial.println(F("Clearing config"));
-        LittleFS.remove(configPath);
+    File configFile;
+    int attempts = 0;
+    while (attempts < 2) {
+        configFile = LittleFS.open(configPath, "r");
+        if (configFile) {
+            break;
+        }
+        attempts++;
+        Serial.println(F("Failed to open config file, retrying.."));
+        delay(3000);
+    }
 
-        //Serial.println(F("Generating new password"));
-        //char* pw = generateRandomString(8);
-        //strcpy(printerConfig.webpagePassword, pw);
-        //Serial.println("NEWPW");
-        //Serial.println(printerConfig.webpagePassword);
+    if (!configFile) {
+        Serial.println(F("Failed to open config file after retries"));
+        Serial.println(F("Clearing config"));
+        // LittleFS.remove(configPath);
         saveFileSystem();
         return;
     }

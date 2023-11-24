@@ -30,12 +30,12 @@ void configModeCallback() {
 
 void setupWifi(){
     loadFileSystem();
-
+    delay(1000);
     Serial.println(F("-------------------------------------"));
-    WiFi.begin(globalVariables.SSID, globalVariables.APPW);
-    delay(8000);
 
     while (connectionAttempts < maxConnectionAttempts) {
+        WiFi.begin(globalVariables.SSID, globalVariables.APPW);
+        delay(1000);
         if (WiFi.status() != WL_CONNECTED){
             Serial.print(F("Connecting to WIFI.. "));
             Serial.println(globalVariables.SSID);
