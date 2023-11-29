@@ -48,6 +48,10 @@ void setupWifi(){
         Serial.println(F("Failed to connect to wifi."));
         return;
     }
+    int signalStrength = WiFi.RSSI();
+    Serial.println(F("Connected To Wifi:"));
+    Serial.println(signalStrength);
+    Serial.println(F(" With Signal Strength"));
     Serial.println(F("-------------------------------------"));
     Serial.print(F("Head over to http://"));
     Serial.println(WiFi.localIP());
