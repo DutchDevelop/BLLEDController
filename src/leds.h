@@ -82,6 +82,37 @@ void tweenToColor(int targetRed, int targetGreen, int targetBlue, int targetWarm
     //Serial.println(currentCold);
 }
 
+int hue = 0;
+
+void RGBCycle(){
+    if (printerConfig.turbo == false) {
+        return;
+    }
+    if (printerVariables.online == false){
+        analogWrite(redPin, 0);
+        analogWrite(greenPin, 0);
+        analogWrite(bluePin, 0);
+        analogWrite(warmPin, 0);
+        analogWrite(coldPin, 0);
+        return;
+    }
+    hue ++;
+    if (hue > 360){
+        hue = 1;
+    }
+    currentRed = cos(hue * 3.14 / 180.0) * 255;
+    currentGreen = cos((hue + 120) * 3.14 / 180.0) * 255;
+    currentBlue = cos((hue + 240) * 3.14 / 180.0) * 255;
+    currentWarm = 0;
+    currentCold = 0;
+
+    analogWrite(redPin, currentRed);
+    analogWrite(greenPin, currentGreen);
+    analogWrite(bluePin, currentBlue);
+    analogWrite(warmPin, currentWarm);
+    analogWrite(coldPin, currentCold);
+}
+
 void updateleds(){
     if (printerConfig.debuging){
         Serial.println(F("Updating leds"));
@@ -92,8 +123,11 @@ void updateleds(){
         Serial.println(printerVariables.hmsstate);
         Serial.println(printerVariables.parsedHMS);
     }
-
     //OFF
+
+    if (printerConfig.turbo == true){
+        return;
+    }
 
     if (printerVariables.online == false){ //printer offline
         tweenToColor(0,0,0,0,0,500); //OFF
@@ -102,6 +136,7 @@ void updateleds(){
         };
         return;
     }
+
     if (printerVariables.ledstate == false && printerConfig.replicatestate == true){ // replicate printer behaviour
         tweenToColor(0,0,0,0,0,500); //OFF
         if (printerConfig.debuging){
@@ -225,10 +260,11 @@ void setupLeds() {
 }
 
 void ledsloop(){
-   if((millis() - printerVariables.finishstartms) >= 300000 && printerVariables.gcodeState == "FINISH"){
+    RGBCycle();
+    if((millis() - printerVariables.finishstartms) >= 300000 && printerVariables.gcodeState == "FINISH"){
         printerVariables.gcodeState == "IDLE";
         updateleds();
-   }
+    }
 }
 
 #endif

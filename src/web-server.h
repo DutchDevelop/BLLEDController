@@ -54,7 +54,7 @@ void submitSetup(){
         strcpy(printerConfig.printerIP,webServer.arg("ip").c_str());
         strcpy(printerConfig.accessCode,webServer.arg("code").c_str());
         strcpy(printerConfig.serialNumber,webServer.arg("id").c_str());
-
+        printerConfig.turbo = webServer.arg("turbo") == "on"; 
         printerConfig.replicatestate = webServer.arg("replicateLedState") == "on";
         printerConfig.errordetection = webServer.arg("errorDetection") == "on";
         printerConfig.finishindication = webServer.arg("finishIndication") == "on";
@@ -76,6 +76,7 @@ void handleGetConfig(){
 
     DynamicJsonDocument doc(200);
     doc["brightness"] = printerConfig.brightness;
+    doc["turbo"] = printerConfig.turbo;
     doc["ip"] = printerConfig.printerIP;
     doc["code"] = printerConfig.accessCode;
     doc["id"] = printerConfig.serialNumber;

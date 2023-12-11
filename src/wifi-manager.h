@@ -15,7 +15,7 @@
 
 bool shouldSaveConfig = true;
 int connectionAttempts = 0;
-const int maxConnectionAttempts = 3;
+const int maxConnectionAttempts = 10;
 
 void restartprocess(){
     deleteFileSystem();
@@ -32,8 +32,8 @@ void setupWifi(){
     loadFileSystem();
     delay(1000);
     Serial.println(F("-------------------------------------"));
-
     while (connectionAttempts < maxConnectionAttempts) {
+        WiFi.mode(WIFI_STA);
         WiFi.begin(globalVariables.SSID, globalVariables.APPW);
         delay(1000);
         if (WiFi.status() != WL_CONNECTED){
