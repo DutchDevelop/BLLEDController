@@ -11,6 +11,7 @@ void setup(){
     Serial.begin(115200);
     delay(100);
     Serial.println(F("Initializing"));
+    Serial.println(ESP.getFreeHeap());
     setupLeds();
     tweenToColor(255,255,255,255,255,500);
     delay(2000);
@@ -19,8 +20,11 @@ void setup(){
     
     delay(2000);
     tweenToColor(0,255,0,0,0,500); 
-    setupWifi();
     setupSerial();
+    if (!setupWifi()){
+        tweenToColor(255,0,255,0,0,500); 
+        return;
+    };
     delay(2000);
     tweenToColor(0,0,255,0,0,500); 
     setupWebserver();

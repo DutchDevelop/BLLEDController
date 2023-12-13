@@ -73,8 +73,10 @@ void connectMqtt(){
 void ParseCallback(JsonDocument &messageobject){
 
     if (printerConfig.debuging){
-        Serial.println("");
-        serializeJson(messageobject, Serial);
+        Serial.println("Mqtt message received,");
+        Serial.println("FreeHeap: ");
+        Serial.print(ESP.getFreeHeap());
+        //serializeJson(messageobject, Serial);
         Serial.println("");
     }
 
@@ -117,7 +119,7 @@ void ParseCallback(JsonDocument &messageobject){
 }
 
 void mqttCallback(char *topic, byte *payload, unsigned int length){
-    DynamicJsonDocument messageobject(16000);
+    DynamicJsonDocument messageobject(8192);
     auto deserializeError = deserializeJson(messageobject, payload, length);
     if (!deserializeError){
         if (!messageobject.containsKey("print")) {
@@ -134,7 +136,7 @@ void setupMqtt(){
     Serial.println(F("Setting up MQTT with ip: "));
     Serial.println(printerConfig.printerIP);
     wifiSecureClient.setInsecure();
-    mqttClient.setBufferSize(16000); //4096
+    mqttClient.setBufferSize(16384); //4096
     mqttClient.setServer(printerConfig.printerIP, 8883);
     mqttClient.setCallback(mqttCallback);
     //mqttClient.setSocketTimeout(20);

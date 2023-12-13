@@ -82,13 +82,13 @@ void tweenToColor(int targetRed, int targetGreen, int targetBlue, int targetWarm
     //Serial.println(currentCold);
 }
 
-int hue = 0;
+float hue = 0.0;
 
-void RGBCycle(){
+void RGBCycle() {
     if (printerConfig.turbo == false) {
         return;
     }
-    if (printerVariables.online == false){
+    if (printerVariables.online == false) {
         analogWrite(redPin, 0);
         analogWrite(greenPin, 0);
         analogWrite(bluePin, 0);
@@ -96,13 +96,14 @@ void RGBCycle(){
         analogWrite(coldPin, 0);
         return;
     }
-    hue ++;
-    if (hue > 360){
-        hue = 1;
+    hue += 0.1;
+    if (hue > 360.0) {
+        hue = 0.0;
     }
+
     currentRed = cos(hue * 3.14 / 180.0) * 255;
-    currentGreen = cos((hue + 120) * 3.14 / 180.0) * 255;
-    currentBlue = cos((hue + 240) * 3.14 / 180.0) * 255;
+    currentGreen = cos((hue + 120.0) * 3.14 / 180.0) * 255;
+    currentBlue = cos((hue + 240.0) * 3.14 / 180.0) * 255;
     currentWarm = 0;
     currentCold = 0;
 

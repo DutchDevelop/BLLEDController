@@ -28,10 +28,16 @@ void configModeCallback() {
   Serial.println(WiFi.softAPIP());
 }
 
-void setupWifi(){
+bool setupWifi(){
     loadFileSystem();
     delay(1000);
     Serial.println(F("-------------------------------------"));
+
+    if (strlen(globalVariables.SSID) == 0 || strlen(globalVariables.APPW) == 0) {
+        Serial.println(F("SSID or password is missing. Please configure both by going to: https://dutchdevelop.com/blled-configuration-setup/"));
+        return false;
+    }
+
     while (connectionAttempts < maxConnectionAttempts) {
         //WiFi.mode(WIFI_STA);
         WiFi.begin(globalVariables.SSID, globalVariables.APPW);
@@ -46,7 +52,7 @@ void setupWifi(){
     }
     if (WiFi.status() != WL_CONNECTED){
         Serial.println(F("Failed to connect to wifi."));
-        return;
+        return false;
     }
     int signalStrength = WiFi.RSSI();
     Serial.println(F("Connected To Wifi:"));
@@ -64,6 +70,8 @@ void setupWifi(){
     #ifdef ARDUINO_ARCH_ESP32
         WiFi.setTxPower(WIFI_POWER_19_5dBm); // https://github.com/G6EJD/ESP32-8266-Adjust-WiFi-RF-Power-Output/blob/main/README.md
     #endif
+    
+    return true;
 }
 
 #endif
