@@ -13,6 +13,7 @@ extern "C"
         bool ledstate = true;
         bool hmsstate = false;
         bool online = false;
+        bool finished = false;
         unsigned long finishstartms;
 
     } PrinterVariables;

@@ -4,8 +4,12 @@
 #include <Arduino.h>
 #ifdef ESP32
     #include <WiFi.h>
+    static int mqttbuffer = 16384;
+    static int mqttdocument = 8192;
 #elif defined(ESP8266)
     #include <ESP8266WiFi.h>
+    static int mqttbuffer = 9831;
+    static int mqttdocument = 8192;
 #endif
 #include <WiFiClientSecure.h>
 #include <PubSubClient.h>
@@ -89,7 +93,12 @@ void ParseCallback(JsonDocument &messageobject){
     if (messageobject["print"].containsKey("gcode_state")){
         printerVariables.gcodeState = messageobject["print"]["gcode_state"].as<String>();
         if (printerVariables.gcodeState == "FINISH"){
-            printerVariables.finishstartms = millis();
+            if (printerVariables.finished == false){
+                printerVariables.finished = true;
+                printerVariables.finishstartms = millis();
+            }
+        }else{
+            printerVariables.finished = false;
         }
         Changed = true;
     }
@@ -119,7 +128,7 @@ void ParseCallback(JsonDocument &messageobject){
 }
 
 void mqttCallback(char *topic, byte *payload, unsigned int length){
-    DynamicJsonDocument messageobject(8192);
+    DynamicJsonDocument messageobject(mqttdocument);
     auto deserializeError = deserializeJson(messageobject, payload, length);
     if (!deserializeError){
         if (!messageobject.containsKey("print")) {
@@ -136,7 +145,7 @@ void setupMqtt(){
     Serial.println(F("Setting up MQTT with ip: "));
     Serial.println(printerConfig.printerIP);
     wifiSecureClient.setInsecure();
-    mqttClient.setBufferSize(16384); //4096
+    mqttClient.setBufferSize(mqttbuffer); //4096
     mqttClient.setServer(printerConfig.printerIP, 8883);
     mqttClient.setCallback(mqttCallback);
     //mqttClient.setSocketTimeout(20);
