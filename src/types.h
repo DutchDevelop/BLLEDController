@@ -20,7 +20,7 @@ extern "C"
     PrinterVariables printerVariables;
 
     typedef struct GlobalVariablesStruct{
-        char SSID[20];
+        char SSID[32];
         char APPW[32];
 
     } GlobalVariables;
