@@ -220,6 +220,9 @@ void updateleds(){
         tweenToColor(0,255,0,0,0,500); //ON
         if (printerConfig.debuging){
             Serial.println(F("Finished print, Turning Leds green"));
+            Serial.println(F("Leds should stay on for: "));
+            Serial.print((millis() - printerVariables.finishstartms));
+            Serial.print(F(" MS"));
         };
         return;
     }

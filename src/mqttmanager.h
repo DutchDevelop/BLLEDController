@@ -4,8 +4,8 @@
 #include <Arduino.h>
 #ifdef ESP32
     #include <WiFi.h>
-    static int mqttbuffer = 16384;
-    static int mqttdocument = 8192;
+    static int mqttbuffer = 32768;
+    static int mqttdocument = 16384;
 #elif defined(ESP8266)
     #include <ESP8266WiFi.h>
     static int mqttbuffer = 9831;
