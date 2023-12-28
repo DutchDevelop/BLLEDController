@@ -39,21 +39,25 @@ bool setupWifi(){
     }
 
     while (connectionAttempts < maxConnectionAttempts) {
+        if (WiFi.status() == WL_CONNECTED)
+            break;
+        
         //WiFi.mode(WIFI_STA);
         WiFi.begin(globalVariables.SSID, globalVariables.APPW);
         delay(1000);
-        if (WiFi.status() != WL_CONNECTED){
-            Serial.print(F("Connecting to WIFI.. "));
-            Serial.println(globalVariables.SSID);
-            Serial.println(globalVariables.APPW);
-            delay(8000);
-        };
+        
+        Serial.print(F("Connecting to WIFI.. "));
+        Serial.println(globalVariables.SSID);
+        Serial.println(globalVariables.APPW);
+        delay(8000); // can probably be lower?
         connectionAttempts++;
     }
+    
     if (WiFi.status() != WL_CONNECTED){
         Serial.println(F("Failed to connect to wifi."));
         return false;
     }
+    
     int signalStrength = WiFi.RSSI();
     Serial.println(F("Connected To Wifi:"));
     Serial.println(signalStrength);
