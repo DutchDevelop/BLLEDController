@@ -63,6 +63,17 @@
             font-size: 16px;
             font-weight: bold;
         }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+            font-size: 16px;
+            font-weight: bold;
+        }
         .toggle-container {
             display: flex;
             align-items: center;
@@ -138,6 +149,7 @@
                     document.getElementById('turbo').checked = configData.turbo || false;
                     document.getElementById('brightnessslider').value = configData.brightness || 100;
                     document.getElementById("brightnesssliderDisplay").textContent = "Brightness: "+ (configData.brightness || 100) + "%";
+                    document.getElementById("firmwareversion").textContent = "Firmware Version:"+(configData.firmwareversion  || "Unknown version");
                 }
             };
             xhr.open('GET', '/getConfig', true);
@@ -186,6 +198,7 @@
         </div>
         <div class='form-container'>
             <h1>BL LED Controller Settings Page</h1>
+            <h3 id="firmwareversion">Firmware version: Expirimental 12.30.23</h3>
             <p>
                 This page allows you to change the MQTT broker info and any additional settings.
             </p>
@@ -218,7 +231,7 @@
                     </label>
                 </div>
                 <div class='toggle-container'>
-                    <span class='toggle-label'>Turbo Mode:</span>
+                    <span class='toggle-label'>RGB Mode:</span>
                     <label class='toggle-switch'>
                         <input type='checkbox' id='turbo' name='turbo'>
                         <span class='slider'></span>
@@ -234,8 +247,9 @@
                 <label id="brightnesssliderDisplay">Brightness: 50%</label>
                 <input type="range" id="brightnessslider" name="brightnessslider" min="0" max="100" value="100"> <br>
 
-                <input type='submit' value='Save'>
+                <input type='submit' value='Save Configuration'>
             </form>
+            <button type='button' onclick='window.location.href="/update";'>Update Controller</button>
         </div>
     </div>
 </body>

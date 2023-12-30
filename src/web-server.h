@@ -74,7 +74,7 @@ void handleGetConfig(){
         return;
     }
 
-    DynamicJsonDocument doc(200);
+    DynamicJsonDocument doc(300);
     doc["brightness"] = printerConfig.brightness;
     doc["turbo"] = printerConfig.turbo;
     doc["ip"] = printerConfig.printerIP;
@@ -84,6 +84,9 @@ void handleGetConfig(){
     doc["errordetection"] = printerConfig.errordetection;
     doc["finishindication"] = printerConfig.finishindication;
     doc["debuging"] = printerConfig.debuging;
+    
+    const char* firmwareVersionChar = globalVariables.FWVersion.c_str();
+    doc["firmwareversion"] = firmwareVersionChar;
 
     String jsonString;
     serializeJson(doc, jsonString);
