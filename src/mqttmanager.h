@@ -141,17 +141,24 @@ void ParseCallback(JsonDocument &messageobject){
 
 void mqttCallback(char *topic, byte *payload, unsigned int length){
     DynamicJsonDocument messageobject(mqttdocument);
-
-    // Create filter to only grab "print" part from MQTT payload
-    StaticJsonDocument<64> filter;
-    filter["print"] = true;
     
-    auto deserializeError = deserializeJson(messageobject, payload, length, DeserializationOption::Filter(filter));
+    auto deserializeError = deserializeJson(messageobject, payload, length, DeserializationOption::Filter(getMqttPayloadFilter()));
     if (!deserializeError){
         ParseCallback(messageobject);
     }else{
         Serial.println(F("Deserialize error while parsing mqtt"));
     }
+}
+
+StaticJsonDocument<64> getMqttPayloadFilter()
+{
+    StaticJsonDocument<64> filter;
+    filter["print"]["stg_cur"] = true;
+    filter["print"]["gcode_state"] = true;
+    filter["print"]["lights_report"] = true;
+    filter["print"]["hms"] = true;
+    // Make sure to add more here when needed
+    return filter;
 }
 
 void setupMqtt(){
