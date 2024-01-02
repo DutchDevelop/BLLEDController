@@ -19,6 +19,10 @@
 #include "mqttparsingutility.h"
 #include "types.h"
 #include "leds.h"
+#include "mqttHelpers.h"
+// Other includes...
+
+// Rest of your code...
 
 WiFiClientSecure wifiSecureClient;
 PubSubClient mqttClient(wifiSecureClient);

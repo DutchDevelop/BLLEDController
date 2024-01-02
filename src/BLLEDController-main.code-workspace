@@ -1,0 +1,46 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		},
+		{
+			"path": "../../crtypblled"
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"string": "cpp",
+			"*.tcc": "cpp",
+			"optional": "cpp",
+			"istream": "cpp",
+			"ostream": "cpp",
+			"ratio": "cpp",
+			"system_error": "cpp",
+			"array": "cpp",
+			"functional": "cpp",
+			"regex": "cpp",
+			"tuple": "cpp",
+			"type_traits": "cpp",
+			"utility": "cpp",
+			"variant": "cpp",
+			"__bit_reference": "cpp",
+			"__hash_table": "cpp",
+			"__split_buffer": "cpp",
+			"__tree": "cpp",
+			"deque": "cpp",
+			"initializer_list": "cpp",
+			"map": "cpp",
+			"set": "cpp",
+			"string_view": "cpp",
+			"unordered_map": "cpp",
+			"vector": "cpp",
+			"filesystem": "cpp",
+			"fstream": "cpp",
+			"locale": "cpp",
+			"random": "cpp"
+		},
+		"projectManager.git.baseFolders": [
+			"https://github.com/DutchDevelop/BLLEDController/compare/main...ndk-ender3:BLLEDController:patch-1"
+		]
+	}
+}
