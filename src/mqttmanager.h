@@ -139,17 +139,6 @@ void ParseCallback(JsonDocument &messageobject){
     }
 }
 
-void mqttCallback(char *topic, byte *payload, unsigned int length){
-    DynamicJsonDocument messageobject(mqttdocument);
-    
-    auto deserializeError = deserializeJson(messageobject, payload, length, DeserializationOption::Filter(getMqttPayloadFilter()));
-    if (!deserializeError){
-        ParseCallback(messageobject);
-    }else{
-        Serial.println(F("Deserialize error while parsing mqtt"));
-    }
-}
-
 StaticJsonDocument<64> getMqttPayloadFilter()
 {
     StaticJsonDocument<64> filter;
@@ -159,6 +148,17 @@ StaticJsonDocument<64> getMqttPayloadFilter()
     filter["print"]["hms"] = true;
     // Make sure to add more here when needed
     return filter;
+}
+
+void mqttCallback(char *topic, byte *payload, unsigned int length){
+    DynamicJsonDocument messageobject(mqttdocument);
+    
+    auto deserializeError = deserializeJson(messageobject, payload, length, DeserializationOption::Filter(getMqttPayloadFilter()));
+    if (!deserializeError){
+        ParseCallback(messageobject);
+    }else{
+        Serial.println(F("Deserialize error while parsing mqtt"));
+    }
 }
 
 void setupMqtt(){
