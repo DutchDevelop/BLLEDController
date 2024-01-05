@@ -23,7 +23,7 @@ extern "C"
     typedef struct GlobalVariablesStruct{
         char SSID[32];
         char APPW[32];
-        String FWVersion = "STABLE 30.12.23";
+        String FWVersion = "STABLE 5.1.24";
     } GlobalVariables;
 
     GlobalVariables globalVariables;
