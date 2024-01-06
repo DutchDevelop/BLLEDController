@@ -216,7 +216,7 @@ void updateleds(){
 
     //GREEN
 
-    if ((millis() - printerVariables.finishstartms) <= 300000 && printerVariables.gcodeState == "FINISH"){
+    if ((millis() - printerVariables.finishstartms) <= 300000 && printerVariables.gcodeState == "FINISH" && printerConfig.finishindication == true){
         tweenToColor(0,255,0,0,0,500); //ON
         if (printerConfig.debuging){
             Serial.println(F("Finished print, Turning Leds green"));
