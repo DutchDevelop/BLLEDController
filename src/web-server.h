@@ -59,6 +59,7 @@ void submitSetup(){
         printerConfig.errordetection = webServer.arg("errorDetection") == "on";
         printerConfig.finishindication = webServer.arg("finishIndication") == "on";
         printerConfig.debuging = webServer.arg("debuging") == "on";
+        printerConfig.mqttdebug = webServer.arg("mqttdebug") == "on";
         printerConfig.brightness = webServer.arg("brightnessslider").toInt();
 
         saveFileSystem();
@@ -84,6 +85,7 @@ void handleGetConfig(){
     doc["errordetection"] = printerConfig.errordetection;
     doc["finishindication"] = printerConfig.finishindication;
     doc["debuging"] = printerConfig.debuging;
+    doc["mqttdebug"] = printerConfig.mqttdebug;
     
     const char* firmwareVersionChar = globalVariables.FWVersion.c_str();
     doc["firmwareversion"] = firmwareVersionChar;

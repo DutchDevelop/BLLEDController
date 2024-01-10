@@ -23,7 +23,7 @@ extern "C"
     typedef struct GlobalVariablesStruct{
         char SSID[32];
         char APPW[32];
-        String FWVersion = "STABLE 5.1.24";
+        String FWVersion = "EXPIRIMENTAL 10.1.24";
     } GlobalVariables;
 
     GlobalVariables globalVariables;
@@ -35,6 +35,7 @@ extern "C"
         bool errordetection = true;
         bool finishindication = true;
         bool debuging = true;
+        bool mqttdebug = false;
         bool turbo = false;
         char printerIP[16];
         char accessCode[9];

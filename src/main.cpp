@@ -19,7 +19,7 @@ void setup(){
     setupFileSystem();
     
     delay(2000);
-    tweenToColor(0,255,0,0,0,500); 
+    tweenToColor(255,165,0,0,0,500); 
     setupSerial();
     if (!setupWifi()){
         tweenToColor(255,0,255,0,0,500); 

@@ -80,7 +80,13 @@ void ParseCallback(JsonDocument &messageobject){
         Serial.println(F("Mqtt message received,"));
         Serial.println(F("FreeHeap: "));
         Serial.print(ESP.getFreeHeap());
-        //serializeJson(messageobject, Serial);
+        Serial.println();
+    }
+
+    if (printerConfig.mqttdebug){
+        Serial.println(F("Mqtt payload:"));
+        Serial.println();
+        serializeJson(messageobject, Serial);
         Serial.println();
     }
 

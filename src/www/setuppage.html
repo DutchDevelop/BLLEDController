@@ -146,6 +146,7 @@
                     document.getElementById('errorDetection').checked = configData.errordetection || false;
                     document.getElementById('finishIndication').checked = configData.finishindication || false;
                     document.getElementById('debuging').checked = configData.debuging || false;
+                    document.getElementById('mqttdebug').checked = configData.mqttdebug || false;
                     document.getElementById('turbo').checked = configData.turbo || false;
                     document.getElementById('brightnessslider').value = configData.brightness || 100;
                     document.getElementById("brightnesssliderDisplay").textContent = "Brightness: "+ (configData.brightness || 100) + "%";
@@ -241,6 +242,13 @@
                     <span class='toggle-label'>Debuging:</span>
                     <label class='toggle-switch'>
                         <input type='checkbox' id='debuging' name='debuging'>
+                        <span class='slider'></span>
+                    </label>
+                </div>
+                <div class='toggle-container'>
+                    <span class='toggle-label'>MQTT Logging:</span>
+                    <label class='toggle-switch'>
+                        <input type='checkbox' id='mqttdebug' name='mqttdebug'>
                         <span class='slider'></span>
                     </label>
                 </div>
