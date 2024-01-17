@@ -1,12 +1,8 @@
 #ifndef _BLLEDFILESYSTEM
 #define _BLLEDFILESYSTEM
 
-#ifdef ESP32
-    #include <WiFi.h>
-    #include "FS.h"
-#elif defined(ESP8266)
-    #include <ESP8266WiFi.h>
-#endif
+#include <WiFi.h>
+#include "FS.h"
 
 #include <Arduino.h>
 #include <LittleFS.h>

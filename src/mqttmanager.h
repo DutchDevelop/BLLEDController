@@ -2,18 +2,12 @@
 #define _MQTTMANAGER
 
 #include <Arduino.h>
-#ifdef ESP32
-    #include <WiFi.h>
-    static int mqttbuffer = 32768;
-    static int mqttdocument = 16384;
-#elif defined(ESP8266)
-    #include <ESP8266WiFi.h>
-    static int mqttbuffer = 8192;
-    static int mqttdocument = 8192;
-#endif
+#include <WiFi.h>
+static int mqttbuffer = 32768;
+static int mqttdocument = 16384;
+
 #include <WiFiClientSecure.h>
 #include <PubSubClient.h>
-#include <WiFiManager.h>
 #include <ArduinoJson.h> 
 
 #include "mqttparsingutility.h"
@@ -25,24 +19,22 @@ PubSubClient mqttClient(wifiSecureClient);
 
 String device_topic;
 String report_topic;
-String request_topic;
 String clientId = "BLLED-";
 
 unsigned long mqttattempt = (millis()-3000);
 
 void connectMqtt(){
-    device_topic = String("device/") + printerConfig.serialNumber;
-    report_topic = device_topic + String("/report");
-    request_topic = device_topic + String("/request");
-
     if (!mqttClient.connected() && (millis() - mqttattempt) >= 3000){   
+        Serial.println(F("Connecting to mqtt"));
         if (mqttClient.connect(clientId.c_str(),"bblp",printerConfig.accessCode)){
-            Serial.println(F("Connected to mqtt"));
+            Serial.println(F("MWTT connected, subscribing to topic:"));
             Serial.println(report_topic);
             mqttClient.subscribe(report_topic.c_str());
             printerVariables.online = true;
             updateleds();
         }else{
+            Serial.println(F("Failed to connect with error code: "));
+            Serial.println(mqttClient.state());
             switch (mqttClient.state())
             {
             case -4: // MQTT_CONNECTION_TIMEOUT
@@ -55,7 +47,7 @@ void connectMqtt(){
                 Serial.println(F("MQTT CONNECTION_LOST"));
                 break;
             case -1: // MQTT_DISCONNECTED
-                Serial.println(F("MQTT DISCONNECTEDT"));
+                Serial.println(F("MQTT DISCONNECTED"));
                 break;
             case 1:
                 break;
@@ -171,12 +163,16 @@ void setupMqtt(){
     clientId += String(random(0xffff), HEX);
     Serial.println(F("Setting up MQTT with ip: "));
     Serial.println(printerConfig.printerIP);
+
+    device_topic = String("device/") + printerConfig.serialNumber;
+    report_topic = device_topic + String("/report");
+
     wifiSecureClient.setInsecure();
     mqttClient.setBufferSize(mqttbuffer); //4096
     mqttClient.setServer(printerConfig.printerIP, 8883);
     mqttClient.setCallback(mqttCallback);
-    //mqttClient.setSocketTimeout(20);
-    Serial.println(F("Finished setting up MQTT, Attempting to connect"));
+    mqttClient.setSocketTimeout(20);
+    Serial.println(F("Finished setting up MQTT"));
     connectMqtt();
 }
 
@@ -185,9 +181,11 @@ void mqttloop(){
         printerVariables.online = false;
         updateleds();
         connectMqtt();
-    }else{
-        mqttClient.loop();
+        return;
     }
+
+    mqttClient.loop();
+    delay(10);
 }
 
 #endif

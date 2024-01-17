@@ -4,12 +4,7 @@
 #include <Arduino.h>
 #include <ArduinoJson.h> 
 
-#if defined(ESP32)
-    #include <WiFi.h>
-#elif defined(ESP8266)
-    #include <ESP8266WiFi.h>
-#endif
-
+#include <WiFi.h>
 #include "filesystem.h"
 #include "types.h"
 

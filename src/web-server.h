@@ -3,28 +3,17 @@
 
 #include <Arduino.h>
 #include <ArduinoJson.h> 
+#include <WiFi.h>
+#include <WiFiClient.h>
+#include <WebServer.h>
+#include <ESPmDNS.h>
+#include <Update.h>
 #include "leds.h"
+#include "filesystem.h"
 
-#if defined(ESP32)
-    #include <WiFi.h>
-    #include <WebServer.h> 
-    #include <ESPHTTPUpdateServer.h>
-#elif defined(ESP8266)
-    #include <ESP8266WiFi.h>
-    #include <ESP8266WebServer.h>
-    #include <ESP8266HTTPUpdateServer.h>
-#endif
-
-#if defined(ESP32)
-    WebServer webServer(80);
-    ESPHTTPUpdateServer httpUpdater;
-#elif defined(ESP8266)
-    ESP8266WebServer webServer(80);
-    ESP8266HTTPUpdateServer httpUpdater; 
-#endif
+WebServer webServer(80);
 
 #include "www/setupPage.h"
-#include "www/updatePage.h"
 
 bool isAuthorized() {
   return true; //webServer.authenticate("BLLC", printerConfig.webpagePassword);
@@ -37,15 +26,6 @@ void handleSetup(){
     }
     webServer.sendHeader(F("Content-Encoding"), F("gzip"));
     webServer.send_P(200, "text/html", (const char*)setupPage_html_gz, (int)setupPage_html_gz_len);
-}
-
-void handleUpdate(){
-    if (!isAuthorized()){
-        webServer.requestAuthentication();
-        return;
-    }
-    webServer.sendHeader(F("Content-Encoding"), F("gzip"));
-    webServer.send_P(200, "text/html", (const char*)updatepPage_html_gz, (int)updatePage_html_gz_len);
 }
 
 void submitSetup(){
@@ -97,14 +77,44 @@ void handleGetConfig(){
 }
 
 void setupWebserver(){
+    if (!MDNS.begin(globalVariables.Host)) {
+        Serial.println(F("Error setting up MDNS responder!"));
+        while (1) {
+        delay(1000);
+        }
+    }
+
     Serial.println(F("Setting up webserver"));
     
     webServer.on("/", handleSetup);
     webServer.on("/submitSetup",HTTP_POST,submitSetup);
     webServer.on("/getConfig", handleGetConfig);
-    webServer.on("/update",HTTP_GET,handleUpdate);
 
-    httpUpdater.setup(&webServer);
+    webServer.on("/update", HTTP_POST, []() {
+        webServer.sendHeader("Connection", "close");
+        webServer.send(200, "text/plain", (Update.hasError()) ? "FAIL" : "OK");
+        ESP.restart();
+    }, []() {
+        HTTPUpload& upload = webServer.upload();
+        if (upload.status == UPLOAD_FILE_START) {
+            Serial.printf("Update: %s\n", upload.filename.c_str());
+            if (!Update.begin(UPDATE_SIZE_UNKNOWN)) {
+                Update.printError(Serial);
+            }
+        } else if (upload.status == UPLOAD_FILE_WRITE) {
+        
+            if (Update.write(upload.buf, upload.currentSize) != upload.currentSize) {
+                Update.printError(Serial);
+            }
+        } else if (upload.status == UPLOAD_FILE_END) {
+            if (Update.end(true)) {
+                Serial.printf("Update Success: %u\nRebooting...\n", upload.totalSize);
+            } else {
+                Update.printError(Serial);
+            }
+        }
+    });
+
     webServer.begin();
 
     Serial.println(F("Webserver started"));

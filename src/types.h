@@ -24,6 +24,7 @@ extern "C"
         char SSID[32];
         char APPW[32];
         String FWVersion = "EXPIRIMENTAL 10.1.24";
+        String Host = "BLLED";
     } GlobalVariables;
 
     GlobalVariables globalVariables;

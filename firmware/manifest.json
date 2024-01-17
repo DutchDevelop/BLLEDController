@@ -4,12 +4,6 @@
   "new_install_prompt_erase": true,
   "builds": [
     {
-      "chipFamily": "ESP8266",
-      "parts": [
-        { "path": "esp8266/BLLC_5.1.24.bin", "offset": 0 }
-        ]
-    },
-    {
       "chipFamily": "ESP32",
       "parts": [
         { "path": "esp32dev/BLLC_5.1.24.bin", "offset": 0 }

@@ -4,19 +4,11 @@
 #include <Arduino.h>
 #include "mqttparsingutility.h"
 
-#if defined(ESP8266)
-    const int redPin = 5;
-    const int greenPin = 14;
-    const int bluePin = 4;
-    const int warmPin = 2;
-    const int coldPin = 0;
-#elif defined(ESP32)
-    const int redPin = 19;
-    const int greenPin = 18;
-    const int bluePin = 21;
-    const int warmPin = 22;
-    const int coldPin = 23;
-#endif
+const int redPin = 19;
+const int greenPin = 18;
+const int bluePin = 21;
+const int warmPin = 22;
+const int coldPin = 23;
 
 int currentRed = 0;
 int currentGreen = 0;

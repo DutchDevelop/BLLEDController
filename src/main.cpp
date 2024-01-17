@@ -1,11 +1,11 @@
 #include <Arduino.h>
-#include "wifi-manager.h"
 #include "web-server.h"
 #include "mqttmanager.h"
 #include "filesystem.h"
 #include "types.h"
 #include "leds.h"
 #include "serialmanager.h"
+#include "wifi-manager.h"
 
 void setup(){
     Serial.begin(115200);
@@ -41,7 +41,5 @@ void loop(){
         mqttloop();
         webserverloop();
         ledsloop();
-        
-        //TODO: Get free heap to check for more headroom.
     }
 }
