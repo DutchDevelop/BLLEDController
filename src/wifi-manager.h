@@ -10,7 +10,6 @@
 
 bool shouldSaveConfig = true;
 int connectionAttempts = 0;
-const int maxConnectionAttempts = 10;
 
 void restartprocess(){
     deleteFileSystem();
@@ -33,7 +32,7 @@ bool setupWifi(){
         return false;
     }
 
-    while (connectionAttempts < maxConnectionAttempts) {
+    while (true) { // stay in this loop until wifi connects
         if (WiFi.status() == WL_CONNECTED)
             break;
         
@@ -41,10 +40,13 @@ bool setupWifi(){
         WiFi.begin(globalVariables.SSID, globalVariables.APPW);
         delay(1000);
         
-        Serial.print(F("Connecting to WIFI.. "));
-        Serial.println(globalVariables.SSID);
+        Serial.print(F("Connecting to WIFI.. Attempt #"));
+        Serial.print(connectionAttempts);
+        Serial.print(F(" SSID: "));
+        Serial.print(globalVariables.SSID);
+        Serial.print(F(" APPW: "))
         Serial.println(globalVariables.APPW);
-        delay(8000); // can probably be lower?
+        delay(10000); // can probably be lower?
         connectionAttempts++;
     }
     
@@ -67,6 +69,10 @@ bool setupWifi(){
 
 
     #ifdef ARDUINO_ARCH_ESP32
+        WiFi.setTxPower(WIFI_POWER_19_5dBm); // https://github.com/G6EJD/ESP32-8266-Adjust-WiFi-RF-Power-Output/blob/main/README.md
+    #endif
+    
+    #ifdef ESP32
         WiFi.setTxPower(WIFI_POWER_19_5dBm); // https://github.com/G6EJD/ESP32-8266-Adjust-WiFi-RF-Power-Output/blob/main/README.md
     #endif
     
