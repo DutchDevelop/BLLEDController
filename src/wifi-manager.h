@@ -44,9 +44,9 @@ bool setupWifi(){
         Serial.print(connectionAttempts);
         Serial.print(F(" SSID: "));
         Serial.print(globalVariables.SSID);
-        Serial.print(F(" APPW: "))
+        Serial.print(F(" APPW: "));
         Serial.println(globalVariables.APPW);
-        delay(10000); // can probably be lower?
+        delay(10000); // Giving enough time to connect
         connectionAttempts++;
     }
     
@@ -56,17 +56,12 @@ bool setupWifi(){
     }
     
     int signalStrength = WiFi.RSSI();
-    Serial.println(F("Connected To Wifi:"));
+    Serial.println(F("Connected To Wifi With Signal Strength: "));
     Serial.println(signalStrength);
-    Serial.println(F(" With Signal Strength"));
-    Serial.println(F("-------------------------------------"));
-    Serial.print(F("Head over to http://"));
+    Serial.println();
+    delay(10);
+    Serial.print("IP_ADDRESS:"); // Unique identifier for the IP address
     Serial.println(WiFi.localIP());
-    //Serial.print(F("Login Details User: BLLC, Password: "));
-    //Serial.println(printerConfig.webpagePassword);
-    Serial.println(F("To configure further"));
-    Serial.println(F("-------------------------------------"));
-
 
     #ifdef ARDUINO_ARCH_ESP32
         WiFi.setTxPower(WIFI_POWER_19_5dBm); // https://github.com/G6EJD/ESP32-8266-Adjust-WiFi-RF-Power-Output/blob/main/README.md

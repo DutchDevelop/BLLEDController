@@ -131,26 +131,36 @@
                 document.getElementById("sendButton").style.display = "inline-block";
                 document.getElementById("connectButton").style.display = "none";
 
-
                 const decoder = new TextDecoderStream();
 
                 port.readable.pipeTo(decoder.writable);
 
                 const inputStream = decoder.readable;
                 const reader = inputStream.getReader();
-                
+                let accumulatedData = '';
+
                 while (true) {
                     const { value, done } = await reader.read();
-                    if (value) {
-                        console.log(value);
-                        const logContainer = document.getElementById("logContainer");
-                        logContainer.innerHTML += `<p>${value}</p>`;
-                        logContainer.scrollTop = logContainer.scrollHeight;
-                    }
                     if (done) {
                         console.log("[readLoop] DONE", done);
                         reader.releaseLock();
                         break;
+                    }
+                    if (value) {
+                        accumulatedData += value;
+                        if (value.includes('\n')) {
+                            if (accumulatedData.includes("IP_ADDRESS:")) {
+                                const startIndex = accumulatedData.indexOf("IP_ADDRESS:") + "IP_ADDRESS:".length;
+                                const ipAddress = accumulatedData.substring(startIndex).trim();
+                                document.getElementById("status").innerText = `Successfully connected to wifi, Head over to http://${ipAddress} to change settings` ;
+                                break;
+                            }else{
+                                const logContainer = document.getElementById("logContainer");
+                                logContainer.innerHTML += `<p>${accumulatedData}</p>`;
+                                logContainer.scrollTop = logContainer.scrollHeight;
+                            }
+                            accumulatedData = '';
+                        }
                     }
                 }
           }
@@ -183,8 +193,8 @@
             writer.releaseLock();
   
             document.getElementById("status").innerText =
-              "Credentials sent to ESP32";
-          }
+              "Credentials sent to Controller";
+            }
   
           function writeToSerial(data) {
             if (!port) {
