@@ -4,7 +4,7 @@
 #include <Arduino.h>
 #include <WiFi.h>
 static int mqttbuffer = 32768;
-static int mqttdocument = 16384;
+//static int mqttdocument = 16384;
 
 #include <WiFiClientSecure.h>
 #include <PubSubClient.h>
@@ -137,9 +137,9 @@ void ParseCallback(JsonDocument &messageobject){
     }
 }
 
-StaticJsonDocument<64> getMqttPayloadFilter()
+    JsonDocument getMqttPayloadFilter()
 {
-    StaticJsonDocument<64> filter;
+    JsonDocument filter;
     filter["print"]["stg_cur"] = true;
     filter["print"]["gcode_state"] = true;
     filter["print"]["lights_report"] = true;
@@ -149,7 +149,7 @@ StaticJsonDocument<64> getMqttPayloadFilter()
 }
 
 void mqttCallback(char *topic, byte *payload, unsigned int length){
-    DynamicJsonDocument messageobject(mqttdocument);
+    JsonDocument messageobject;
     
     auto deserializeError = deserializeJson(messageobject, payload, length, DeserializationOption::Filter(getMqttPayloadFilter()));
     if (!deserializeError){

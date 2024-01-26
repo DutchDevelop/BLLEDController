@@ -27,7 +27,7 @@ char* generateRandomString(int length) {
 void saveFileSystem(){
     Serial.println(F("Saving config"));
 
-    StaticJsonDocument<1024> json;//512
+    JsonDocument json;//512
     json["brightness"] = printerConfig.brightness;
     json["printerIp"] = printerConfig.printerIP;
     json["accessCode"] = printerConfig.accessCode;
@@ -81,7 +81,7 @@ void loadFileSystem(){
     std::unique_ptr<char[]> buf(new char[size]);
     configFile.readBytes(buf.get(), size);
 
-    StaticJsonDocument<1024> json; //512
+    JsonDocument json; //512
 
     auto deserializeError = deserializeJson(json, buf.get());
 
