@@ -55,7 +55,7 @@ void handleGetConfig(){
         return;
     }
 
-    DynamicJsonDocument doc(300);
+    JsonDocument doc;
     doc["brightness"] = printerConfig.brightness;
     doc["turbo"] = printerConfig.turbo;
     doc["ip"] = printerConfig.printerIP;
@@ -77,7 +77,7 @@ void handleGetConfig(){
 }
 
 void setupWebserver(){
-    if (!MDNS.begin(globalVariables.Host)) {
+    if (!MDNS.begin(globalVariables.Host.c_str())) {
         Serial.println(F("Error setting up MDNS responder!"));
         while (1) {
         delay(1000);
