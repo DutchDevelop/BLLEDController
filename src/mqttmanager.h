@@ -4,7 +4,7 @@
 #include <Arduino.h>
 #include <WiFi.h>
 static int mqttbuffer = 32768;
-static int mqttdocument = 16384;
+//static int mqttdocument = 16384;
 
 #include <WiFiClientSecure.h>
 #include <PubSubClient.h>
@@ -31,6 +31,7 @@ void connectMqtt(){
             Serial.println(report_topic);
             mqttClient.subscribe(report_topic.c_str());
             printerVariables.online = true;
+             Serial.println(F("Updating from mqtt connnection"));
             updateleds();
         }else{
             Serial.println(F("Failed to connect with error code: "));
@@ -82,10 +83,10 @@ void ParseCallback(JsonDocument &messageobject){
         Serial.println();
     }
 
-    bool Changed = false;
+    //bool Changed = false;
     if (messageobject["print"].containsKey("stg_cur")){
         printerVariables.stage = messageobject["print"]["stg_cur"];
-        Changed = true;
+        //Changed = true;
     }else{
         if (printerConfig.debuging){
             Serial.println(F("stg_cur not in message"));
@@ -102,7 +103,7 @@ void ParseCallback(JsonDocument &messageobject){
         }else{
             printerVariables.finished = false;
         }
-        Changed = true;
+        //Changed = true;
     }
 
     if (messageobject["print"].containsKey("lights_report")) {
@@ -111,7 +112,7 @@ void ParseCallback(JsonDocument &messageobject){
         for (JsonObject light : lightsReport) {
             if (light["node"] == "chamber_light") {
                 printerVariables.ledstate = light["mode"] == "on";
-                Changed = true;
+                //Changed = true;
             }
         }
     }else{
@@ -129,17 +130,18 @@ void ParseCallback(JsonDocument &messageobject){
                 printerVariables.parsedHMS = ParseHMSSeverity(hms["code"]);
             }
         }
-        Changed = true;
+       // Changed = true;
     }
 
-    if (Changed == true){
+    //  if (Changed == true){
+        Serial.println(F("Updating from mqtt"));
         updateleds();
-    }
+   //}
 }
 
-StaticJsonDocument<64> getMqttPayloadFilter()
+JsonDocument getMqttPayloadFilter()
 {
-    StaticJsonDocument<64> filter;
+    JsonDocument filter;
     filter["print"]["stg_cur"] = true;
     filter["print"]["gcode_state"] = true;
     filter["print"]["lights_report"] = true;
@@ -149,7 +151,7 @@ StaticJsonDocument<64> getMqttPayloadFilter()
 }
 
 void mqttCallback(char *topic, byte *payload, unsigned int length){
-    DynamicJsonDocument messageobject(mqttdocument);
+    JsonDocument messageobject;
     
     auto deserializeError = deserializeJson(messageobject, payload, length, DeserializationOption::Filter(getMqttPayloadFilter()));
     if (!deserializeError){
@@ -179,6 +181,7 @@ void setupMqtt(){
 void mqttloop(){
     if (!mqttClient.connected()){
         printerVariables.online = false;
+        Serial.println(F("Updating from connect to mqtt"));
         updateleds();
         connectMqtt();
         return;

@@ -36,7 +36,7 @@ extern "C"
         bool errordetection = true;
         bool finishindication = true;
         bool debuging = true;
-        bool mqttdebug = false;
+        bool mqttdebug = true;
         bool turbo = false;
         char printerIP[16];
         char accessCode[9];

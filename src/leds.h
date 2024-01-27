@@ -252,13 +252,16 @@ void setupLeds() {
     pinMode(bluePin, OUTPUT);
     pinMode(coldPin, OUTPUT);
     pinMode(warmPin, OUTPUT);
+    Serial.println(F("Updating from setupleds"));
     updateleds();
 }
 
 void ledsloop(){
     RGBCycle();
-    if((millis() - printerVariables.finishstartms) >= 300000 && printerVariables.gcodeState == "FINISH"){
-        printerVariables.gcodeState == "IDLE";
+    if((printerVariables.finishstartms > 0 && millis() - printerVariables.finishstartms) >= 300000 && printerVariables.gcodeState == "FINISH"){
+        printerVariables.finishstartms = 0
+        printerVariables.gcodeState = "IDLE";
+        Serial.println(F("Updating from finishloop"));
         updateleds();
     }
 }
