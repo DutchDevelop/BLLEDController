@@ -259,7 +259,7 @@ void setupLeds() {
 void ledsloop(){
     RGBCycle();
     if((printerVariables.finishstartms > 0 && millis() - printerVariables.finishstartms) >= 300000 && printerVariables.gcodeState == "FINISH"){
-        printerVariables.finishstartms = 0
+        printerVariables.finishstartms = 0;
         printerVariables.gcodeState = "IDLE";
         Serial.println(F("Updating from finishloop"));
         updateleds();

@@ -14,9 +14,9 @@ void setupSerial(){
 void serialLoop(){
     if (Serial.available() > 0) {
         String input = Serial.readStringUntil('\n');
-        JsonDocument doc;
+        DynamicJsonDocument doc(256);
         deserializeJson(doc, input);
-       if (doc.containsKey("ssid") && doc.containsKey("pass")) {
+        if (doc.containsKey("ssid") && doc.containsKey("pass")) {
             Serial.print("SSID ");
             Serial.println(doc["ssid"].as<String>());
             Serial.print("PASS ");

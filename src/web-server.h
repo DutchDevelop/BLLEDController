@@ -56,7 +56,7 @@ void handleGetConfig(){
         return;
     }
 
-    JsonDocument doc;
+    DynamicJsonDocument doc(300);
     doc["brightness"] = printerConfig.brightness;
     doc["turbo"] = printerConfig.turbo;
     doc["ip"] = printerConfig.printerIP;
