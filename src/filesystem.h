@@ -37,6 +37,7 @@ void saveFileSystem(){
     json["replicatestate"] = printerConfig.replicatestate;
     json["errordetection"] = printerConfig.errordetection;
     json["finishindication"] = printerConfig.finishindication;
+    json["mqttdebug"] = printerConfig.mqttdebug;
 
     json["ssid"] = globalVariables.SSID;
     json["appw"] = globalVariables.APPW;
@@ -99,6 +100,7 @@ void loadFileSystem(){
         printerConfig.replicatestate = json["replicatestate"];
         printerConfig.errordetection = json["errordetection"];
         printerConfig.finishindication = json["finishindication"];
+        printerConfig.mqttdebug = json["mqttdebug"];
 
         Serial.println(F("Loaded config"));
     } else {

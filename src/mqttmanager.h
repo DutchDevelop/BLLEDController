@@ -83,10 +83,10 @@ void ParseCallback(JsonDocument &messageobject){
         Serial.println();
     }
 
-    //bool Changed = false;
+    bool Changed = false;
     if (messageobject["print"].containsKey("stg_cur")){
         printerVariables.stage = messageobject["print"]["stg_cur"];
-        //Changed = true;
+        Changed = true;
     }else{
         if (printerConfig.debuging){
             Serial.println(F("stg_cur not in message"));
@@ -103,7 +103,7 @@ void ParseCallback(JsonDocument &messageobject){
         }else{
             printerVariables.finished = false;
         }
-        //Changed = true;
+        Changed = true;
     }
 
     if (messageobject["print"].containsKey("lights_report")) {
@@ -112,7 +112,7 @@ void ParseCallback(JsonDocument &messageobject){
         for (JsonObject light : lightsReport) {
             if (light["node"] == "chamber_light") {
                 printerVariables.ledstate = light["mode"] == "on";
-                //Changed = true;
+                Changed = true;
             }
         }
     }else{
@@ -130,18 +130,18 @@ void ParseCallback(JsonDocument &messageobject){
                 printerVariables.parsedHMS = ParseHMSSeverity(hms["code"]);
             }
         }
-       // Changed = true;
+        Changed = true;
     }
 
-    //  if (Changed == true){
+    if (Changed == true){
         Serial.println(F("Updating from mqtt"));
         updateleds();
-   //}
+    }
 }
 
-StaticJsonDocument<64> getMqttPayloadFilter()
+StaticJsonDocument<256> getMqttPayloadFilter() //Increased Filter size for HMS
 {
-    StaticJsonDocument<64> filter;
+    StaticJsonDocument<256> filter;
     filter["print"]["stg_cur"] = true;
     filter["print"]["gcode_state"] = true;
     filter["print"]["lights_report"] = true;
