@@ -6,7 +6,7 @@
     {
       "chipFamily": "ESP32",
       "parts": [
-        { "path": "esp32dev/BLLC_5.1.24.bin", "offset": 0 }
+        { "path": "esp32dev/BLLC_28.1.24.bin", "offset": 0 }
         ]
     }
   ]
