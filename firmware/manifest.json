@@ -1,6 +1,6 @@
 {
   "name": "BLLED Firmware",
-  "version": "Stable 5.1.24",
+  "version": "Stable 28.1.24",
   "new_install_prompt_erase": true,
   "builds": [
     {
