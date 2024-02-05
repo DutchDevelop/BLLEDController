@@ -11,6 +11,7 @@ static int mqttdocument = 32768; //16384
 #include <ArduinoJson.h> 
 
 #include "mqttparsingutility.h"
+#include "AutoGrowBufferStream.h"
 #include "types.h"
 #include "leds.h"
 
@@ -20,6 +21,8 @@ PubSubClient mqttClient(wifiSecureClient);
 String device_topic;
 String report_topic;
 String clientId = "BLLED-";
+
+AutoGrowBufferStream stream;
 
 unsigned long mqttattempt = (millis()-3000);
 
@@ -67,7 +70,20 @@ void connectMqtt(){
     }
 }
 
-void ParseCallback(JsonDocument &messageobject){
+void ParseCallback(char *topic, byte *payload, unsigned int length){
+    DynamicJsonDocument messageobject(mqttdocument);
+
+    DynamicJsonDocument filter(128*2);
+    filter["print"]["stg_cur"] = true;
+    filter["print"]["gcode_state"] = true;
+    filter["print"]["lights_report"] = true;
+    filter["print"]["hms"] = true;
+    
+    auto deserializeError = deserializeJson(messageobject, payload, length, DeserializationOption::Filter(filter));
+    if (deserializeError){
+        Serial.println(F("Deserialize error while parsing mqtt"));
+        return;
+    }
 
     if (printerConfig.debuging){
         Serial.println(F("Mqtt message received,"));
@@ -139,26 +155,10 @@ void ParseCallback(JsonDocument &messageobject){
     }
 }
 
-StaticJsonDocument<256> getMqttPayloadFilter() //Increased Filter size for HMS
-{
-    StaticJsonDocument<256> filter;
-    filter["print"]["stg_cur"] = true;
-    filter["print"]["gcode_state"] = true;
-    filter["print"]["lights_report"] = true;
-    filter["print"]["hms"] = true;
-    // Make sure to add more here when needed
-    return filter;
-}
 
 void mqttCallback(char *topic, byte *payload, unsigned int length){
-    DynamicJsonDocument messageobject(mqttdocument);
-    
-    auto deserializeError = deserializeJson(messageobject, payload, length, DeserializationOption::Filter(getMqttPayloadFilter()));
-    if (!deserializeError){
-        ParseCallback(messageobject);
-    }else{
-        Serial.println(F("Deserialize error while parsing mqtt"));
-    }
+    ParseCallback(topic, (byte *)stream.get_buffer(), stream.current_length());
+    stream.flush();
 }
 
 void setupMqtt(){
