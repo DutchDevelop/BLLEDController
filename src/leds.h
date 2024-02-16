@@ -264,6 +264,7 @@ void ledsloop(){
         Serial.println(F("Updating from finishloop"));
         updateleds();
     }
+    delay(10);
 }
 
 #endif

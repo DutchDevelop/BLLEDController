@@ -38,6 +38,7 @@ void serialLoop(){
        }
       
     };
+    delay(10);
 }
 
 #endif

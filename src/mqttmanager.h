@@ -73,85 +73,84 @@ void connectMqtt(){
 void ParseCallback(char *topic, byte *payload, unsigned int length){
     DynamicJsonDocument messageobject(mqttdocument);
 
-    DynamicJsonDocument filter(128*2);
-    filter["print"]["stg_cur"] = true;
-    filter["print"]["gcode_state"] = true;
-    filter["print"]["lights_report"] = true;
-    filter["print"]["hms"] = true;
+    DynamicJsonDocument filter(128);
+    filter["print"]["*"] =  true;
+    filter["camera"]["*"] =  true;
     
     auto deserializeError = deserializeJson(messageobject, payload, length, DeserializationOption::Filter(filter));
-    if (deserializeError){
-        Serial.println(F("Deserialize error while parsing mqtt"));
-        return;
-    }
+    if (!deserializeError){
 
-    if (printerConfig.debuging){
-        Serial.println(F("Mqtt message received,"));
-        Serial.println(F("FreeHeap: "));
-        Serial.print(ESP.getFreeHeap());
-        Serial.println();
-    }
-
-    if (printerConfig.mqttdebug){
-        Serial.println(F("Mqtt payload:"));
-        Serial.println();
-        serializeJson(messageobject, Serial);
-        Serial.println();
-    }
-
-    bool Changed = false;
-    if (messageobject["print"].containsKey("stg_cur")){
-        printerVariables.stage = messageobject["print"]["stg_cur"];
-        Changed = true;
-    }else{
         if (printerConfig.debuging){
-            Serial.println(F("stg_cur not in message"));
+            Serial.println(F("Mqtt message received,"));
+            Serial.println(F("FreeHeap: "));
+            Serial.print(ESP.getFreeHeap());
+            Serial.println();
         }
-    }
 
-    if (messageobject["print"].containsKey("gcode_state")){
-        printerVariables.gcodeState = messageobject["print"]["gcode_state"].as<String>();
-        if (printerVariables.gcodeState == "FINISH"){
-            if (printerVariables.finished == false){
-                printerVariables.finished = true;
-                printerVariables.finishstartms = millis();
+        if (printerConfig.mqttdebug){
+            Serial.println(F("Mqtt payload:"));
+            Serial.println();
+            serializeJson(messageobject, Serial);
+            Serial.println();
+        }
+
+        bool Changed = false;
+        if (messageobject["print"].containsKey("stg_cur")){
+            printerVariables.stage = messageobject["print"]["stg_cur"];
+            Changed = true;
+        }else{
+            if (printerConfig.debuging){
+                Serial.println(F("stg_cur not in message"));
+            }
+        }
+
+        if (messageobject["print"].containsKey("gcode_state")){
+            printerVariables.gcodeState = messageobject["print"]["gcode_state"].as<String>();
+            if (printerVariables.gcodeState == "FINISH"){
+                if (printerVariables.finished == false){
+                    printerVariables.finished = true;
+                    printerVariables.finishstartms = millis();
+                }
+            }else{
+                printerVariables.finished = false;
+            }
+            Changed = true;
+        }
+
+        if (messageobject["print"].containsKey("lights_report")) {
+            JsonArray lightsReport = messageobject["print"]["lights_report"];
+
+            for (JsonObject light : lightsReport) {
+                if (light["node"] == "chamber_light") {
+                    printerVariables.ledstate = light["mode"] == "on";
+                    Changed = true;
+                }
             }
         }else{
-            printerVariables.finished = false;
-        }
-        Changed = true;
-    }
-
-    if (messageobject["print"].containsKey("lights_report")) {
-        JsonArray lightsReport = messageobject["print"]["lights_report"];
-
-        for (JsonObject light : lightsReport) {
-            if (light["node"] == "chamber_light") {
-                printerVariables.ledstate = light["mode"] == "on";
-                Changed = true;
+            if (printerConfig.debuging){
+                Serial.println(F("lights_report not in message"));
             }
+        }
+
+        if (messageobject["print"].containsKey("hms")){
+            printerVariables.hmsstate = false;
+            printerVariables.parsedHMS = "";
+            for (const auto& hms : messageobject["print"]["hms"].as<JsonArray>()) {
+                if (ParseHMSSeverity(hms["code"]) != ""){
+                    printerVariables.hmsstate = true;
+                    printerVariables.parsedHMS = ParseHMSSeverity(hms["code"]);
+                }
+            }
+            Changed = true;
+        }
+
+        if (Changed == true){
+            Serial.println(F("Updating from mqtt"));
+            updateleds();
         }
     }else{
-        if (printerConfig.debuging){
-            Serial.println(F("lights_report not in message"));
-        }
-    }
-
-    if (messageobject["print"].containsKey("hms")){
-        printerVariables.hmsstate = false;
-        printerVariables.parsedHMS = "";
-        for (const auto& hms : messageobject["print"]["hms"].as<JsonArray>()) {
-            if (ParseHMSSeverity(hms["code"]) != ""){
-                printerVariables.hmsstate = true;
-                printerVariables.parsedHMS = ParseHMSSeverity(hms["code"]);
-            }
-        }
-        Changed = true;
-    }
-
-    if (Changed == true){
-        Serial.println(F("Updating from mqtt"));
-        updateleds();
+        Serial.println(F("Deserialize error while parsing mqtt"));
+        return;
     }
 }
 
@@ -170,8 +169,9 @@ void setupMqtt(){
     report_topic = device_topic + String("/report");
 
     wifiSecureClient.setInsecure();
-    mqttClient.setBufferSize(mqttbuffer); //4096
+    mqttClient.setBufferSize(1024); //1024
     mqttClient.setServer(printerConfig.printerIP, 8883);
+    mqttClient.setStream(stream);
     mqttClient.setCallback(mqttCallback);
     mqttClient.setSocketTimeout(20);
     Serial.println(F("Finished setting up MQTT"));
@@ -184,6 +184,7 @@ void mqttloop(){
         Serial.println(F("Updating from connect to mqtt"));
         updateleds();
         connectMqtt();
+        delay(32);
         return;
     }
 

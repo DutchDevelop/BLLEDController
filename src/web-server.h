@@ -123,6 +123,7 @@ void setupWebserver(){
 
 void webserverloop(){
     webServer.handleClient();
+    delay(10);
 }
 
 #endif
