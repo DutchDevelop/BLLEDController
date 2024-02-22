@@ -17,12 +17,18 @@ void setup(){
     delay(2000);
     tweenToColor(255,0,0,0,0,500);
     setupFileSystem();
-    
+    loadFileSystem();
     delay(2000);
     tweenToColor(255,165,0,0,0,500); 
     setupSerial();
-    if (!setupWifi()){
+
+    if (strlen(globalVariables.SSID) == 0 || strlen(globalVariables.APPW) == 0) {
+        Serial.println(F("SSID or password is missing. Please configure both by going to: https://dutchdevelop.com/blled-configuration-setup/"));
         tweenToColor(255,0,255,0,0,500); 
+        return;
+    }
+
+    if (!connectToWifi()){
         return;
     };
     delay(2000);
@@ -33,13 +39,23 @@ void setup(){
 
     tweenToColor(0,0,0,0,0,500); 
     setupMqtt();
+
+    Serial.println(F("BLLED Controller started"));
+
+    globalVariables.started = true;
 }
 
 void loop(){
     serialLoop();
-    if (WiFi.status() == WL_CONNECTED){
+    if (globalVariables.started == true){
         mqttloop();
         webserverloop();
         ledsloop();
+        if (WiFi.status() != WL_CONNECTED){
+           if (!connectToWifi()){
+                Serial.println(F("BLLED Unexpected WiFI Disconnect Restarting"));
+                ESP.restart();
+            };
+        }
     }
 }
