@@ -52,10 +52,9 @@ void loop(){
         webserverloop();
         ledsloop();
         if (WiFi.status() != WL_CONNECTED){
-           if (!connectToWifi()){
-                Serial.println(F("BLLED Unexpected WiFI Disconnect Restarting"));
-                ESP.restart();
-            };
+            Serial.println(F("Lost Connection, Reconnecting"));
+            WiFi.disconnect();
+            WiFi.reconnect();
         }
     }
 }
