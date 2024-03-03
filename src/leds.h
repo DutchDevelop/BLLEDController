@@ -219,9 +219,19 @@ void updateleds(){
         return;
     }
 
+    //BLUE 
+
+     if (printerVariables.stage == 2 && printerVariables.gcodeState == "PAUSE"){// Pause
+        tweenToColor(0,0,255,0,0,500); //Blue
+        if (printerConfig.debuging){
+            Serial.println(F("Pause, Turning Leds blue"));
+        };
+        return;
+    }
+
     //ON
 
-    if (printerVariables.stage == 0){ //Printing
+    if (printerVariables.stage == 0 || printerVariables.stage == 2 && printerVariables.gcodeState == "RUNNING"){ //Printing or Resume after Pausing
         tweenToColor(0,0,0,255,255,500); //ON
         if (printerConfig.debuging){
             Serial.println(F("Printing, Turning Leds On"));
