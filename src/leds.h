@@ -209,7 +209,7 @@ void updateleds(){
     //GREEN
 
     if ((millis() - printerVariables.finishstartms) <= 300000 && printerVariables.gcodeState == "FINISH" && printerConfig.finishindication == true){
-        tweenToColor(0,255,0,0,0,500); //ON
+        tweenToColor(0,255,0,0,0,500); //GREEN
         if (printerConfig.debuging){
             Serial.println(F("Finished print, Turning Leds green"));
             Serial.println(F("Leds should stay on for: "));
@@ -222,7 +222,7 @@ void updateleds(){
     //BLUE 
 
      if (printerVariables.stage == 2 && printerVariables.gcodeState == "PAUSE"){// Pause
-        tweenToColor(0,0,255,0,0,500); //Blue
+        tweenToColor(0,0,255,0,0,500); //BLUE
         if (printerConfig.debuging){
             Serial.println(F("Pause, Turning Leds blue"));
         };
@@ -232,7 +232,7 @@ void updateleds(){
     //ON
 
     if (printerVariables.stage == 0 || printerVariables.stage == 2 && printerVariables.gcodeState == "RUNNING"){ //Printing or Resume after Pausing
-        tweenToColor(0,0,0,255,255,500); //ON
+        tweenToColor(0,0,0,255,255,500); //WHITE
         if (printerConfig.debuging){
             Serial.println(F("Printing, Turning Leds On"));
         };
@@ -240,7 +240,7 @@ void updateleds(){
     }
 
     if (printerVariables.stage == -1){ // Idle
-        tweenToColor(0,0,0,255,255,500); //ON
+        tweenToColor(0,0,0,255,255,500); //WHITE
         if (printerConfig.debuging){
             Serial.println(F("Idle, Turning Leds On"));
         };
@@ -248,7 +248,7 @@ void updateleds(){
     }
 
     if (printerVariables.stage == -2){ //Offline
-        tweenToColor(0,0,0,255,255,500); //ON
+        tweenToColor(0,0,0,255,255,500); //WHITE
         if (printerConfig.debuging){
             Serial.println(F("Stage -2, Turning Leds On"));
         };
