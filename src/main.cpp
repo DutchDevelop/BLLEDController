@@ -13,18 +13,18 @@ void setup(){
     Serial.println(F("Initializing"));
     Serial.println(ESP.getFreeHeap());
     setupLeds();
-    tweenToColor(255,255,255,255,255,500);
+    tweenToColor(255,255,255,255,255,500); //ALL LEDS ON
     delay(2000);
-    tweenToColor(255,0,0,0,0,500);
+    tweenToColor(255,0,0,0,0,500); //RED
     setupFileSystem();
     loadFileSystem();
     delay(2000);
-    tweenToColor(255,165,0,0,0,500); 
+    tweenToColor(255,165,0,0,0,500); //ORANGE
     setupSerial();
 
     if (strlen(globalVariables.SSID) == 0 || strlen(globalVariables.APPW) == 0) {
         Serial.println(F("SSID or password is missing. Please configure both by going to: https://dutchdevelop.com/blled-configuration-setup/"));
-        tweenToColor(255,0,255,0,0,500); 
+        tweenToColor(255,0,255,0,0,500); //PINK
         return;
     }
 
@@ -32,12 +32,12 @@ void setup(){
         return;
     };
     delay(2000);
-    tweenToColor(0,0,255,0,0,500); 
+    tweenToColor(0,0,255,0,0,500); //BLUE
     setupWebserver();
 
     delay(2000);
 
-    tweenToColor(0,0,0,0,0,500); 
+    tweenToColor(0,0,0,0,0,500); //OFF
     setupMqtt();
 
     Serial.println(F("BLLED Controller started"));
