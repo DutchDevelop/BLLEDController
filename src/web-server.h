@@ -40,6 +40,11 @@ void submitSetup(){
         printerConfig.finishindication = webServer.arg("finishIndication") == "on";
         printerConfig.debuging = webServer.arg("debuging") == "on";
         printerConfig.mqttdebug = webServer.arg("mqttdebug") == "on";
+        printerConfig.overrideRed = webServer.arg("overrideRed") == "on";
+        printerConfig.overrideGreen = webServer.arg("overrideGreen") == "on";
+        printerConfig.overrideBlue = webServer.arg("overrideBlue") == "on";
+        printerConfig.overrideWarmWhite = webServer.arg("overrideWarmWhite") == "on";
+        printerConfig.overrideColdWhite = webServer.arg("overrideColdWhite") == "on";
         printerConfig.brightness = webServer.arg("brightnessslider").toInt();
 
         saveFileSystem();
@@ -67,6 +72,11 @@ void handleGetConfig(){
     doc["finishindication"] = printerConfig.finishindication;
     doc["debuging"] = printerConfig.debuging;
     doc["mqttdebug"] = printerConfig.mqttdebug;
+    doc["overrideRed"] = printerConfig.overrideRed;
+    doc["overrideGreen"] = printerConfig.overrideGreen;
+    doc["overrideBlue"] = printerConfig.overrideBlue;
+    doc["overrideWarmWhite"] = printerConfig.overrideWarmWhite;
+    doc["overrideColdWhite"] = printerConfig.overrideColdWhite;
     
     const char* firmwareVersionChar = globalVariables.FWVersion.c_str();
     doc["firmwareversion"] = firmwareVersionChar;

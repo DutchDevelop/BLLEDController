@@ -27,9 +27,9 @@ void tweenToColor(int targetRed, int targetGreen, int targetBlue, int targetWarm
     int brightenedCold = round(targetCold * brightness);
 
     if (brightenedRed == currentRed && brightenedGreen == currentGreen && brightenedBlue == currentBlue && brightenedWarm == currentWarm && brightenedCold == currentCold){
-        if (printerConfig.debuging){
-            Serial.println(F("LEDS Trying to change to the same color."));
-        };
+        //if (printerConfig.debuging){
+        //    Serial.println(F("LEDS Trying to change to the same color."));
+        //};
         return; // already at that color
     }
     float stepTime = (float)duration / 255.0;
@@ -108,16 +108,24 @@ void RGBCycle() {
 
 void updateleds(){
     if (printerConfig.debuging){
-        Serial.println(F("Updating leds"));
+        //Serial.println(F("Updating leds"));
 
-        Serial.println(printerVariables.stage);
-        Serial.println(printerVariables.gcodeState);
-        Serial.println(printerVariables.ledstate);
-        Serial.println(printerVariables.hmsstate);
-        Serial.println(printerVariables.parsedHMS);
+        //Serial.println(printerVariables.stage);
+        //Serial.println(printerVariables.gcodeState);
+        //Serial.println(printerVariables.ledstate);
+        //Serial.println(printerVariables.hmsstate);
+        //Serial.println(printerVariables.parsedHMS);
     }
-    //OFF
+    
+    if (printerVariables.overrideLEDstate == true){  //Force LED ON regardless of state (via webpage)
+        tweenToColor(0,0,0,255,255,500); //WHITE
+        if (printerConfig.debuging){
+            Serial.println(F("LED Override ON, Turning Leds On"));
+        };
+        return;
+    }    
 
+    //OFF
     if (printerConfig.turbo == true){
         return;
     }
@@ -138,15 +146,17 @@ void updateleds(){
         return;
     }
 
-     if (printerVariables.stage == 14){ //Cleaning nozzle
+     if (printerVariables.stage == 14 && printerVariables.previous_stage != printerVariables.stage){ //Cleaning nozzle
         tweenToColor(0,0,0,0,0,500); //OFF
+        printerVariables.previous_stage = printerVariables.stage;
         if (printerConfig.debuging){
             Serial.println(F("Cleaning nozzle, Turning Leds off"));
         };
         return;
     }
 
-    if (printerVariables.stage == 9){ //Scaning surface
+    if (printerVariables.stage == 9 && printerVariables.previous_stage != printerVariables.stage){ //Scaning surface
+        printerVariables.previous_stage = printerVariables.stage;
         tweenToColor(0,0,0,0,0,500); //OFF
         if (printerConfig.debuging){
             Serial.println(F("Scanning Surface, Turning Leds off"));
@@ -173,15 +183,16 @@ void updateleds(){
             return;
         }
 
-        if (printerVariables.stage == 6){ //Fillament runout
+        if (printerVariables.stage == 6 && printerVariables.previous_stage != printerVariables.stage){ //Fillament runout
             tweenToColor(255,0,0,0,0,500); //RED
+            printerVariables.previous_stage = printerVariables.stage;
             if (printerConfig.debuging){
                 Serial.println(F("Fillament runout, Turning Leds red"));
             };
             return;
         }
 
-        if (printerVariables.stage == 17){ //Front Cover Removed
+        if (printerVariables.stage == 17 && printerVariables.previous_stage != printerVariables.stage){ //Front Cover Removed
             tweenToColor(255,0,0,0,0,500); //RED
             if (printerConfig.debuging){
                 Serial.println(F("Front Cover Removed, Turning Leds red"));
@@ -189,7 +200,7 @@ void updateleds(){
             return;
         }
 
-        if (printerVariables.stage == 20){ //Nozzle Temp fail
+        if (printerVariables.stage == 20 && printerVariables.previous_stage != printerVariables.stage){ //Nozzle Temp fail
             tweenToColor(255,0,0,0,0,500); //RED
             if (printerConfig.debuging){
                 Serial.println(F("Nozzle Temp fail, Turning Leds red"));
@@ -197,7 +208,7 @@ void updateleds(){
             return;
         }
 
-        if (printerVariables.stage == 21){ //Bed Temp Fail
+        if (printerVariables.stage == 21 && printerVariables.previous_stage != printerVariables.stage){ //Bed Temp Fail
             tweenToColor(255,0,0,0,0,500); //RED
             if (printerConfig.debuging){
                 Serial.println(F("Bed Temp fail, Turning Leds red"));
@@ -208,8 +219,9 @@ void updateleds(){
 
     //GREEN
 
-    if ((millis() - printerVariables.finishstartms) <= 300000 && printerVariables.gcodeState == "FINISH" && printerConfig.finishindication == true){
+    if ((millis() - printerVariables.finishstartms) <= 300000 && printerVariables.gcodeState == "FINISH" && printerVariables.previous_gcodeState != printerVariables.gcodeState && printerConfig.finishindication == true){
         tweenToColor(0,255,0,0,0,500); //GREEN
+        printerVariables.previous_gcodeState = printerVariables.gcodeState;
         if (printerConfig.debuging){
             Serial.println(F("Finished print, Turning Leds green"));
             Serial.println(F("Leds should stay on for: "));
@@ -221,8 +233,9 @@ void updateleds(){
 
     //BLUE 
 
-     if (printerVariables.stage == 2 && printerVariables.gcodeState == "PAUSE"){// Pause
+     if (printerVariables.stage == 2 && printerVariables.gcodeState == "PAUSE" && printerVariables.previous_gcodeState != printerVariables.gcodeState){// Pause
         tweenToColor(0,0,255,0,0,500); //BLUE
+        printerVariables.previous_gcodeState = printerVariables.gcodeState;
         if (printerConfig.debuging){
             Serial.println(F("Pause, Turning Leds blue"));
         };
@@ -231,8 +244,9 @@ void updateleds(){
 
     //ON
 
-    if (printerVariables.stage == 0 || printerVariables.stage == 2 && printerVariables.gcodeState == "RUNNING"){ //Printing or Resume after Pausing
+    if (printerVariables.stage == 0 || printerVariables.stage == 2 && printerVariables.gcodeState == "RUNNING" && printerVariables.previous_gcodeState != printerVariables.gcodeState){ //Printing or Resume after Pausing
         tweenToColor(0,0,0,255,255,500); //WHITE
+        printerVariables.previous_gcodeState = printerVariables.gcodeState;
         if (printerConfig.debuging){
             Serial.println(F("Printing, Turning Leds On"));
         };
@@ -257,21 +271,21 @@ void updateleds(){
 }
 
 void setupLeds() {
+    Serial.println(F("Updating from setupleds"));
     pinMode(redPin, OUTPUT);
     pinMode(greenPin, OUTPUT);
     pinMode(bluePin, OUTPUT);
     pinMode(coldPin, OUTPUT);
     pinMode(warmPin, OUTPUT);
-    Serial.println(F("Updating from setupleds"));
     updateleds();
 }
 
 void ledsloop(){
     RGBCycle();
     if((printerVariables.finishstartms > 0 && millis() - printerVariables.finishstartms) >= 300000 && printerVariables.gcodeState == "FINISH"){
+        Serial.println(F("Updating from finishloop"));
         printerVariables.finishstartms = 0;
         printerVariables.gcodeState = "IDLE";
-        Serial.println(F("Updating from finishloop"));
         updateleds();
     }
     delay(10);

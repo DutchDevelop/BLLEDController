@@ -9,7 +9,10 @@ extern "C"
     typedef struct PrinterVaraiblesStruct{
         String parsedHMS = "";
         String gcodeState = "IDLE";
+        String previous_gcodeState = "IDLE";
         int stage = 0;
+        int previous_stage = 0;
+        bool overrideLEDstate = false;
         bool ledstate = true;
         bool hmsstate = false;
         bool online = false;
@@ -34,6 +37,11 @@ extern "C"
     {
         int brightness = 100;
         bool replicatestate = true;
+        bool overrideRed = false;
+        bool overrideGreen = false;
+        bool overrideBlue = false;
+        bool overrideWarmWhite = false;
+        bool overrideColdWhite = false;
         bool errordetection = true;
         bool finishindication = true;
         bool debuging = true;

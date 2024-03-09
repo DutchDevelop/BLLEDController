@@ -134,6 +134,19 @@
         }
     </style>
     <script>
+        document.querySelectorAll('input[type=checkbox]').forEach(element => element.addEventListener('click', checkOverride))
+        function checkOverride(event) {
+            if (document.getElementById('replicateLedState').checked) {
+                document.getElementById('overrideRed').prop("checked", false);
+                document.getElementById('overrideGreen').prop("checked", false);
+                document.getElementById('overrideBlue').prop("checked", false);
+                document.getElementById('overrideWarmWhite').prop("checked", false);
+                document.getElementById('overrideColdWhite').prop("checked", false);
+                $("#OverrideValues").hide();
+            } else {
+                $("#OverrideValues").show();
+            }
+        }
         function updateConfig() {
             var xhr = new XMLHttpRequest();
             xhr.onreadystatechange = function() {
@@ -148,6 +161,11 @@
                     document.getElementById('debuging').checked = configData.debuging || false;
                     document.getElementById('mqttdebug').checked = configData.mqttdebug || false;
                     document.getElementById('turbo').checked = configData.turbo || false;
+                    document.getElementById('overrideRed').checked = configData.overrideRed || false;
+                    document.getElementById('overrideGreen').checked = configData.overrideGreen || false;
+                    document.getElementById('overrideBlue').checked = configData.overrideBlue || false;
+                    document.getElementById('overrideWarmWhite').checked = configData.overrideWarmWhite || false;
+                    document.getElementById('overrideColdWhite').checked = configData.overrideColdWhite || false;
                     document.getElementById('brightnessslider').value = configData.brightness || 100;
                     document.getElementById("brightnesssliderDisplay").textContent = "Brightness: "+ (configData.brightness || 100) + "%";
                     document.getElementById("firmwareversion").textContent = "Firmware Version:"+(configData.firmwareversion  || "Unknown version");
@@ -210,48 +228,99 @@
                 <input type='text' id='code' name='code' title='Enter the access code for your MQTT broker' value=''><br>
                 <label>Serial ID:</label>
                 <input type='text' id='id' name='id' title='Enter the serial ID for your device' value=''><br>
-                <div class='toggle-container'>
-                    <span class='toggle-label'>Replicate LED State:</span>
-                    <label class='toggle-switch'>
-                        <input type='checkbox' id='replicateLedState' name='replicateLedState'>
-                        <span class='slider'></span>
-                    </label>
-                </div>
-                <div class='toggle-container'>
-                    <span class='toggle-label'>Error Detection:</span>
-                    <label class='toggle-switch'>
-                        <input type='checkbox' id='errorDetection' name='errorDetection'>
-                        <span class='slider'></span>
-                    </label>
-                </div>
-                <div class='toggle-container'>
-                    <span class='toggle-label'>Finish Indication:</span>
-                    <label class='toggle-switch'>
-                        <input type='checkbox' id='finishIndication' name='finishIndication'>
-                        <span class='slider'></span>
-                    </label>
-                </div>
-                <div class='toggle-container'>
-                    <span class='toggle-label'>RGB Mode:</span>
-                    <label class='toggle-switch'>
-                        <input type='checkbox' id='turbo' name='turbo'>
-                        <span class='slider'></span>
-                    </label>
-                </div>
-                <div class='toggle-container'>
-                    <span class='toggle-label'>Debuging:</span>
-                    <label class='toggle-switch'>
-                        <input type='checkbox' id='debuging' name='debuging'>
-                        <span class='slider'></span>
-                    </label>
-                </div>
-                <div class='toggle-container'>
-                    <span class='toggle-label'>MQTT Logging:</span>
-                    <label class='toggle-switch'>
-                        <input type='checkbox' id='mqttdebug' name='mqttdebug'>
-                        <span class='slider'></span>
-                    </label>
-                </div>
+                <table width="100%">
+                    <TR>
+                        <TD valign="top" width="50%">
+                            <h3 id="GeneralSettings">General Settings</h3>
+                            Enable / Disable below values to change<BR>
+                            the BLLED response to MQTT messages<BR>
+                            <div class='toggle-container'>
+                                <span class='toggle-label'>Replicate LED State:</span>
+                                <label class='toggle-switch'>
+                                    <input type='checkbox' id='replicateLedState' name='replicateLedState'>
+                                    <span class='slider'></span>
+                                </label>
+                            </div>
+                            <div class='toggle-container'>
+                                <span class='toggle-label'>Error Detection:</span>
+                                <label class='toggle-switch'>
+                                    <input type='checkbox' id='errorDetection' name='errorDetection'>
+                                    <span class='slider'></span>
+                                </label>
+                            </div>
+                            <div class='toggle-container'>
+                                <span class='toggle-label'>Finish Indication:</span>
+                                <label class='toggle-switch'>
+                                    <input type='checkbox' id='finishIndication' name='finishIndication'>
+                                    <span class='slider'></span>
+                                </label>
+                            </div>
+                            <div class='toggle-container'>
+                                <span class='toggle-label'>RGB Mode:</span>
+                                <label class='toggle-switch'>
+                                    <input type='checkbox' id='turbo' name='turbo'>
+                                    <span class='slider'></span>
+                                </label>
+                            </div>
+                            <div class='toggle-container'>
+                                <span class='toggle-label'>Debuging:</span>
+                                <label class='toggle-switch'>
+                                    <input type='checkbox' id='debuging' name='debuging'>
+                                    <span class='slider'></span>
+                                </label>
+                            </div>
+                            <div class='toggle-container'>
+                                <span class='toggle-label'>MQTT Logging:</span>
+                                <label class='toggle-switch'>
+                                    <input type='checkbox' id='mqttdebug' name='mqttdebug'>
+                                    <span class='slider'></span>
+                                </label>
+                            </div>
+                        </TD>
+                        <TD valign="top" width="50%">
+                            <div id="OverrideValues">
+                                <h3 id="TestColors">Test LED colors</h3>
+                                Enable below colors to test LEDs<BR>
+                                If any are active - Wifi, MQTT & printer state are all ignored<BR>
+                                <div class='toggle-container'>
+                                    <span class='toggle-label'>Override Red:</span>
+                                    <label class='toggle-switch'>
+                                        <input type='checkbox' id='overrideRed' name='overrideRed'>
+                                        <span class='slider'></span>
+                                    </label>
+                                </div>
+                                <div class='toggle-container'>
+                                    <span class='toggle-label'>Override Green:</span>
+                                    <label class='toggle-switch'>
+                                        <input type='checkbox' id='overrideGreen' name='overrideGreen'>
+                                        <span class='slider'></span>
+                                    </label>
+                                </div>
+                                <div class='toggle-container'>
+                                    <span class='toggle-label'>Override Blue:</span>
+                                    <label class='toggle-switch'>
+                                        <input type='checkbox' id='overrideBlue' name='overrideBlue'>
+                                        <span class='slider'></span>
+                                    </label>
+                                </div>
+                                <div class='toggle-container'>
+                                    <span class='toggle-label'>Override Warm White:</span>
+                                    <label class='toggle-switch'>
+                                        <input type='checkbox' id='overrideWarmWhite' name='overrideWarmWhite'>
+                                        <span class='slider'></span>
+                                    </label>
+                                </div>
+                                <div class='toggle-container'>
+                                    <span class='toggle-label'>Override Cold White:</span>
+                                    <label class='toggle-switch'>
+                                        <input type='checkbox' id='overrideColdWhite' name='overrideColdWhite'>
+                                        <span class='slider'></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </TD>
+                    </TR>
+                </table>
                 <label id="brightnesssliderDisplay">Brightness: 50%</label>
                 <input type="range" id="brightnessslider" name="brightnessslider" min="0" max="100" value="100"> <br>
 

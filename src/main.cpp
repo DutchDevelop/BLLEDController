@@ -15,11 +15,13 @@ void setup(){
     setupLeds();
     tweenToColor(255,255,255,255,255,500); //ALL LEDS ON
     delay(2000);
+
     tweenToColor(255,0,0,0,0,500); //RED
     setupFileSystem();
     loadFileSystem();
     delay(2000);
-    tweenToColor(255,165,0,0,0,500); //ORANGE
+
+    tweenToColor(255,165,0,0,0,500); //YELLOW
     setupSerial();
 
     if (strlen(globalVariables.SSID) == 0 || strlen(globalVariables.APPW) == 0) {
@@ -37,7 +39,7 @@ void setup(){
 
     delay(2000);
 
-    tweenToColor(0,0,0,0,0,500); //OFF
+    tweenToColor(34,224,238,0,0,500); //CYAN
     setupMqtt();
 
     Serial.println(F("BLLED Controller started"));
@@ -47,7 +49,11 @@ void setup(){
 
 void loop(){
     serialLoop();
-    if (globalVariables.started == true){
+    if (printerVariables.overrideLEDstate == true){
+        webserverloop();
+        ledsloop();
+    }
+    else if (globalVariables.started == true){
         mqttloop();
         webserverloop();
         ledsloop();
