@@ -159,13 +159,16 @@
                     document.getElementById('errorDetection').checked = configData.errordetection || false;
                     document.getElementById('finishIndication').checked = configData.finishindication || false;
                     document.getElementById('debuging').checked = configData.debuging || false;
+                    document.getElementById('debugingchange').checked = configData.debugingchange || false;
                     document.getElementById('mqttdebug').checked = configData.mqttdebug || false;
-                    document.getElementById('turbo').checked = configData.turbo || false;
+                    document.getElementById('discoMode').checked = configData.discoMode || false;
                     document.getElementById('overrideRed').checked = configData.overrideRed || false;
                     document.getElementById('overrideGreen').checked = configData.overrideGreen || false;
                     document.getElementById('overrideBlue').checked = configData.overrideBlue || false;
                     document.getElementById('overrideWarmWhite').checked = configData.overrideWarmWhite || false;
                     document.getElementById('overrideColdWhite').checked = configData.overrideColdWhite || false;
+                    document.getElementById('debugwifi').checked = configData.debugwifi || false;
+                    document.getElementById('apMAC').value = configData.apMAC || '';
                     document.getElementById('brightnessslider').value = configData.brightness || 100;
                     document.getElementById("brightnesssliderDisplay").textContent = "Brightness: "+ (configData.brightness || 100) + "%";
                     document.getElementById("firmwareversion").textContent = "Firmware Version:"+(configData.firmwareversion  || "Unknown version");
@@ -212,12 +215,12 @@
 <body>
     <div class='container'>
         <div class='logo-container'>
-            <img class='logo' src='https://dutchdevelop.com/wp-content/uploads/2023/08/Icon-square.png' alt='Logo'>
+            <img class='logo' src='https://raw.githubusercontent.com/DutchDevelop/BLLEDController/main/src/www/Icon%20square.png' alt='Logo'>
             <span class='logo-text'>BLLEDController</span>
         </div>
         <div class='form-container'>
             <h1>BL LED Controller Settings Page</h1>
-            <h3 id="firmwareversion">Firmware version: Expirimental 12.30.23</h3>
+            <h3 id="firmwareversion">Firmware version: Expirimental 10.3.24</h3>
             <p>
                 This page allows you to change the MQTT broker info and any additional settings.
             </p>
@@ -228,6 +231,8 @@
                 <input type='text' id='code' name='code' title='Enter the access code for your MQTT broker' value=''><br>
                 <label>Serial ID:</label>
                 <input type='text' id='id' name='id' title='Enter the serial ID for your device' value=''><br>
+                <label>(Optional) Access Point MAC:</label>
+                <input type='text' id='apMAC' name='apMAC' title='Enter the MAC address of your specific Access Point' value=''><br>
                 <table width="100%">
                     <TR>
                         <TD valign="top" width="50%">
@@ -258,7 +263,7 @@
                             <div class='toggle-container'>
                                 <span class='toggle-label'>RGB Mode:</span>
                                 <label class='toggle-switch'>
-                                    <input type='checkbox' id='turbo' name='turbo'>
+                                    <input type='checkbox' id='discoMode' name='discoMode'>
                                     <span class='slider'></span>
                                 </label>
                             </div>
@@ -266,6 +271,13 @@
                                 <span class='toggle-label'>Debuging:</span>
                                 <label class='toggle-switch'>
                                     <input type='checkbox' id='debuging' name='debuging'>
+                                    <span class='slider'></span>
+                                </label>
+                            </div>
+                            <div class='toggle-container'>
+                                <span class='toggle-label'>Debuging Changes:</span>
+                                <label class='toggle-switch'>
+                                    <input type='checkbox' id='debugingchange' name='debugingchange'>
                                     <span class='slider'></span>
                                 </label>
                             </div>
@@ -314,6 +326,15 @@
                                     <span class='toggle-label'>Override Cold White:</span>
                                     <label class='toggle-switch'>
                                         <input type='checkbox' id='overrideColdWhite' name='overrideColdWhite'>
+                                        <span class='slider'></span>
+                                    </label>
+                                </div>
+                                <h3 id="TestColors">Show Wifi Strength</h3>
+                                &gt;=-50 dBm Green, &gt;= -60 dBm LightGreen<BR>&gt;= -70 dBm Yellow, &gt;= -80 dBm Orange<BR>&lt;80 Red<BR>
+                                <div class='toggle-container'>
+                                    <span class='toggle-label'>Debug Wifi:</span>
+                                    <label class='toggle-switch'>
+                                        <input type='checkbox' id='debugwifi' name='debugwifi'>
                                         <span class='slider'></span>
                                     </label>
                                 </div>

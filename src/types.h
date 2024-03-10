@@ -12,12 +12,15 @@ extern "C"
         String previous_gcodeState = "IDLE";
         int stage = 0;
         int previous_stage = 0;
+        long lastRSSI = 0;
         bool overrideLEDstate = false;
         bool ledstate = true;
         bool hmsstate = false;
         bool online = false;
         bool finished = false;
+        bool doorOpen = false;
         unsigned long finishstartms;
+        unsigned long disconnectMQTTms;
 
     } PrinterVariables;
 
@@ -26,10 +29,11 @@ extern "C"
     typedef struct GlobalVariablesStruct{
         char SSID[32];
         char APPW[32];
-        String FWVersion = "EXPERIMENTAL 25.2.24";
+        String FWVersion = "EXPERIMENTAL 10.3.24";
         String Host = "BLLED";
         bool started = false;
     } GlobalVariables;
+
 
     GlobalVariables globalVariables;
 
@@ -37,16 +41,23 @@ extern "C"
     {
         int brightness = 100;
         bool replicatestate = true;
+        bool errordetection = true;
+        bool finishindication = true;
+        bool mqttdebug = false;
+
+        char BSSID[18]; // Nominate the specific AP to connect to (Useful when you have multiple accesspoints with same name)
+
+        bool debuging = false;
+        bool debugingchange = true;
+        bool debugwifi = false;
+
         bool overrideRed = false;
         bool overrideGreen = false;
         bool overrideBlue = false;
         bool overrideWarmWhite = false;
         bool overrideColdWhite = false;
-        bool errordetection = true;
-        bool finishindication = true;
-        bool debuging = true;
-        bool mqttdebug = true;
-        bool turbo = false;
+        
+        bool discoMode = false;
         char printerIP[16];
         char accessCode[9];
         char serialNumber[16];

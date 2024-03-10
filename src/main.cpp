@@ -14,12 +14,12 @@ void setup(){
     Serial.println(ESP.getFreeHeap());
     setupLeds();
     tweenToColor(255,255,255,255,255,500); //ALL LEDS ON
-    delay(2000);
+    delay(1000);
 
     tweenToColor(255,0,0,0,0,500); //RED
     setupFileSystem();
     loadFileSystem();
-    delay(2000);
+    delay(1000);
 
     tweenToColor(255,165,0,0,0,500); //YELLOW
     setupSerial();
@@ -33,14 +33,15 @@ void setup(){
     if (!connectToWifi()){
         return;
     };
-    delay(2000);
+    delay(1000);
+
     tweenToColor(0,0,255,0,0,500); //BLUE
     setupWebserver();
-
-    delay(2000);
+    delay(1000);
 
     tweenToColor(34,224,238,0,0,500); //CYAN
     setupMqtt();
+    delay(1000);
 
     Serial.println(F("BLLED Controller started"));
 
@@ -57,10 +58,25 @@ void loop(){
         mqttloop();
         webserverloop();
         ledsloop();
+        
         if (WiFi.status() != WL_CONNECTED){
             Serial.println(F("Lost Connection, Reconnecting"));
             WiFi.disconnect();
+            delay(10);
             WiFi.reconnect();
+        }
+        else{
+            //Monitor Wifi Strength
+            long wifiNow = WiFi.RSSI();
+            if (wifiNow > (printerVariables.lastRSSI + 5)  || wifiNow < (printerVariables.lastRSSI - 5))
+            {
+                //Wifi strength changed by +/- 4dBm
+                if (printerConfig.debugingchange){
+                    Serial.print(F("Wifi Strength now "));
+                    Serial.println(wifiNow);
+                }
+                printerVariables.lastRSSI = wifiNow;
+            }
         }
     }
 }

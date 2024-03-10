@@ -41,6 +41,7 @@ void saveFileSystem(){
 
     json["ssid"] = globalVariables.SSID;
     json["appw"] = globalVariables.APPW;
+    json["bssi"] = printerConfig.BSSID;
 
     File configFile = LittleFS.open(configPath, "w");
 
@@ -101,6 +102,7 @@ void loadFileSystem(){
         printerConfig.errordetection = json["errordetection"];
         printerConfig.finishindication = json["finishindication"];
         printerConfig.mqttdebug = json["mqttdebug"];
+        strcpy(printerConfig.BSSID, json["bssi"]);
 
         Serial.println(F("Loaded config"));
     } else {

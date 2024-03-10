@@ -34,17 +34,25 @@ void submitSetup(){
         strcpy(printerConfig.printerIP,webServer.arg("ip").c_str());
         strcpy(printerConfig.accessCode,webServer.arg("code").c_str());
         strcpy(printerConfig.serialNumber,webServer.arg("id").c_str());
-        printerConfig.turbo = webServer.arg("turbo") == "on"; 
+        strcpy(printerConfig.BSSID,webServer.arg("apMAC").c_str());
+
         printerConfig.replicatestate = webServer.arg("replicateLedState") == "on";
         printerConfig.errordetection = webServer.arg("errorDetection") == "on";
         printerConfig.finishindication = webServer.arg("finishIndication") == "on";
+        printerConfig.discoMode = webServer.arg("discoMode") == "on";
         printerConfig.debuging = webServer.arg("debuging") == "on";
+        printerConfig.debugingchange = webServer.arg("debugingchange") == "on";
         printerConfig.mqttdebug = webServer.arg("mqttdebug") == "on";
+        
+        printerVariables.overrideLEDstate = !printerConfig.replicatestate;
+
         printerConfig.overrideRed = webServer.arg("overrideRed") == "on";
         printerConfig.overrideGreen = webServer.arg("overrideGreen") == "on";
         printerConfig.overrideBlue = webServer.arg("overrideBlue") == "on";
         printerConfig.overrideWarmWhite = webServer.arg("overrideWarmWhite") == "on";
         printerConfig.overrideColdWhite = webServer.arg("overrideColdWhite") == "on";
+        printerConfig.debugwifi = webServer.arg("debugwifi") == "on";        
+
         printerConfig.brightness = webServer.arg("brightnessslider").toInt();
 
         saveFileSystem();
@@ -62,22 +70,27 @@ void handleGetConfig(){
     }
 
     DynamicJsonDocument doc(300);
-    doc["brightness"] = printerConfig.brightness;
-    doc["turbo"] = printerConfig.turbo;
     doc["ip"] = printerConfig.printerIP;
     doc["code"] = printerConfig.accessCode;
     doc["id"] = printerConfig.serialNumber;
+    doc["apMAC"] = printerConfig.BSSID;
+
     doc["replicateled"] = printerConfig.replicatestate;
     doc["errordetection"] = printerConfig.errordetection;
     doc["finishindication"] = printerConfig.finishindication;
+    doc["discoMode"] = printerConfig.discoMode;
     doc["debuging"] = printerConfig.debuging;
+    doc["debugingchange"] = printerConfig.debugingchange;
     doc["mqttdebug"] = printerConfig.mqttdebug;
+
     doc["overrideRed"] = printerConfig.overrideRed;
     doc["overrideGreen"] = printerConfig.overrideGreen;
     doc["overrideBlue"] = printerConfig.overrideBlue;
     doc["overrideWarmWhite"] = printerConfig.overrideWarmWhite;
     doc["overrideColdWhite"] = printerConfig.overrideColdWhite;
-    
+    doc["debugwifi"] = printerConfig.debugwifi;
+
+    doc["brightness"] = printerConfig.brightness;
     const char* firmwareVersionChar = globalVariables.FWVersion.c_str();
     doc["firmwareversion"] = firmwareVersionChar;
 
@@ -104,6 +117,8 @@ void setupWebserver(){
     webServer.on("/update", HTTP_POST, []() {
         webServer.sendHeader("Connection", "close");
         webServer.send(200, "text/plain", (Update.hasError()) ? "FAIL" : "OK");
+        Serial.println(F("Restarting Device"));
+        Serial.println("");
         ESP.restart();
     }, []() {
         HTTPUpload& upload = webServer.upload();
