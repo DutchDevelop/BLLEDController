@@ -52,7 +52,7 @@ void saveFileSystem(){
 
     serializeJson(json, configFile);
     configFile.close();
-    Serial.println(F("Config Saved"));
+    if (printerConfig.debuging) Serial.println(F("Config Saved"));
 }
 
 void loadFileSystem(){
@@ -104,7 +104,7 @@ void loadFileSystem(){
         printerConfig.mqttdebug = json["mqttdebug"];
         strcpy(printerConfig.BSSID, json["bssi"]);
 
-        Serial.println(F("Loaded config"));
+        if (printerConfig.debuging) Serial.println(F("Loaded config"));
     } else {
         Serial.println(F("Failed loading config"));
         Serial.println(F("Clearing config"));
@@ -133,6 +133,8 @@ void setupFileSystem(){
         Serial.println(F("Failed to mount LittleFS"));
         LittleFS.format();
         Serial.println(F("Formatting LittleFS"));
+        Serial.println(F("Restarting Device"));
+        Serial.println("");
         ESP.restart();
     }
     Serial.println(F("Mounted LittleFS"));

@@ -44,6 +44,7 @@ void setup(){
     delay(1000);
 
     Serial.println(F("BLLED Controller started"));
+    Serial.println(F(""));
 
     globalVariables.started = true;
 }
@@ -68,9 +69,9 @@ void loop(){
         else{
             //Monitor Wifi Strength
             long wifiNow = WiFi.RSSI();
-            if (wifiNow > (printerVariables.lastRSSI + 5)  || wifiNow < (printerVariables.lastRSSI - 5))
+            if (wifiNow > (printerVariables.lastRSSI + 9)  || wifiNow < (printerVariables.lastRSSI - 9))
             {
-                //Wifi strength changed by +/- 4dBm
+                //Wifi strength changed by +/- 10dBm
                 if (printerConfig.debugingchange){
                     Serial.print(F("Wifi Strength now "));
                     Serial.println(wifiNow);

@@ -8,8 +8,8 @@ extern "C"
 
     typedef struct PrinterVaraiblesStruct{
         String parsedHMS = "";
-        String gcodeState = "IDLE";
-        String previous_gcodeState = "IDLE";
+        String gcodeState = "FINISH";
+        String previous_gcodeState = "FINISH";
         int stage = 0;
         int previous_stage = 0;
         long lastRSSI = 0;
@@ -19,8 +19,13 @@ extern "C"
         bool online = false;
         bool finished = false;
         bool doorOpen = false;
-        unsigned long finishstartms;
-        unsigned long disconnectMQTTms;
+        unsigned long finishstartms = 0;
+        unsigned long idleStartms = 0;
+        unsigned long disconnectMQTTms = 0;
+        unsigned long lastdoorClosems = 0;
+        unsigned long lastdoorOpenms = 0;
+        bool doorSwitchenabled = false;
+        bool initalisedLEDs = false;
 
     } PrinterVariables;
 

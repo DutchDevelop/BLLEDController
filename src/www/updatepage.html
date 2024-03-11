@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css' integrity='sha512-ixlOZJxl8aj1Cz0mKjyFTJQx/s+U6wo0o6P+CZPRJX+gze3Jh8Fro/mTyLr5r/Vx+uV7J8RvRfZp5+X9fivG7A==' crossorigin='anonymous' referrerpolicy='no-referrer' />
+    <style>
+        body {
+            background-color: #f1f1f1;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0 auto;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            width: 100px;
+            height: 100px;
+            margin-right: 20px;
+        }
+
+        .logo-text {
+            font-size: 36px;
+            font-weight: bold;
+        }
+
+        .form-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            width: 60%;
+            margin-top: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        input[type='file'] {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        input[type='submit'] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        progress {
+            width: 100%;
+            height: 15px;
+            border: none;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .status-text {
+            font-weight: bold;
+            color: #4CAF50;
+            margin-top: 10px;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div class='container'>
+        <div class='logo-container'>
+            <img class='logo' src='https://dutchdevelop.com/wp-content/uploads/2023/08/Icon-square.png' alt='Logo'>
+            <span class='logo-text'>BLLEDController</span>
+        </div>
+        <div class='form-container'>
+            <h1>BLLEDController Update Page</h1>
+            <p>
+                This page allows you to update your device.
+            </p>
+            <form enctype="multipart/form-data" id="upload_form" method="post">
+                <label>bin file:</label>
+                <input accept='.bin,.bin.gz' class="input-file" id="file1" name='firmware' type="file"><br>
+                <progress id="progressBar" max="100" value="0"></progress><br>
+                <button id="button-send" class="button-send" type="submit" disabled>Update</button>
+            </form>
+            <p class="status-text" id="status">Status: Ready</p>
+            <script type="application/javascript">
+                function _(el) {
+                    return document.getElementById(el);
+                }
+
+                function uploadFile() {
+                    var file = _("file1").files[0];
+                    var formdata = new FormData();
+                    formdata.append(_("file1").name, file, file.name);
+                    var ajax = new XMLHttpRequest();
+                    ajax.upload.addEventListener("progress", progressHandler, false);
+                    ajax.addEventListener("load", completeHandler, false);
+                    ajax.addEventListener("loadstart", startHandler, false);
+                    ajax.addEventListener("error", errorHandler, false);
+                    ajax.addEventListener("abort", abortHandler, false);
+                    ajax.open("POST", "/update"); 
+                    ajax.setRequestHeader('Access-Control-Allow-Headers', '*');
+                    ajax.setRequestHeader('Access-Control-Allow-Origin', '*');
+
+                    ajax.send(formdata);
+                }
+                function progressHandler(event) {
+                    var percent = Math.round((event.loaded / event.total) * 100);
+                    _("progressBar").value = percent;
+                }
+
+                function completeHandler(event) {
+                    _("progressBar").value = 0; 
+                    _("status").textContent = "Status: Update complete!";
+                }
+
+                function startHandler(event) {
+                    _("status").textContent = "Status: Uploading...";
+                }
+
+                function errorHandler(event) {
+                    _("status").textContent = "Status: Error during update.";
+                }
+
+                function abortHandler(event) {
+                    _("status").textContent = "Status: Update aborted.";
+                }
+
+                _('upload_form').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    uploadFile();
+                });
+
+                _('file1').addEventListener('change', function(e){
+                    var file = _("file1").files[0];
+                    if (file && file.name){
+                        _('button-send').disabled = false;
+                        _("progressBar").value = 0;
+                    }else{
+                        _('button-send').disabled = true;
+                    }
+                    _('status').innerHTML = "Firmware Upload!";
+                    _("loaded_n_total").innerHTML = "";
+                });
+            </script>
+        </div>
+    </div>
+</body>
+
+</html>

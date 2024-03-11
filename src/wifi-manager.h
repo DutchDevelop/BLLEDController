@@ -39,6 +39,7 @@ bool connectToWifi(){
             WiFi.begin(globalVariables.SSID, globalVariables.APPW);
         }
         else{
+            // Reference https://stackoverflow.com/questions/70415075/esp32-select-one-from-multiple-wifi-ap-with-same-name-ssid
             uint8_t bssid[6] = {0};
 
             //Convert to Text (Debugging code to check contacts of array)
@@ -65,8 +66,6 @@ bool connectToWifi(){
 
                 
         }
-        
-        // Reference https://stackoverflow.com/questions/70415075/esp32-select-one-from-multiple-wifi-ap-with-same-name-ssid
         delay(1000);
 
         wl_status_t status = WiFi.status();
