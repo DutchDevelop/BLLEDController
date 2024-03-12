@@ -1,12 +1,12 @@
 {
   "name": "BLLEDCONTROLLER",
-  "version": "Experimental 12 3 24",
+  "version": "Experimental 13 3 24",
   "new_install_prompt_erase": true,
   "builds": [
     {
       "chipFamily": "ESP32",
       "parts": [
-        { "path": "esp32dev/BLLC_Experimental_12.3.24.bin", "offset": 0 }
+        { "path": "esp32dev/BLLC_Experimental_13.3.24.bin", "offset": 0 }
         ]
     }
   ]
