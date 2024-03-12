@@ -134,18 +134,23 @@
         }
     </style>
     <script>
-        document.querySelectorAll('input[type=checkbox]').forEach(element => element.addEventListener('click', checkOverride))
-        function checkOverride(event) {
+        function showTestOptions() {
+            var x = document.getElementById("LEDTestSettings");
             if (document.getElementById('replicateLedState').checked) {
-                document.getElementById('overrideRed').prop("checked", false);
-                document.getElementById('overrideGreen').prop("checked", false);
-                document.getElementById('overrideBlue').prop("checked", false);
-                document.getElementById('overrideWarmWhite').prop("checked", false);
-                document.getElementById('overrideColdWhite').prop("checked", false);
-                $("#OverrideValues").hide();
+                document.getElementById('overrideRed').checked = false;
+                document.getElementById('overrideGreen').checked = false;
+                document.getElementById('overrideBlue').checked = false;
+                document.getElementById('overrideWarmWhite').checked = false;
+                document.getElementById('overrideColdWhite').checked = false;
+                document.getElementById('debugwifi').checked = false;
+                x.style.display = "none";
+                //Hide section for overrides and wifi test
             } else {
-                $("#OverrideValues").show();
-            }
+                if (x.style.display === "none") {
+                    x.style.display = "block";
+                    //Show section for overrides and wifi test
+                }
+            }                                         
         }
         function updateConfig() {
             var xhr = new XMLHttpRequest();
@@ -182,6 +187,7 @@
                 document.getElementById("brightnesssliderDisplay").textContent = "Brightness: "+ e.target.value + "%";
             });
             updateConfig();
+            showTestOptions();
         };
         
         function submitForm() {
@@ -237,12 +243,12 @@
                     <TR>
                         <TD valign="top" width="50%">
                             <h3 id="GeneralSettings">General Settings</h3>
-                            Enable / Disable below values to change<BR>
-                            the BLLED response to MQTT messages<BR>
+                            Disable 'Replicate LED State'<BR>
+                            to see additional settings<BR>
                             <div class='toggle-container'>
                                 <span class='toggle-label'>Replicate LED State:</span>
                                 <label class='toggle-switch'>
-                                    <input type='checkbox' id='replicateLedState' name='replicateLedState'>
+                                    <input type='checkbox' id='replicateLedState' name='replicateLedState' onchange='return showTestOptions()'>
                                     <span class='slider'></span>
                                 </label>
                             </div>
@@ -268,14 +274,14 @@
                                 </label>
                             </div>
                             <div class='toggle-container'>
-                                <span class='toggle-label'>Debuging:</span>
+                                <span class='toggle-label'>Debugging:</span>
                                 <label class='toggle-switch'>
                                     <input type='checkbox' id='debuging' name='debuging'>
                                     <span class='slider'></span>
                                 </label>
                             </div>
                             <div class='toggle-container'>
-                                <span class='toggle-label'>Debuging Changes:</span>
+                                <span class='toggle-label'>Debugging Changes:</span>
                                 <label class='toggle-switch'>
                                     <input type='checkbox' id='debugingchange' name='debugingchange'>
                                     <span class='slider'></span>
@@ -290,10 +296,10 @@
                             </div>
                         </TD>
                         <TD valign="top" width="50%">
-                            <div id="OverrideValues">
-                                <h3 id="TestColors">Test LED colors</h3>
+                            <div  id='LEDTestSettings' style='display:none'>
+                                <h3>Test LED colors</h3>
                                 Enable below colors to test LEDs<BR>
-                                If any are active - Wifi, MQTT & printer state are all ignored<BR>
+                                If any are active, the MQTT & printer state are all ignored<BR>
                                 <div class='toggle-container'>
                                     <span class='toggle-label'>Override Red:</span>
                                     <label class='toggle-switch'>
@@ -329,7 +335,7 @@
                                         <span class='slider'></span>
                                     </label>
                                 </div>
-                                <h3 id="TestColors">Show Wifi Strength</h3>
+                                <h3>Show Wifi Strength</h3>
                                 &gt;=-50 dBm Green, &gt;= -60 dBm LightGreen<BR>&gt;= -70 dBm Yellow, &gt;= -80 dBm Orange<BR>&lt;80 Red<BR>
                                 <div class='toggle-container'>
                                     <span class='toggle-label'>Debug Wifi:</span>

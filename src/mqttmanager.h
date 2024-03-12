@@ -43,7 +43,6 @@ void connectMqtt(){
             ParseMQTTState(mqttClient.state());
             if(mqttClient.state() == 5){
                 Serial.println(F("Restarting Device"));
-                Serial.println("");
                 ESP.restart();                
             }
         }
@@ -86,7 +85,9 @@ void ParseCallback(char *topic, byte *payload, unsigned int length){
             }
         }
         else{
-            if (printerConfig.debuging) Serial.println(F("missing command Key - Ignored"));
+            if (printerConfig.debuging){
+                Serial.println(F("Missing command Key - Ignored"));
+            } 
             return;
         }
 
@@ -109,6 +110,7 @@ void ParseCallback(char *topic, byte *payload, unsigned int length){
         //Check BBLP GCode State
         if (messageobject["print"].containsKey("gcode_state")){
             if(printerVariables.gcodeState != messageobject["print"]["gcode_state"].as<String>()){
+                printerVariables.gcodeState = messageobject["print"]["gcode_state"].as<String>();
                 if (messageobject["print"]["gcode_state"].as<String>() == "FINISH"){
                     if (printerVariables.finished == false){
                         printerVariables.finished = true;
@@ -117,7 +119,7 @@ void ParseCallback(char *topic, byte *payload, unsigned int length){
                 }else{
                     printerVariables.finished = false;
                 }
-                printerVariables.gcodeState = messageobject["print"]["gcode_state"].as<String>();
+                
                 if (printerConfig.debuging){
                     Serial.print(F("MQTT gcode_state now: "));
                     Serial.println(printerVariables.gcodeState);
@@ -180,20 +182,20 @@ void ParseCallback(char *topic, byte *payload, unsigned int length){
 
             if (printerVariables.doorOpen != doorState){
                 printerVariables.doorOpen = doorState;
+                printerVariables.idleLightsOff = false;
+                printerVariables.idleStartms = millis();
 
                 if (printerConfig.debugingchange)Serial.print(F("MQTT Door "));
-                if(doorState){
-                   if (printerConfig.debugingchange) Serial.println(F("Opened"));
+                if (printerVariables.doorOpen){
                    printerVariables.lastdoorOpenms  = millis();
-                   printerVariables.idleStartms = millis();
+                   if (printerConfig.debugingchange) Serial.println(F("Opened"));
                 }
                 else{
-                    if (printerConfig.debugingchange) Serial.println(F("Closed"));
                     if ((millis() - printerVariables.lastdoorClosems) < 6000){
                         printerVariables.doorSwitchenabled = true;
                     }
                     printerVariables.lastdoorClosems = millis();
-                    printerVariables.idleStartms = millis();
+                    if (printerConfig.debugingchange) Serial.println(F("Closed"));
                 }
                 Changed = true;
             }

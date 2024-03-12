@@ -17,9 +17,9 @@ void serialLoop(){
         DynamicJsonDocument doc(256);
         deserializeJson(doc, input);
         if (doc.containsKey("ssid") && doc.containsKey("pass")) {
-            Serial.print("SSID ");
+            Serial.print(F("SSID "));
             Serial.println(doc["ssid"].as<String>());
-            Serial.print("PASS ");
+            Serial.print(F("PASS "));
             Serial.println(doc["pass"].as<String>());
 
             Serial.println(doc["printerip"].as<String>());
@@ -37,7 +37,6 @@ void serialLoop(){
 
             saveFileSystem();
             Serial.println(F("Restarting Device"));
-            Serial.println("");
             ESP.restart();
        }
       

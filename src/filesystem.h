@@ -134,7 +134,6 @@ void setupFileSystem(){
         LittleFS.format();
         Serial.println(F("Formatting LittleFS"));
         Serial.println(F("Restarting Device"));
-        Serial.println("");
         ESP.restart();
     }
     Serial.println(F("Mounted LittleFS"));

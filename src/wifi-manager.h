@@ -12,8 +12,8 @@ bool shouldSaveConfig = true;
 int connectionAttempts = 0;
 
 void configModeCallback() {
-  Serial.println("Entered config mode");
-  Serial.print("AP IP address: ");
+  Serial.println(F("Entered config mode"));
+  Serial.print(F("AP IP address: "));
   Serial.println(WiFi.softAPIP());
 }
 
@@ -30,10 +30,10 @@ bool connectToWifi(){
     WiFi.mode(WIFI_STA);
     delay(10);
     while (WiFi.status() != WL_CONNECTED) {
-        //If optional MAC address for AP not set, connect to first available AP with SSID Name
         if(strlen(printerConfig.BSSID) == 0){
+            //If optional MAC address for AP not set, connect to first available AP with SSID Name
             if (printerConfig.debuging || printerConfig.debugingchange){
-                Serial.print(F("Plain Wifi connection attempt to "));
+                Serial.print(F("Wifi connection attempt to "));
                 Serial.println(globalVariables.SSID);
             }
             WiFi.begin(globalVariables.SSID, globalVariables.APPW);
@@ -42,7 +42,7 @@ bool connectToWifi(){
             // Reference https://stackoverflow.com/questions/70415075/esp32-select-one-from-multiple-wifi-ap-with-same-name-ssid
             uint8_t bssid[6] = {0};
 
-            //Convert to Text (Debugging code to check contacts of array)
+            //Convert to Text (Debugging code to check contents of array)
             //char tempBSSID[18];
             //snprintf(tempBSSID, sizeof(tempBSSID), "%02x:%02x:%02x:%02x:%02x:%02x", bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5]);
             //Serial.print(F("Ary to STR: "));
@@ -51,22 +51,20 @@ bool connectToWifi(){
             //Function to convert string MAC address to 6 byte array
             if(str2mac(printerConfig.BSSID,bssid)){
                 if (printerConfig.debuging || printerConfig.debugingchange){
-                    Serial.print(F("Alternate Wifi connection attempt to MAC: "));
+                    Serial.print(F("Wifi connection attempt to MAC: "));
                     Serial.println(printerConfig.BSSID);
                 }   
                 WiFi.begin(globalVariables.SSID, globalVariables.APPW, 0, bssid);
             }
             else{
                 if (printerConfig.debuging || printerConfig.debugingchange){
-                    Serial.print(F("Alternate MAC converion Failed, reverting to "));
+                    Serial.print(F("Parsing MAC Address Failed, reverting to "));
                     Serial.println(globalVariables.SSID);
                 } 
                 WiFi.begin(globalVariables.SSID, globalVariables.APPW);
             }
-
-                
         }
-        delay(1000);
+        delay(100);
 
         wl_status_t status = WiFi.status();
         switch (status)
@@ -90,8 +88,8 @@ bool connectToWifi(){
             default:
                 break;
         }
-        Serial.println(F("Waiting 10sec"));
-        delay(10000); // Giving enough time to connect
+        Serial.println(F(" Waiting 10 secs"));
+        delay(10000); // Giving time to connect
         connectionAttempts++;
     }
 
@@ -112,7 +110,7 @@ bool connectToWifi(){
     Serial.print(F("' with Signal Strength: "));
     Serial.println(signalStrength);
     delay(10);
-    Serial.print("IP_ADDRESS:"); // Unique identifier for the IP address
+    Serial.print(F("IP_ADDRESS:")); // Unique identifier for the IP address
     Serial.println(WiFi.localIP());
     
     return true;

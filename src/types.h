@@ -9,9 +9,7 @@ extern "C"
     typedef struct PrinterVaraiblesStruct{
         String parsedHMS = "";
         String gcodeState = "FINISH";
-        String previous_gcodeState = "FINISH";
         int stage = 0;
-        int previous_stage = 0;
         long lastRSSI = 0;
         bool overrideLEDstate = false;
         bool ledstate = true;
@@ -19,6 +17,7 @@ extern "C"
         bool online = false;
         bool finished = false;
         bool doorOpen = false;
+        bool idleLightsOff = false;
         unsigned long finishstartms = 0;
         unsigned long idleStartms = 0;
         unsigned long disconnectMQTTms = 0;
@@ -34,7 +33,7 @@ extern "C"
     typedef struct GlobalVariablesStruct{
         char SSID[32];
         char APPW[32];
-        String FWVersion = "EXPERIMENTAL 10.3.24";
+        String FWVersion = "EXPERIMENTAL 12.3.24";
         String Host = "BLLED";
         bool started = false;
     } GlobalVariables;

@@ -118,7 +118,6 @@ void setupWebserver(){
         webServer.sendHeader("Connection", "close");
         webServer.send(200, "text/plain", (Update.hasError()) ? "FAIL" : "OK");
         Serial.println(F("Restarting Device"));
-        Serial.println("");
         ESP.restart();
     }, []() {
         HTTPUpload& upload = webServer.upload();
