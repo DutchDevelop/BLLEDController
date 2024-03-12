@@ -110,7 +110,7 @@ void RGBCycle() {
 void updateleds(){
     
     // Adding to top so it can be changed in one location
-    int LEDTranistion_Duration = 500;  
+    int LEDTranistion_Duration = 500; 
 
     if (printerConfig.debuging == true){
         Serial.println(F("Updating leds"));
@@ -191,7 +191,7 @@ void updateleds(){
             tweenToColor(0,0,0,0,0,LEDTranistion_Duration); //OFF
             //Force into idle state - note will change back immediately if there is an update of any sort
             printerVariables.idleLightsOff = true;
-            printerVariables.idleStartms = -1800000;
+            printerVariables.idleStartms = -printerVariables.idleLightoffTimeOut;
             if (printerConfig.debuging || printerConfig.debugingchange) {
                 Serial.println(F("OFF"));
             }
@@ -280,7 +280,7 @@ void updateleds(){
     
     // 30 min Idle Timeout
     if ((printerVariables.stage == -1 || printerVariables.stage == 255) 
-    && printerVariables.finishstartms == 0 && (millis() - printerVariables.idleStartms) > 1800000 && printerVariables.idleLightsOff == false){ 
+    && printerVariables.finishstartms == 0 && (millis() - printerVariables.idleStartms) > printerVariables.idleLightoffTimeOut && printerVariables.idleLightsOff == false){ 
         tweenToColor(0,0,0,0,0,LEDTranistion_Duration); //OFF
         printerVariables.idleLightsOff = true;
         if (printerConfig.debuging || printerConfig.debugingchange){
@@ -389,13 +389,14 @@ void updateleds(){
         printerVariables.idleStartms = millis();
         printerVariables.finishstartms = 0;
         printerVariables.lastdoorClosems = millis();
-        Serial.println(F("Initial BLLED bootup - Turning Leds WHITE"));
+        Serial.println(F("Initial BLLED bootup - Turning Leds WHITE, Start IDLE timer"));
         return;
     }
 
     //Preheating Bed
     if (printerVariables.stage == 2){ 
         tweenToColor(0,0,0,255,255,LEDTranistion_Duration); //WHITE
+        printerVariables.idleStartms = 0;
         if (printerConfig.debuging || printerConfig.debugingchange){
             Serial.println(F("Stage 2, PREHEATING BED, Turning Leds WHITE"));
         };
@@ -405,15 +406,16 @@ void updateleds(){
     //Printing or Resume after Pausing
     if (printerVariables.stage == 0  && printerVariables.gcodeState == "RUNNING"){ 
         tweenToColor(0,0,0,255,255,LEDTranistion_Duration); //WHITE
+        printerVariables.idleStartms = 0;
         if (printerConfig.debuging || printerConfig.debugingchange){
-            Serial.print(F("Stage 0, PRINTING - gcodeState RUNNING, Turning Leds WHITE"));
+            Serial.println(F("Stage 0, PRINTING - gcodeState RUNNING, Turning Leds WHITE"));
         };
         return;
     }
 
     //for IDLE - P1 uses 255, X1 uses -1
     if ((printerVariables.stage == -1 || printerVariables.stage == 255) 
-    && printerVariables.finishstartms == 0  && (millis() - printerVariables.idleStartms < 1800000)){ // Idle 
+    && printerVariables.finishstartms == 0  && (millis() - printerVariables.idleStartms < printerVariables.idleLightoffTimeOut)){ // Idle 
         tweenToColor(0,0,0,255,255,LEDTranistion_Duration); //WHITE
         if (printerConfig.debuging || printerConfig.debugingchange){
             Serial.print(F("Stage "));
@@ -436,8 +438,10 @@ void updateleds(){
     //GREEN -- GREEN -- GREEN -- GREEN
 
     //Sets to green when print finishes
-    if (printerVariables.finishstartms > 0 && printerVariables.gcodeState == "FINISH" && printerConfig.finishindication == true){
+    if (printerVariables.finished == true && printerVariables.gcodeState == "FINISH" && printerConfig.finishindication == true){
         tweenToColor(0,255,0,0,0,LEDTranistion_Duration); //GREEN
+        printerVariables.finished = false;
+        //Finish timer continues until interaction
         if (printerConfig.debuging || printerConfig.debugingchange){
             Serial.println(F("Finished print, Turning Leds GREEN"));
         };
@@ -471,7 +475,7 @@ void ledsloop(){
 
     //Need an trigger action to run updateleds() so lights turn off  
     //There is no change in the printer STATE, monitoring the timer and triggering when over a threshhold
-    if((millis() - printerVariables.idleStartms) > 1800000 && printerVariables.idleLightsOff == false)
+    if((millis() - printerVariables.idleStartms) > printerVariables.idleLightoffTimeOut && printerVariables.finished == false && printerVariables.idleLightsOff == false)
     {
         //Opening or Closing the Door will turn LEDs back on and restart the timer.
         updateleds();

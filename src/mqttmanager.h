@@ -95,7 +95,7 @@ void ParseCallback(char *topic, byte *payload, unsigned int length){
         if (messageobject["print"].containsKey("stg_cur")){
             if (printerVariables.stage != messageobject["print"]["stg_cur"].as<int>() ){
                 printerVariables.stage = messageobject["print"]["stg_cur"];
-                if (printerConfig.debuging){
+                if (printerConfig.debugingchange || printerConfig.debuging){
                     Serial.print(F("MQTT stg_cur now: "));
                     Serial.println(printerVariables.stage);
                 }
@@ -112,15 +112,11 @@ void ParseCallback(char *topic, byte *payload, unsigned int length){
             if(printerVariables.gcodeState != messageobject["print"]["gcode_state"].as<String>()){
                 printerVariables.gcodeState = messageobject["print"]["gcode_state"].as<String>();
                 if (messageobject["print"]["gcode_state"].as<String>() == "FINISH"){
-                    if (printerVariables.finished == false){
-                        printerVariables.finished = true;
-                        printerVariables.finishstartms = millis();
-                    }
-                }else{
-                    printerVariables.finished = false;
+                    printerVariables.finished = true;
+                    printerVariables.finishstartms = millis();
                 }
                 
-                if (printerConfig.debuging){
+                if (printerConfig.debugingchange || printerConfig.debuging){
                     Serial.print(F("MQTT gcode_state now: "));
                     Serial.println(printerVariables.gcodeState);
                 }
@@ -136,7 +132,7 @@ void ParseCallback(char *topic, byte *payload, unsigned int length){
                 if (light["node"] == "chamber_light") {
                     if(printerVariables.ledstate != (light["mode"] == "on")){
                         printerVariables.ledstate = light["mode"] == "on";
-                        if (printerConfig.debugingchange){
+                        if (printerConfig.debugingchange || printerConfig.debuging){
                             Serial.print(F("MQTT chamber_light now: "));
                             Serial.println(printerVariables.ledstate);
                         }
@@ -163,7 +159,7 @@ void ParseCallback(char *topic, byte *payload, unsigned int length){
                 }
             }
             if(oldHMS != printerVariables.parsedHMS){
-                if (printerConfig.debuging){
+                if (printerConfig.debuging  || printerConfig.debugingchange){
                     Serial.print(F("MQTT parsedHMS now: "));
                     Serial.println(printerVariables.parsedHMS);
                 }

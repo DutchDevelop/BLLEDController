@@ -18,6 +18,7 @@ extern "C"
         bool finished = false;
         bool doorOpen = false;
         bool idleLightsOff = false;
+        int idleLightoffTimeOut = 1800000; // 300000 = 5mins   1800000  = 30 mins
         unsigned long finishstartms = 0;
         unsigned long idleStartms = 0;
         unsigned long disconnectMQTTms = 0;

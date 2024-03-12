@@ -30,10 +30,13 @@ void setup(){
         return;
     }
 
-    if (!connectToWifi()){
-        return;
-    };
     delay(1000);
+    
+    if(!connectToWifi()){
+        Serial.println(F("Wifi Connect Attempt Failed on Boot"));
+    }
+    
+    
 
     tweenToColor(0,0,255,0,0,500); //BLUE
     setupWebserver();

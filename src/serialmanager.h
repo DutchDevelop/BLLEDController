@@ -33,10 +33,9 @@ void serialLoop(){
             strcpy(printerConfig.accessCode, doc["printercode"]);
             strcpy(printerConfig.serialNumber, doc["printerserial"]);
 
-//            strcpy(printerConfig.BSSID, doc["apMAC"]);
-
             saveFileSystem();
             Serial.println(F("Restarting Device"));
+            delay(1000);
             ESP.restart();
        }
       

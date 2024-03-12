@@ -71,7 +71,7 @@ bool connectToWifi(){
         {
             case WL_IDLE_STATUS:
                 Serial.print(F("Connecting to WIFI.. Attempt #"));
-                Serial.print(connectionAttempts);
+                Serial.println(connectionAttempts);
                 Serial.print(F(" SSID: "));
                 Serial.print(globalVariables.SSID);
                 Serial.print(F(" APPW: "));
@@ -83,8 +83,8 @@ bool connectToWifi(){
             case WL_CONNECT_FAILED:
                 Serial.print(F("ConnectFailed."));
             case WL_DISCONNECTED:
-                Serial.print(F("Disconnected - will attempt again."));
-                //return false; - This was blocking any attempt to reconnect
+                Serial.print(F("Disconnected."));
+                return false; 
             default:
                 break;
         }
