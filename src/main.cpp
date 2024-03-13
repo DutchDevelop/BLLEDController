@@ -27,25 +27,25 @@ void setup(){
     if (strlen(globalVariables.SSID) == 0 || strlen(globalVariables.APPW) == 0) {
         Serial.println(F("SSID or password is missing. Please configure both by going to: https://dutchdevelop.com/blled-configuration-setup/"));
         tweenToColor(255,0,255,0,0,500); //PINK
+        delay(1000);
         return;
     }
-
-    delay(1000);
-    
+   
+    scanNetwork(); //Sets the MAC address for following connection attempt
     if(!connectToWifi()){
-        Serial.println(F("Wifi Connect Attempt Failed on Boot"));
+        return;
     }
-    
-    
 
     tweenToColor(0,0,255,0,0,500); //BLUE
     setupWebserver();
     delay(1000);
 
+    
     tweenToColor(34,224,238,0,0,500); //CYAN
     setupMqtt();
     delay(1000);
 
+    Serial.println(F(""));
     Serial.println(F("BLLED Controller started"));
     Serial.println(F(""));
 
@@ -64,23 +64,10 @@ void loop(){
         ledsloop();
         
         if (WiFi.status() != WL_CONNECTED){
-            Serial.println(F("Lost Connection, Reconnecting"));
+            Serial.println(F("Reconnecting to WiFi..."));
             WiFi.disconnect();
             delay(10);
             WiFi.reconnect();
-        }
-        else{
-            //Monitor Wifi Strength
-            long wifiNow = WiFi.RSSI();
-            if (wifiNow > (printerVariables.lastRSSI + 9)  || wifiNow < (printerVariables.lastRSSI - 9))
-            {
-                //Wifi strength changed by +/- 10dBm
-                if (printerConfig.debugingchange){
-                    Serial.print(F("Wifi Strength now "));
-                    Serial.println(wifiNow);
-                }
-                printerVariables.lastRSSI = wifiNow;
-            }
         }
     }
 }

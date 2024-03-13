@@ -27,6 +27,10 @@ AutoGrowBufferStream stream;
 unsigned long mqttattempt = (millis()-3000);
 
 void connectMqtt(){
+    if(WiFi.status() != WL_CONNECTED){
+        //Abort MQTT connection attempt when no Wifi
+        return;
+    }
     if (!mqttClient.connected() && (millis() - mqttattempt) >= 3000){   
         Serial.println(F("Connecting to mqtt"));
         if (mqttClient.connect(clientId.c_str(),"bblp",printerConfig.accessCode)){
@@ -96,7 +100,7 @@ void ParseCallback(char *topic, byte *payload, unsigned int length){
             if (printerVariables.stage != messageobject["print"]["stg_cur"].as<int>() ){
                 printerVariables.stage = messageobject["print"]["stg_cur"];
                 if (printerConfig.debugingchange || printerConfig.debuging){
-                    Serial.print(F("MQTT stg_cur now: "));
+                    Serial.print(F("MQTT update - stg_cur now: "));
                     Serial.println(printerVariables.stage);
                 }
                 Changed = true;
@@ -117,7 +121,7 @@ void ParseCallback(char *topic, byte *payload, unsigned int length){
                 }
                 
                 if (printerConfig.debugingchange || printerConfig.debuging){
-                    Serial.print(F("MQTT gcode_state now: "));
+                    Serial.print(F("MQTT update - gcode_state now: "));
                     Serial.println(printerVariables.gcodeState);
                 }
                 Changed = true;
@@ -160,7 +164,7 @@ void ParseCallback(char *topic, byte *payload, unsigned int length){
             }
             if(oldHMS != printerVariables.parsedHMS){
                 if (printerConfig.debuging  || printerConfig.debugingchange){
-                    Serial.print(F("MQTT parsedHMS now: "));
+                    Serial.print(F("MQTT update - parsedHMS now: "));
                     Serial.println(printerVariables.parsedHMS);
                 }
                 Changed = true;
@@ -234,6 +238,10 @@ void setupMqtt(){
 }
 
 void mqttloop(){
+    if(WiFi.status() != WL_CONNECTED){
+        //Abort MQTT connection attempt when no Wifi
+        return;
+    }
     if (!mqttClient.connected()){
         printerVariables.online = false;
         //Only sent the timer from the first instance of a MQTT disconnect

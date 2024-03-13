@@ -10,7 +10,6 @@ extern "C"
         String parsedHMS = "";
         String gcodeState = "FINISH";
         int stage = 0;
-        long lastRSSI = 0;
         bool overrideLEDstate = false;
         bool ledstate = true;
         bool hmsstate = false;
