@@ -69,7 +69,7 @@ bool connectToWifi(){
                         Serial.print(F("   BSSID: "));
                         Serial.print(globalVariables.SSID);
                     }
-                    Serial.println(F(""));
+                    Serial.println();
                     break;
                 case WL_NO_SSID_AVAIL:
                     Serial.print(F("Bad WiFi credentials"));
@@ -103,7 +103,7 @@ bool connectToWifi(){
     Serial.println(WiFi.RSSI());
     Serial.print(F("IP_ADDRESS:                      ")); // Unique identifier for the IP address
     Serial.println(WiFi.localIP());
-    Serial.println(F(""));
+    Serial.println();
     return true;
 };
 
@@ -111,6 +111,8 @@ void scanNetwork()
 {
     //Reference / Credit - https://www.esp32.com/viewtopic.php?t=18979#p70299
     int bestRSSI = -200;
+    String bestBSSID = "";
+
     Serial.println(F("Wifi network scan start"));
     int n = WiFi.scanNetworks();
     Serial.println(F("Network scan complete"));
@@ -137,21 +139,36 @@ void scanNetwork()
 
             if(WiFi.SSID(i) == globalVariables.SSID && WiFi.RSSI(i) > bestRSSI)
             {
-                strcpy(printerConfig.BSSID,WiFi.BSSIDstr(i).c_str());
+                bestBSSID = WiFi.BSSIDstr(i);
                 bestRSSI = WiFi.RSSI(i); 
             }
             delay(10);
         }
-        Serial.println(F(""));
-        Serial.print(F("Saving strongest AP for: "));
-        Serial.println(globalVariables.SSID);
-        Serial.print(F("Strongest BSSID (MAC Address): "));
-        Serial.print(printerConfig.BSSID);
-        Serial.print(F("     RSSI (Signal Strength): "));
-        Serial.print(bestRSSI);
-        Serial.println(F("dBm"));
+        Serial.println();
+        if(printerConfig.BSSID == bestBSSID.c_str()){
+                Serial.print(F("BSSID already set to: "));
+                Serial.print(printerConfig.BSSID);
+        }
+        else{
+            if(strlen(printerConfig.BSSID) == 0 || printerConfig.rescanWiFiNetwork){
+                strcpy(printerConfig.BSSID,bestBSSID.c_str());
+                Serial.print(F("Saving strongest AP for: "));
+                Serial.println(globalVariables.SSID);
+                Serial.print(F("Strongest BSSID (MAC Address): "));
+                Serial.print(printerConfig.BSSID);
+            }
+            else{
+                Serial.print(F("Ignoring strongest AP for: "));
+                Serial.println(globalVariables.SSID);
+                Serial.print(F("Using alrady saved BSSID (MAC Address): "));
+                Serial.print(printerConfig.BSSID);
+            }
+            Serial.print(F("     RSSI (Signal Strength): "));
+            Serial.print(bestRSSI);
+            Serial.println(F("dBm"));
+        }
     }
-    Serial.println(F(""));
+    Serial.println();
 }
 
 

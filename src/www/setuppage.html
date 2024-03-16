@@ -13,7 +13,7 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            height: calc(100% - 100px);
         }
         .logo-container {
             display: flex;
@@ -33,7 +33,7 @@
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-            width: 60%;
+            width: 80%;
             margin-top: 20px;
         }
         label {
@@ -134,22 +134,29 @@
         }
     </style>
     <script>
+        function updateIdle() {
+            var x = document.getElementById("inactivityMins");
+            if (document.getElementById('inactivityEnabled').checked) {
+                x.style.display = 'block';
+            } else {
+                x.style.display = 'none';
+            }            
+        }
         function showTestOptions() {
             var x = document.getElementById("LEDTestSettings");
             if (document.getElementById('replicateLedState').checked) {
-                document.getElementById('overrideRed').checked = false;
-                document.getElementById('overrideGreen').checked = false;
-                document.getElementById('overrideBlue').checked = false;
-                document.getElementById('overrideWarmWhite').checked = false;
-                document.getElementById('overrideColdWhite').checked = false;
+                x.style.display = 'none';
                 document.getElementById('debugwifi').checked = false;
-                x.style.display = "none";
-                //Hide section for overrides and wifi test
             } else {
-                if (x.style.display === "none") {
-                    x.style.display = "block";
-                    //Show section for overrides and wifi test
-                }
+                x.style.display = 'block';
+            }
+        }
+        function showAdvanced() {
+            var x = document.getElementById("AdvancedDiv");
+            if (document.getElementById('advancedSettings').checked) {
+                x.style.display = 'block';
+            } else {
+                x.style.display = 'none';
             }                                         
         }
         function updateConfig() {
@@ -166,17 +173,32 @@
                     document.getElementById('debuging').checked = configData.debuging || false;
                     document.getElementById('debugingchange').checked = configData.debugingchange || false;
                     document.getElementById('mqttdebug').checked = configData.mqttdebug || false;
+                    document.getElementById('lidarLightsOff').checked = configData.lidarLightsOff || false;
+                    document.getElementById('inactivityEnabled').checked = configData.inactivityEnabled || false;
+                    document.getElementById('inactivityMins').value = configData.inactivityMins || '30';
+                    document.getElementById('maintMode').checked = configData.maintMode || false;
                     document.getElementById('discoMode').checked = configData.discoMode || false;
-                    document.getElementById('overrideRed').checked = configData.overrideRed || false;
-                    document.getElementById('overrideGreen').checked = configData.overrideGreen || false;
-                    document.getElementById('overrideBlue').checked = configData.overrideBlue || false;
-                    document.getElementById('overrideWarmWhite').checked = configData.overrideWarmWhite || false;
-                    document.getElementById('overrideColdWhite').checked = configData.overrideColdWhite || false;
+                    document.getElementById('testRGB').value = configData.testRGB || '';
+                    document.getElementById('cw_slider').value = configData.testcoldwhite || 100;
+                    document.getElementById('ww_slider').value = configData.testwarmwhite || 100;
                     document.getElementById('debugwifi').checked = configData.debugwifi || false;
                     document.getElementById('apMAC').value = configData.apMAC || '';
                     document.getElementById('brightnessslider').value = configData.brightness || 100;
                     document.getElementById("brightnesssliderDisplay").textContent = "Brightness: "+ (configData.brightness || 100) + "%";
                     document.getElementById("firmwareversion").textContent = "Firmware Version:"+(configData.firmwareversion  || "Unknown version");
+                    document.getElementById('wifiRGB').value = configData.wifiRGB || '';
+                    document.getElementById('finishRGB').value = configData.finishRGB || '';
+                    document.getElementById('pauseRGB').value = configData.pauseRGB || '';
+                    document.getElementById('firstlayerRGB').value = configData.firstlayerRGB || '';
+                    document.getElementById('nozzleclogRGB').value = configData.nozzleclogRGB || '';
+                    document.getElementById('hmsSeriousRGB').value = configData.hmsSeriousRGB || '';
+                    document.getElementById('hmsFatalRGB').value = configData.hmsFatalRGB || '';
+                    document.getElementById('filamentRunoutRGB').value = configData.filamentRunoutRGB || '';
+                    document.getElementById('frontCoverRGB').value = configData.frontCoverRGB || '';
+                    document.getElementById('nozzleTempRGB').value = configData.nozzleTempRGB || '';
+                    document.getElementById('bedTempRGB').value = configData.bedTempRGB || '';
+                    showTestOptions();
+                    updateIdle();
                 }
             };
             xhr.open('GET', '/getConfig', true);
@@ -187,7 +209,11 @@
                 document.getElementById("brightnesssliderDisplay").textContent = "Brightness: "+ e.target.value + "%";
             });
             updateConfig();
+            showTestOptions();
+            updateIdle();
         };
+
+
         
         function submitForm() {
             event.preventDefault();
@@ -225,132 +251,227 @@
         </div>
         <div class='form-container'>
             <h1>BL LED Controller Settings Page</h1>
-            <h3 id="firmwareversion">Firmware version: Expirimental 10.3.24</h3>
-            <p>
-                This page allows you to change the MQTT broker info and any additional settings.
-            </p>
+            <h2 id="firmwareversion">Firmware version: Expirimental 15.3.24</h3>
+            <p>This page allows you to change the MQTT broker info and any additional settings.</p>
             <form method='POST' action='/submitSetup' onsubmit='return submitForm();'>
-                <label>IP:</label>
+                <label for='ip'>IP:</label>
                 <input type='text' id='ip' name='ip' title='Enter the IP address of your MQTT broker' value=''><br>
-                <label>Access Code:</label>
+                <label for='code'>Access Code:</label>
                 <input type='text' id='code' name='code' title='Enter the access code for your MQTT broker' value=''><br>
-                <label>Serial ID:</label>
+                <label for='id'>Serial ID:</label>
                 <input type='text' id='id' name='id' title='Enter the serial ID for your device' value=''><br>
-                <label>(Optional) Access Point MAC:</label>
-                <input type='text' id='apMAC' name='apMAC' title='Enter the MAC address of your specific Access Point' value=''><br>
+                <label for='apMAC'>Wifi Access Point MAC Address:</label>
+                <table width='100%'>
+                    <TR>
+                        <td width='200px'>
+                            <input type='text' id='apMAC' name='apMAC' title='Enter the MAC address of your specific Access Point' value='' maxlength='17' size='17'>
+                        </td>
+                        <td width='60px'>&nbsp;</td>
+                        <td width='300px'>
+                            <div class='toggle-container'>
+                                <label class='toggle-switch'>
+                                    <input type='checkbox' id='rescanWiFiNetwork' name='rescanWiFiNetwork'>
+                                    <span class='slider'></span>
+                                </label>
+                                &nbsp;&nbsp;&nbsp;<span class='toggle-label'>Perform new Wifi network scan<BR>(Resets to strongest BSSID)</span>
+                            </div>
+                        </td>
+                    </TR>
+                </table>
+                <input type='submit' value='Save Configuration'><BR>
+                <BR>
+                <label for='brightnessslider' id="brightnesssliderDisplay">Brightness: 100%</label>
+                <input type="range" id="brightnessslider" name="brightnessslider" min="0" max="100" value="100">
                 <table width="100%">
                     <TR>
                         <TD valign="top" width="50%">
-                            <h3 id="GeneralSettings">General Settings</h3>
-                            Disable 'Replicate LED State'<BR>
-                            to see additional settings<BR>
+                            <h2 id="GeneralSettings">General Settings</h2>
+                            <BR><BR>
                             <div class='toggle-container'>
-                                <span class='toggle-label'>Replicate LED State:</span>
                                 <label class='toggle-switch'>
                                     <input type='checkbox' id='replicateLedState' name='replicateLedState' onchange='return showTestOptions()'>
                                     <span class='slider'></span>
                                 </label>
+                                &nbsp;&nbsp;&nbsp;<span class='toggle-label'>Replicate LED State</span>&nbsp;<span style="font-size: smaller;"><B>(Turn off for more settings)</B></span>
                             </div>
                             <div class='toggle-container'>
-                                <span class='toggle-label'>Error Detection:</span>
                                 <label class='toggle-switch'>
                                     <input type='checkbox' id='errorDetection' name='errorDetection'>
                                     <span class='slider'></span>
                                 </label>
+                                &nbsp;&nbsp;&nbsp;<span class='toggle-label'>Error Detection</span>
                             </div>
                             <div class='toggle-container'>
-                                <span class='toggle-label'>Finish Indication:</span>
                                 <label class='toggle-switch'>
                                     <input type='checkbox' id='finishIndication' name='finishIndication'>
                                     <span class='slider'></span>
                                 </label>
+                                &nbsp;&nbsp;&nbsp;<span class='toggle-label'>Finish Indication</span>
                             </div>
                             <div class='toggle-container'>
-                                <span class='toggle-label'>RGB Mode:</span>
+                                <label class='toggle-switch'>
+                                    <input type='checkbox' id='lidarLightsOff' name='lidarLightsOff'>
+                                    <span class='slider'></span>
+                                </label>
+                                &nbsp;&nbsp;&nbsp;<span class='toggle-label'>Light Off for Lidar</span>
+                            </div>
+                            <div class='toggle-container'>
+                                <label class='toggle-switch'>
+                                    <input type='checkbox' id='inactivityEnabled' name='inactivityEnabled' onchange='return updateIdle()'>
+                                    <span class='slider'></span>
+                                </label>
+                                &nbsp;&nbsp;&nbsp;<span class='toggle-label'>Inactivity Timeout (Minutes)</span>
+                                <input style="width:40px;display:block" type='text' id='inactivityMins' name='inactivityMins' title='Number of idle minutes before BLLED LEDs are turned off ' value='1' maxlength='5' size='5'>
+                            </div>
+                            <div class='toggle-container'>
+                                <label class='toggle-switch'>
+                                    <input type='checkbox' id='maintMode' name='maintMode'>
+                                    <span class='slider'></span>
+                                </label>
+                                &nbsp;&nbsp;&nbsp;<span class='toggle-label'>Maintenance Mode</span>
+                            </div>
+                            <div class='toggle-container'>
                                 <label class='toggle-switch'>
                                     <input type='checkbox' id='discoMode' name='discoMode'>
                                     <span class='slider'></span>
                                 </label>
+                                &nbsp;&nbsp;&nbsp;<span class='toggle-label'>RGB Mode</span>
                             </div>
                             <div class='toggle-container'>
-                                <span class='toggle-label'>Debugging:</span>
                                 <label class='toggle-switch'>
                                     <input type='checkbox' id='debuging' name='debuging'>
                                     <span class='slider'></span>
                                 </label>
+                                &nbsp;&nbsp;&nbsp;<span class='toggle-label'>Debugging</span>
                             </div>
                             <div class='toggle-container'>
-                                <span class='toggle-label'>Debugging Changes:</span>
                                 <label class='toggle-switch'>
                                     <input type='checkbox' id='debugingchange' name='debugingchange'>
                                     <span class='slider'></span>
                                 </label>
+                                &nbsp;&nbsp;&nbsp;<span class='toggle-label'>Debugging Changes</span>
                             </div>
                             <div class='toggle-container'>
-                                <span class='toggle-label'>MQTT Logging:</span>
                                 <label class='toggle-switch'>
                                     <input type='checkbox' id='mqttdebug' name='mqttdebug'>
                                     <span class='slider'></span>
                                 </label>
+                                &nbsp;&nbsp;&nbsp;<span class='toggle-label'>MQTT Logging</span>
+                            </div>
+                            <div class='toggle-container'>
+                                <label class='toggle-switch'>
+                                    <input type='checkbox' id='advancedSettings' name='advancedSettings' onchange='return showAdvanced()'>
+                                    <span class='slider'></span>
+                                </label>
+                                &nbsp;&nbsp;&nbsp;<span class='toggle-label'>Advanced</span>
                             </div>
                         </TD>
                         <TD valign="top" width="50%">
                             <div  id='LEDTestSettings' style='display:none'>
-                                <h3>Test LED colors</h3>
-                                Enable below colors to test LEDs<BR>
-                                If any are active, the MQTT & printer state are all ignored<BR>
-                                <div class='toggle-container'>
-                                    <span class='toggle-label'>Override Red:</span>
-                                    <label class='toggle-switch'>
-                                        <input type='checkbox' id='overrideRed' name='overrideRed'>
-                                        <span class='slider'></span>
-                                    </label>
-                                </div>
-                                <div class='toggle-container'>
-                                    <span class='toggle-label'>Override Green:</span>
-                                    <label class='toggle-switch'>
-                                        <input type='checkbox' id='overrideGreen' name='overrideGreen'>
-                                        <span class='slider'></span>
-                                    </label>
-                                </div>
-                                <div class='toggle-container'>
-                                    <span class='toggle-label'>Override Blue:</span>
-                                    <label class='toggle-switch'>
-                                        <input type='checkbox' id='overrideBlue' name='overrideBlue'>
-                                        <span class='slider'></span>
-                                    </label>
-                                </div>
-                                <div class='toggle-container'>
-                                    <span class='toggle-label'>Override Warm White:</span>
-                                    <label class='toggle-switch'>
-                                        <input type='checkbox' id='overrideWarmWhite' name='overrideWarmWhite'>
-                                        <span class='slider'></span>
-                                    </label>
-                                </div>
-                                <div class='toggle-container'>
-                                    <span class='toggle-label'>Override Cold White:</span>
-                                    <label class='toggle-switch'>
-                                        <input type='checkbox' id='overrideColdWhite' name='overrideColdWhite'>
-                                        <span class='slider'></span>
-                                    </label>
-                                </div>
-                                <h3>Show Wifi Strength</h3>
-                                &gt; -50 dBm Green, &gt;= -60 dBm LightGreen<BR>&gt;= -70 dBm Yellow, &gt;= -80 dBm Orange<BR>&lt; -80 Red<BR>
-                                <div class='toggle-container'>
-                                    <span class='toggle-label'>Debug Wifi:</span>
-                                    <label class='toggle-switch'>
-                                        <input type='checkbox' id='debugwifi' name='debugwifi'>
-                                        <span class='slider'></span>
-                                    </label>
-                                </div>
+                                <h2>Display Wifi Network Strength via LEDs</h2>
+                                <table style="border-spacing:0" width="100%">
+                                    <TR>
+                                        <TD valign="middle">
+                                            <div class='toggle-container'>
+                                                <label class='toggle-switch'>
+                                                    <input type='checkbox' id='debugwifi' name='debugwifi'>
+                                                    <span class='slider'></span>
+                                                </label>
+                                                &nbsp;&nbsp;&nbsp;<span class='toggle-label'>Debug Wifi</span>
+                                            </div>
+                                        </TD>
+                                        <TD valign="top">
+                                            <table style="border-spacing:0">
+                                                <TR style="color:white;background-color: #303030;text-align: center;">
+                                                    <TD width="70px"><B>RSSI</B></TD><TD> &nbsp; </TD><TD><B>Signal Strength</B></TD>
+                                                </TR>
+                                                <TR style="background-color: #00ff00;"><TD style="text-align: center;">-30 to -50</TD><TD width='20px'> &nbsp; </TD><TD>Excellent</TD></TR> 
+                                                <TR style="background-color: #aaffaa;"><TD style="text-align: center;">-51 to -60</TD><TD> &nbsp; </TD><TD>Good</TD></TR> 
+                                                <TR style="background-color: #ffff00;"><TD style="text-align: center;">-61 to -70</TD><TD> &nbsp; </TD><TD>Fair</TD></TR> 
+                                                <TR style="background-color: #ff8800;"><TD style="text-align: center;">-71 to -80</TD><TD> &nbsp; </TD><TD>Poor</TD></TR> 
+                                                <TR style="background-color: #ff0000;"><TD style="text-align: center;">&lt; -80</TD><TD> &nbsp; </TD><TD>Unreliable</TD></TR>
+                                            </table>
+                                        </TD>
+                                    </TR>
+                                </table>
+
+                                <h2>Test LED colors</h2>
+                                While active,  MQTT msgs, printer states & brightness is ignored<BR><BR>
+                                <table width="100%">
+                                    <TR>
+                                        <TD width="25%"><label for="testRGB">Set Test Color</label></TD>
+                                        <TD><input type="color" id='testRGB' name='testRGB' value='#3F3CFB'></TD>
+                                    </TR>
+                                    <TR>
+                                        <TD><label for="ww_slider">Warm White</label></TD>
+                                        <TD><input type="range" id="ww_slider" name="ww_slider" min="0" max="255" value="100"></TD>
+                                    </TR>
+                                    <TR>
+                                        <TD><label for="cw_slider">Cold White</label></TD>
+                                        <TD><input type="range" id="cw_slider" name="cw_slider" min="0" max="255" value="100"></TD>
+                                    </TR>
+                                </table>
+                                <HR>
+                            </div>
+                            <div id='AdvancedDiv' style='display:none'>
+                                <h2>Advanced Settings</h2>
+                                <B>Customise LED colors for states</B><BR>
+                                (Brightness setting still applied)<BR><BR>
+                                <table width="100%">
+                                    <TR>
+                                        <TD width="10%"><input type="color" id='wifiRGB' name='wifiRGB' value='#FFA500'></TD>
+                                        <TD ><label for="wifiRGB">WiFi Setup / Scanning</label></TD>
+                                    </TR>
+                                    <TR>
+                                        <TD width="10%"><input type="color" id='finishRGB' name='finishRGB' value='#00FF00'></TD>
+                                        <TD ><label for="finishRGB">Finished</label></TD>
+                                    </TR>
+                                    <TR>
+                                        <TD width="10%"><input type="color" id='pauseRGB' name='pauseRGB' value='#0000FF'></TD>
+                                        <TD><label for="pauseRGB">Pause (Gcode or User)</label></TD>
+                                    </TR>
+                                    <TR>
+                                        <TD width="10%"><input type="color" id='firstlayerRGB' name='firstlayerRGB' value='#0000FF'></TD>
+                                        <TD ><label for="firstlayerRGB">First Layer Error (Pause for user)</label></TD>
+                                    </TR>
+                                    <TR>
+
+                                        <TD width="10%"><input type="color" id='nozzleclogRGB' name='nozzleclogRGB' value='#0000FF'></TD>
+                                        <TD><label for="nozzleclogRGB">Nozzle Clog (Pause for user)</label></TD>
+                                    </TR>
+                                    <TR>
+                                        <TD width="10%"><input type="color" id='hmsSeriousRGB' name='hmsSeriousRGB' value='#FF0000'></TD>
+                                        <TD ><label for="hmsSeriousRGB">HMS Severity, SERIOUS</label></TD>
+                                    </TR>
+                                    <TR>
+
+                                        <TD width="10%"><input type="color" id='hmsFatalRGB' name='hmsFatalRGB' value='#FF0000'></TD>
+                                        <TD><label for="hmsFatalRGB">HMS Severity, FATAL</label></TD>
+                                    </TR>
+                                    <TR>
+                                        <TD width="10%"><input type="color" id='filamentRunoutRGB' name='filamentRunoutRGB' value='#FF0000'></TD>
+                                        <TD ><label for="filamentRunoutRGB">Filament Runout</label></TD>
+                                    </TR>
+                                    <TR>
+
+                                        <TD width="10%"><input type="color" id='frontCoverRGB' name='frontCoverRGB' value='#FF0000'></TD>
+                                        <TD><label for="frontCoverRGB">Front Cover Removed</label></TD>
+                                    </TR>
+                                    <TR>
+                                        <TD width="10%"><input type="color" id='nozzleTempRGB' name='nozzleTempRGB' value='#FF0000'></TD>
+                                        <TD ><label for="nozzleTempRGB">Nozzle Temp Fail</label></TD>
+                                    </TR>
+                                    <TR>
+
+                                        <TD width="10%"><input type="color" id='bedTempRGB' name='bedTempRGB' value='#FF0000'></TD>
+                                        <TD><label for="bedTempRGB">Bed Temp Fail</label></TD>
+                                    </TR>
+                                </table>
                             </div>
                         </TD>
                     </TR>
                 </table>
-                <label id="brightnesssliderDisplay">Brightness: 50%</label>
-                <input type="range" id="brightnessslider" name="brightnessslider" min="0" max="100" value="100"> <br>
 
-                <input type='submit' value='Save Configuration'>
             </form>
             <!--<button type='button' onclick='window.location.href="/update";'>Update Controller</button>-->
         </div>

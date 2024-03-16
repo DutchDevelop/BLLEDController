@@ -29,7 +29,10 @@
         "filesystem": "cpp",
         "fstream": "cpp",
         "locale": "cpp",
-        "random": "cpp"
+        "random": "cpp",
+        "sstream": "cpp",
+        "cmath": "cpp",
+        "algorithm": "cpp"
     },
     "cmake.configureOnOpen": false
 }

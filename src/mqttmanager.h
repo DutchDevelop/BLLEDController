@@ -3,9 +3,6 @@
 
 #include <Arduino.h>
 #include <WiFi.h>
-static int mqttbuffer = 32768;
-static int mqttdocument = 32768; //16384
-
 #include <WiFiClientSecure.h>
 #include <PubSubClient.h>
 #include <ArduinoJson.h> 
@@ -26,27 +23,47 @@ AutoGrowBufferStream stream;
 
 unsigned long mqttattempt = (millis()-3000);
 
+//With a Default BLLED
+//Expected information when viewing MQTT status messages
+			
+//gcode_state	stg_cur	    BLLED LED control	    Comments
+//------------------------------------------------------------------------
+//IDLE	        -1	        White	                Printer just powered on
+//RUNNING	    -1	        White	                Printer sent print file
+//RUNNING	     2	        White	                PREHEATING BED
+//RUNNING	    14	        OFF (for Lidar)	        CLEANING NOZZLE
+//RUNNING	     1	        OFF (for Lidar)	        BED LEVELING
+//RUNNING	     8	        OFF (for Lidar)	        CALIBRATING EXTRUSION
+//RUNNING	     0	        White	                All the printing happens here
+//FINISH	    -1	        Green	                After bed is lowered and filament retracted
+//FINISH	    -1	        Green	                BLLED logic waits for a door interaction
+//FINISH	    -1	        White	                After door interaction
+//FINISH	    -1	        OFF                     Inactivity after 30mins
+
+
 void connectMqtt(){
     if(WiFi.status() != WL_CONNECTED){
         //Abort MQTT connection attempt when no Wifi
         return;
     }
     if (!mqttClient.connected() && (millis() - mqttattempt) >= 3000){   
-        Serial.println(F("Connecting to mqtt"));
+        Serial.println(F("Connecting to mqtt..."));
         if (mqttClient.connect(clientId.c_str(),"bblp",printerConfig.accessCode)){
-            Serial.println(F("MQTT connected, subscribing to topic:"));
+            Serial.print(F("MQTT connected, subscribing to MQTT Topic:  "));
             Serial.println(report_topic);
             mqttClient.subscribe(report_topic.c_str());
             printerVariables.online = true;
             printerVariables.disconnectMQTTms = 0;
-            Serial.println(F("updating from MQTT connect"));
+            Serial.println(F("Updating LEDs from MQTT connect"));
             updateleds();
         }else{
             Serial.println(F("Failed to connect with error code: "));
-            Serial.println(mqttClient.state());
+            Serial.print(mqttClient.state());
+            Serial.print(F("  "));
             ParseMQTTState(mqttClient.state());
             if(mqttClient.state() == 5){
                 Serial.println(F("Restarting Device"));
+                delay(1000);
                 ESP.restart();                
             }
         }
@@ -54,51 +71,82 @@ void connectMqtt(){
 }
 
 void ParseCallback(char *topic, byte *payload, unsigned int length){
-    DynamicJsonDocument messageobject(mqttdocument);
+    JsonDocument messageobject;
 
-    DynamicJsonDocument filter(128);
-    filter["print"]["*"] =  true;
-    filter["camera"]["*"] =  true;
-    
+    JsonDocument filter;
+    //Rather than showing the entire message to Serial - grabbing only the pertinent bits for BLLED.
+    //Device Status
+    filter["print"]["command"] =  true;
+    filter["print"]["fail_reason"] =  true;
+    filter["print"]["gcode_state"] =  true;
+    filter["print"]["print_gcode_action"] =  true;
+    filter["print"]["print_real_action"] =  true;
+    filter["print"]["hms"] =  true;
+    filter["print"]["lights_report"] =  true;
+    filter["print"]["home_flag"] =  true;
+    filter["print"]["stg_cur"] =  true;
+    filter["print"]["print_error"] =  true;
+    filter["print"]["wifi_signal"] =  true;
+
+    //Adding extra filters that looking interesting
+    //Could be useful for additional functionality that might be developed at a later date
+    //Color blend, the closer to 100% - I dunno
+
+    //Print Job Status
+    //filter["print"]["subtask_name"] =  true;  //Print Name
+    //filter["print"]["layer_num"] =  true;
+    //filter["print"]["total_layer_num"] =  true;
+    //filter["print"]["mc_percent"] =  true;
+    //filter["print"]["mc_print_error_code"] =  true;
+    //filter["print"]["mc_print_stage"] =  true;
+    //filter["print"]["mc_print_sub_stage"] =  true;
+    //filter["print"]["mc_remaining_time"] =  true;
+
+    //Temperatures
+    //filter["print"]["bed_target_temper"] =  true;
+    //filter["print"]["bed_temper"] =  true;
+    //filter["print"]["nozzle_target_temper"] =  true;
+    //filter["print"]["nozzle_temper"] =  true;
+    //filter["print"]["chamber_temper"] =  true;
+
     auto deserializeError = deserializeJson(messageobject, payload, length, DeserializationOption::Filter(filter));
     if (!deserializeError){
 
         if (printerConfig.debuging){
-            Serial.println(F("Mqtt message received,"));
-            Serial.println(F("FreeHeap: "));
-            Serial.print(ESP.getFreeHeap());
-            Serial.println();
-        }
-
-        if (printerConfig.mqttdebug){
-            Serial.println(F("Mqtt payload:"));
-            Serial.println();
-            serializeJson(messageobject, Serial);
-            Serial.println();
+            Serial.print(F("Mqtt message received,  "));
+            Serial.print(F("FreeHeap: "));
+            Serial.println(ESP.getFreeHeap());
         }
 
         bool Changed = false;
 
-        //Ideally, we should only monitor MQTT meessages with command = "push_status"
-        //stg_cur & lights_report will be missing from other command types
         if (messageobject["print"].containsKey("command")){
-            //gcode_line used a lot during print initialisations
-            if (messageobject["print"]["command"].as<String>() != "push_status"){
-                if (printerConfig.debuging) Serial.println(F("unknown MQTT message - Ignored"));
+            if (messageobject["print"]["command"].as<String>() == "gcode_line"){
+                //gcode_line used a lot during print initialisations - Skip these
                 return;
             }
         }
-        else{
-            if (printerConfig.debuging){
-                Serial.println(F("Missing command Key - Ignored"));
-            } 
+        if(messageobject.size() == 0)
+        {
+            //Null or Filtered essage that is not 'print' - Ignore
             return;
+        }
+
+        //Output Filtered MQTT message
+        if (printerConfig.mqttdebug){
+            Serial.print(F("(Filtered) MQTT payload, "));
+            Serial.print(messageobject.size());
+            Serial.print(F(", "));
+            serializeJson(messageobject, Serial);
+            Serial.println();
         }
 
         //Check BBLP Stage
         if (messageobject["print"].containsKey("stg_cur")){
             if (printerVariables.stage != messageobject["print"]["stg_cur"].as<int>() ){
+                printerVariables.inactivityStartms = millis();  //restart idle timer
                 printerVariables.stage = messageobject["print"]["stg_cur"];
+                
                 if (printerConfig.debugingchange || printerConfig.debuging){
                     Serial.print(F("MQTT update - stg_cur now: "));
                     Serial.println(printerVariables.stage);
@@ -113,13 +161,23 @@ void ParseCallback(char *topic, byte *payload, unsigned int length){
 
         //Check BBLP GCode State
         if (messageobject["print"].containsKey("gcode_state")){
-            if(printerVariables.gcodeState != messageobject["print"]["gcode_state"].as<String>()){
-                printerVariables.gcodeState = messageobject["print"]["gcode_state"].as<String>();
-                if (messageobject["print"]["gcode_state"].as<String>() == "FINISH"){
+            String mqttgcodeState = messageobject["print"]["gcode_state"].as<String>();
+
+            if(mqttgcodeState =="RUNNING" || mqttgcodeState =="PAUSE"){
+                    //Never turn off light (due to idle timer) while in this state
+                    printerVariables.inactivityStartms = millis();
+            }
+
+            // Onchange of gcodeState...
+            if(printerVariables.gcodeState != mqttgcodeState){
+                printerVariables.inactivityStartms = millis();  //restart idle timer
+
+                if(mqttgcodeState =="FINISH"){
                     printerVariables.finished = true;
-                    printerVariables.finishstartms = millis();
+                    if(printerConfig.finishindication == true) printerVariables.waitingForDoor = true;
                 }
-                
+                printerVariables.gcodeState = mqttgcodeState;
+
                 if (printerConfig.debugingchange || printerConfig.debuging){
                     Serial.print(F("MQTT update - gcode_state now: "));
                     Serial.println(printerVariables.gcodeState);
@@ -134,11 +192,11 @@ void ParseCallback(char *topic, byte *payload, unsigned int length){
 
             for (JsonObject light : lightsReport) {
                 if (light["node"] == "chamber_light") {
-                    if(printerVariables.ledstate != (light["mode"] == "on")){
-                        printerVariables.ledstate = light["mode"] == "on";
+                    if(printerVariables.printerledstate != (light["mode"] == "on")){
+                        printerVariables.printerledstate = light["mode"] == "on";
                         if (printerConfig.debugingchange || printerConfig.debuging){
                             Serial.print(F("MQTT chamber_light now: "));
-                            Serial.println(printerVariables.ledstate);
+                            Serial.println(printerVariables.printerledstate);
                         }
                         Changed = true;
                     }
@@ -149,7 +207,7 @@ void ParseCallback(char *topic, byte *payload, unsigned int length){
                 Serial.println(F("MQTT lights_report not in message"));
             }
         }
-
+        //Bambu Health Management System (HMS)
         if (messageobject["print"].containsKey("hms")){
             String oldHMS = "";
             oldHMS = printerVariables.parsedHMS;
@@ -160,11 +218,21 @@ void ParseCallback(char *topic, byte *payload, unsigned int length){
                 if (ParseHMSSeverity(hms["code"]) != ""){
                     printerVariables.hmsstate = true;
                     printerVariables.parsedHMS = ParseHMSSeverity(hms["code"]);
+                    int attrib = hms["attr"];
+                    printerVariables.parsedHMSattrib = (attrib>>16);
                 }
             }
             if(oldHMS != printerVariables.parsedHMS){
+                printerVariables.inspectingFirstLayer = false;
+                if(printerVariables.parsedHMS == "Common" && printerVariables.parsedHMSattrib == 3072)
+                {
+                    printerVariables.inspectingFirstLayer = true;
+                }
+                
+
                 if (printerConfig.debuging  || printerConfig.debugingchange){
                     Serial.print(F("MQTT update - parsedHMS now: "));
+                    if (printerVariables.parsedHMS.length() == 0) Serial.print(F("NULL"));
                     Serial.println(printerVariables.parsedHMS);
                 }
                 Changed = true;
@@ -181,10 +249,10 @@ void ParseCallback(char *topic, byte *payload, unsigned int length){
             doorState = doorState & 1;  // remove any bits above Door bit
 
             if (printerVariables.doorOpen != doorState){
-                printerVariables.doorOpen = doorState;
-                printerVariables.idleLightsOff = false;
-                printerVariables.idleStartms = millis();
+                printerVariables.inactivityStartms = millis();  //restart idle timer
 
+                printerVariables.doorOpen = doorState;
+                printerVariables.inactivityLightsOff = false;
                 if (printerConfig.debugingchange)Serial.print(F("MQTT Door "));
                 if (printerVariables.doorOpen){
                    printerVariables.lastdoorOpenms  = millis();
@@ -221,7 +289,7 @@ void mqttCallback(char *topic, byte *payload, unsigned int length){
 
 void setupMqtt(){
     clientId += String(random(0xffff), HEX);
-    Serial.println(F("Setting up MQTT with ip: "));
+    Serial.print(F("Setting up MQTT with ip: "));
     Serial.println(printerConfig.printerIP);
 
     device_topic = String("device/") + printerConfig.serialNumber;
