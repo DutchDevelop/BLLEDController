@@ -14,12 +14,12 @@ void setupSerial(){
 void serialLoop(){
     if (Serial.available() > 0) {
         String input = Serial.readStringUntil('\n');
-        DynamicJsonDocument doc(256);
+        JsonDocument doc;
         deserializeJson(doc, input);
         if (doc.containsKey("ssid") && doc.containsKey("pass")) {
-            Serial.print("SSID ");
+            Serial.print(F("SSID "));
             Serial.println(doc["ssid"].as<String>());
-            Serial.print("PASS ");
+            Serial.print(F("PASS "));
             Serial.println(doc["pass"].as<String>());
 
             Serial.println(doc["printerip"].as<String>());
@@ -34,6 +34,8 @@ void serialLoop(){
             strcpy(printerConfig.serialNumber, doc["printerserial"]);
 
             saveFileSystem();
+            Serial.println(F("Restarting Device"));
+            delay(1000);
             ESP.restart();
        }
       

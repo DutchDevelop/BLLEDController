@@ -29,7 +29,7 @@ public:
         if (this->_len + 1 > this->buffer_size) {
             auto tmp = (char*)realloc(this->_buffer, this->buffer_size + BUFFER_INCREMENTS);
             if (tmp == NULL) {
-                Serial.println("Failed to grow buffer");
+                Serial.println(F("Failed to grow buffer"));
                 return 0;
             }
             this->_buffer = tmp;
