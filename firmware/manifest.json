@@ -1,12 +1,12 @@
 {
   "name": "BLLED Firmware",
-  "version": "Stable 28.1.24",
+  "version": "Stable 18.3.24",
   "new_install_prompt_erase": true,
   "builds": [
     {
       "chipFamily": "ESP32",
       "parts": [
-        { "path": "esp32dev/BLLC_28.1.24.bin", "offset": 0 }
+        { "path": "esp32dev/BLLC_18.3.24.bin", "offset": 0 }
         ]
     }
   ]
