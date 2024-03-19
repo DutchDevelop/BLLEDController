@@ -87,6 +87,7 @@ bool connectToWifi(){
         connectionAttempts++;
     }
 
+
     #ifdef ARDUINO_ARCH_ESP32
         WiFi.setTxPower(WIFI_POWER_19_5dBm); // https://github.com/G6EJD/ESP32-8266-Adjust-WiFi-RF-Power-Output/blob/main/README.md
     #endif
@@ -101,8 +102,9 @@ bool connectToWifi(){
     Serial.println(WiFi.BSSIDstr());
     Serial.print(F("RSSI (Signal Strength):          "));
     Serial.println(WiFi.RSSI());
-    Serial.print(F("IP_ADDRESS:                      ")); // Unique identifier for the IP address
-    Serial.println(WiFi.localIP());
+    Serial.print(F("IP_ADDRESS:")); // Line required in this format for WifiSetup.html page to show IP Address correct.
+    Serial.println(WiFi.localIP()); // Line required in this format for WifiSetup.html page to show IP Address correct.
+    
     Serial.println();
     return true;
 };
