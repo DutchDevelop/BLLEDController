@@ -222,54 +222,43 @@ void ParseCallback(char *topic, byte *payload, unsigned int length){
                     printerVariables.parsedHMSattrib = (attrib>>16);
                 }
             }
-            if(oldHMS != printerVariables.parsedHMS){
-                printerVariables.inspectingFirstLayer = false;
-                if(printerVariables.parsedHMS == "Common" && printerVariables.parsedHMSattrib == 3072)
-                {
-                    printerVariables.inspectingFirstLayer = true;
-                }
+            if(oldHMSlevel != printerVariables.parsedHMSlevel){
+
+                if(printerVariables.parsedHMScode == 0x0C0003000003000B) printerVariables.overridestage = 10;
+                if(printerVariables.parsedHMScode == 0x0300120000020001) printerVariables.overridestage = 17;
+                if(printerVariables.parsedHMScode == 0x0700200000030001) printerVariables.overridestage = 6;
+                if(printerVariables.parsedHMScode == 0x0300020000010001) printerVariables.overridestage = 20;
+                if(printerVariables.parsedHMScode == 0x0300010000010007) printerVariables.overridestage = 21;
                 
-
                 if (printerConfig.debuging  || printerConfig.debugingchange){
-                    Serial.print(F("MQTT update - parsedHMS now: "));
-                    if (printerVariables.parsedHMS.length() == 0) Serial.print(F("NULL"));
-                    Serial.println(printerVariables.parsedHMS);
-                }
-                Changed = true;
-            }
-        }
-
-        if (messageobject["print"].containsKey("home_flag")){
-            //https://github.com/greghesp/ha-bambulab/blob/main/custom_components/bambu_lab/pybambu/const.py#L324
-
-            bool doorState = false;
-            long homeFlag = 0;
-            homeFlag = messageobject["print"]["home_flag"];
-            doorState = homeFlag >> 23; //shift left 23 to the Door bit
-            doorState = doorState & 1;  // remove any bits above Door bit
-
-            if (printerVariables.doorOpen != doorState){
-                printerVariables.inactivityStartms = millis();  //restart idle timer
-
-                printerVariables.doorOpen = doorState;
-                printerVariables.inactivityLightsOff = false;
-                if (printerConfig.debugingchange)Serial.print(F("MQTT Door "));
-                if (printerVariables.doorOpen){
-                   printerVariables.lastdoorOpenms  = millis();
-                   if (printerConfig.debugingchange) Serial.println(F("Opened"));
-                }
-                else{
-                    if ((millis() - printerVariables.lastdoorClosems) < 6000){
-                        printerVariables.doorSwitchenabled = true;
+                    Serial.print(F("MQTT update - parsedHMSlevel now: "));
+                    if (printerVariables.parsedHMSlevel.length() > 0) {
+                        Serial.print(printerVariables.parsedHMSlevel);
+                        Serial.print(F("      Error Code: "));
+                        //Serial.println(F("https://wiki.bambulab.com/en/x1/troubleshooting/how-to-enter-the-specific-code-page"));
+                        int chunk1 = (printerVariables.parsedHMScode >> 48);
+                        int chunk2 = (printerVariables.parsedHMScode >> 32) & 0xFFFF;
+                        int chunk3 = (printerVariables.parsedHMScode >> 16) & 0xFFFF;
+                        int chunk4 = printerVariables.parsedHMScode & 0xFFFF;
+                        char strHMScode[20];
+                        sprintf(strHMScode, "%04X_%04X_%04X_%04X", chunk1, chunk2, chunk3, chunk4);
+                        Serial.print(strHMScode);
+                        if(printerVariables.overridestage != printerVariables.stage){
+                            Serial.println(F(" **"));
+                        }else{
+                            Serial.println(F(""));
+                        }
+                    } else {
+                        Serial.println(F("NULL"));
+                        printerVariables.overridestage = 999;
                     }
-                    printerVariables.lastdoorClosems = millis();
-                    if (printerConfig.debugingchange) Serial.println(F("Closed"));
                 }
                 Changed = true;
             }
         }
 
         if (Changed == true){
+            printerConfig.inactivityStartms = millis();  //restart idle timer
             if (printerConfig.debuging){
                 Serial.println(F("Change from mqtt"));
             }

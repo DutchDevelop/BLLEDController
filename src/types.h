@@ -13,13 +13,13 @@ extern "C"
                                                 //assume a Print has just finished and needs 
                                                 //to wait for a door interaction to continue
         int stage = 0;
-        bool testcolorEnabled = false;
+        int overridestage = 999;
         bool printerledstate = true;
         bool hmsstate = false;
         bool online = false;
         bool finished = false;
         bool initalisedLEDs = false;
-        bool inspectingFirstLayer = false;
+        //bool inspectingFirstLayer = false;
         //Time since
         unsigned long disconnectMQTTms = 0;        
         //InactivityLightsOff Timer and status

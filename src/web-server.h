@@ -38,7 +38,17 @@ void submitSetup(){
         }
         strcpy(printerConfig.printerIP,webServer.arg("ip").c_str());
         strcpy(printerConfig.accessCode,webServer.arg("code").c_str());
-        strcpy(printerConfig.serialNumber,webServer.arg("id").c_str());
+        //strcpy(printerConfig.serialNumber,webServer.arg("id").c_str());
+        //Force Uppercase
+        char temperserial[20];
+        strcpy(temperserial,webServer.arg("id").c_str());
+        for (int x=0; x<strlen(temperserial); x++)
+            temperserial[x] = toupper(temperserial[x]);
+        strcpy(printerConfig.serialNumber,temperserial);
+
+        
+        
+        
 
         strcpy(printerConfig.BSSID,webServer.arg("apMAC").c_str());
         printerConfig.brightness = webServer.arg("brightnessslider").toInt();

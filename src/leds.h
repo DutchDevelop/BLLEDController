@@ -244,6 +244,18 @@ void updateleds(){
         Serial.println(printerVariables.parsedHMS);
     }
 
+    //Initial Boot
+    if (printerVariables.initalisedLEDs == false) {     
+        printerVariables.initalisedLEDs = true;
+
+        printerConfig.inactivityStartms = millis();
+        printerVariables.waitingForDoor = false;
+        printerConfig.finish_check = false;
+        printerVariables.lastdoorClosems = millis();
+        return;
+    }
+
+
     //TOGGLE LIGHTS via DOOR
     //If door is closed twice in 6 seconds, it will flip the state of the lights
     if (printerVariables.doorSwitchenabled == true){
@@ -333,12 +345,9 @@ void updateleds(){
     }
 
     //Inspecting First Layer
-    if ((printerVariables.stage == 10 && printerConfig.lidarLightsOff)
-    ||  (printerVariables.inspectingFirstLayer && printerConfig.lidarLightsOff)){ 
-        tweenToColor(0,0,0,0,0); //OFF
-        if (printerConfig.debuging || printerConfig.debugingchange){
-            Serial.println(F("Stage 10 / HMS 0C00, FIRST LAYER INSPECTION, Turning LEDs OFF"));
-        };
+    if (printerVariables.stage == 10 || printerVariables.overridestage == 10){ 
+        tweenToColor(printerConfig.stage10Color); //Customisable - Default is OFF
+        printLogs("Stage 10 / HMS 0C00, FIRST LAYER INSPECTION", printerConfig.stage10Color);
         return;
     }
 
@@ -372,6 +381,34 @@ void updateleds(){
     // allow errordetection to turn ledstrip red
     if (printerConfig.errordetection == true){ 
 
+        //Fillament runout
+        if (printerVariables.stage == 6 || printerVariables.overridestage == 6){ 
+            tweenToColor(printerConfig.filamentRunoutRGB); //Customisable - Default is RED
+            printLogs("Stage 6, FILAMENT RUNOUT", printerConfig.filamentRunoutRGB);
+            return;
+        };
+
+        //Front Cover Removed
+        if (printerVariables.stage == 17 || printerVariables.overridestage == 17){ 
+            tweenToColor(printerConfig.frontCoverRGB); //Customisable - Default is RED
+            printLogs("Stage 17, FRONT COVER REMOVED", printerConfig.frontCoverRGB);
+            return;
+        };
+
+        //Nozzle Temp fail
+        if (printerVariables.stage == 20 || printerVariables.overridestage == 20){ 
+            tweenToColor(printerConfig.nozzleTempRGB); //Customisable - Default is RED
+            printLogs("Stage 20, NOZZLE TEMP FAIL", printerConfig.nozzleTempRGB);
+            return;
+        };
+
+        //Bed Temp Fail
+        if (printerVariables.stage == 21 || printerVariables.overridestage == 21){ 
+            tweenToColor(printerConfig.bedTempRGB); //Customisable - Default is RED
+            printLogs("Stage 21, BED TEMP FAIL", printerConfig.bedTempRGB);
+            return;
+        };
+
         //SERIOUS HMS state
         if (printerVariables.parsedHMS == "Serious"){
             tweenToColor(printerConfig.hmsSeriousRGB); //Customisable - Default is RED
@@ -388,46 +425,6 @@ void updateleds(){
             if (printerConfig.debuging || printerConfig.debugingchange){
                 Serial.print(F("HMS Severity, FATAL PROBLEM, Turning LEDs to "));
                 Serial.println(printerConfig.hmsFatalRGB);
-            };
-            return;
-        };
-
-        //Fillament runout
-        if (printerVariables.stage == 6){ 
-            tweenToColor(printerConfig.filamentRunoutRGB); //Customisable - Default is RED
-            if (printerConfig.debuging || printerConfig.debugingchange){
-                Serial.print(F("Stage 17, FILAMENT RUNOUT, Turning LEDs to "));
-                Serial.println(printerConfig.filamentRunoutRGB);
-            };
-            return;
-        };
-
-        //Front Cover Removed
-        if (printerVariables.stage == 17){ 
-            tweenToColor(printerConfig.frontCoverRGB); //Customisable - Default is RED
-            if (printerConfig.debuging || printerConfig.debugingchange){
-                Serial.print(F("Stage 17, FRONT COVER REMOVED, Turning LEDs to "));
-                Serial.println(printerConfig.frontCoverRGB);
-            };
-            return;
-        };
-
-        //Nozzle Temp fail
-        if (printerVariables.stage == 20){ 
-            tweenToColor(printerConfig.nozzleTempRGB); //Customisable - Default is RED
-            if (printerConfig.debuging || printerConfig.debugingchange){
-                Serial.print(F("Stage 20, NOZZLE TEMP FAIL, Turning LEDs to "));
-                Serial.println(printerConfig.nozzleTempRGB);
-            };
-            return;
-        };
-
-        //Bed Temp Fail
-        if (printerVariables.stage == 21){ 
-            tweenToColor(printerConfig.bedTempRGB); //Customisable - Default is RED
-            if (printerConfig.debuging || printerConfig.debugingchange){
-                Serial.print(F("Stage 21, BED TEMP FAIL, Turning LEDs to "));
-                Serial.println(printerConfig.bedTempRGB);
             };
             return;
         };
@@ -564,7 +561,17 @@ void ledsloop(){
             Serial.println(F("Updating from finishloop after Door interaction - Starting IDLE timer"));
         };
         printerVariables.waitingForDoor = false;
-        printerVariables.inactivityStartms = millis();
+        printerConfig.inactivityStartms = millis();
+        updateleds();
+    }
+
+    if((printerConfig.finish_check && printerConfig.finishindication && !printerConfig.finishExit
+    && ((millis() - printerConfig.finishStartms) > printerConfig.finishTimeOut))){
+        if (printerConfig.debuging || printerConfig.debugingchange){
+            Serial.println(F("Updating from finishloop after Finish timer expired - Starting IDLE timer"));
+        }
+        printerConfig.finish_check = false;
+        printerConfig.inactivityStartms = millis();
         updateleds();
     }
 

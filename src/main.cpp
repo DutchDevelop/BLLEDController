@@ -9,19 +9,30 @@
 
 void defaultcolors(){
     Serial.println(F("Setting default customisable colors"));
-    strcpy(printerConfig.testRGB,           "#3F3CFB"); //Violet
-    strcpy(printerConfig.wifiRGB,           "#FFA500"); //Orange
-    strcpy(printerConfig.finishRGB,         "#00FF00"); //Green
-    strcpy(printerConfig.pauseRGB,          "#0000FF"); //Blue
-    strcpy(printerConfig.firstlayerRGB,     "#0000FF"); //Blue
-    strcpy(printerConfig.nozzleclogRGB,     "#0000FF"); //Blue
-    strcpy(printerConfig.hmsSeriousRGB,     "#FF0000"); //Red
-    strcpy(printerConfig.hmsFatalRGB,       "#FF0000"); //Red
-    strcpy(printerConfig.filamentRunoutRGB, "#FF0000"); //Red
-    strcpy(printerConfig.frontCoverRGB,     "#FF0000"); //Red
-    strcpy(printerConfig.nozzleTempRGB,     "#FF0000"); //Red
-    strcpy(printerConfig.bedTempRGB,        "#FF0000"); //Red
+    printerConfig.runningColor = hex2rgb("#000000",255,255);//WHITE Running
+    printerConfig.testColor = hex2rgb("#3F3CFB");           //Violet Test
+    printerConfig.finishColor = hex2rgb("#00FF00");         //Green Finish
+
+    printerConfig.stage14Color = hex2rgb("#000000");        //OFF Cleaning Nozzle
+    printerConfig.stage1Color = hex2rgb("#0000AA");         //OFF Bed Leveling
+    printerConfig.stage8Color = hex2rgb("#000000");         //OFF Calibrating Extrusion
+    printerConfig.stage9Color = hex2rgb("#000000");         //OFF Scanning Bed Surface
+    printerConfig.stage10Color = hex2rgb("#000000");        //OFF First Layer Inspection
+
+    printerConfig.wifiRGB = hex2rgb("#FFA500");             //Orange Wifi Scan
+    
+    printerConfig.pauseRGB = hex2rgb("#0000FF");            //Blue Pause
+    printerConfig.firstlayerRGB = hex2rgb("#0000FF");       //Blue
+    printerConfig.nozzleclogRGB = hex2rgb("#0000FF");       //Blue
+    printerConfig.hmsSeriousRGB = hex2rgb("#FF0000");       //Red
+    printerConfig.hmsFatalRGB = hex2rgb("#FF0000");         //Red
+    printerConfig.filamentRunoutRGB = hex2rgb("#FF0000");   //Red
+    printerConfig.frontCoverRGB = hex2rgb("#FF0000");       //Red
+    printerConfig.nozzleTempRGB = hex2rgb("#FF0000");       //Red
+    printerConfig.bedTempRGB = hex2rgb("#FF0000");          //Red
+
 }
+unsigned long lastUpdatems = 0;
 
 void setup(){
     Serial.begin(115200);
