@@ -24,7 +24,6 @@ int str2mac(const char* mac, uint8_t* values){
         return 0;
     }
 }
-
 bool connectToWifi(){
     Serial.println(F("-------------------------------------"));
     WiFi.mode(WIFI_STA);   //ESP32 connects to an access point
@@ -79,6 +78,7 @@ bool connectToWifi(){
                     break;
                 case WL_DISCONNECTED:
                     Serial.print(F("Disconnected. (Check low RSSI)"));
+                    return false;
                 default:
                     break;
             }
@@ -104,7 +104,10 @@ bool connectToWifi(){
     Serial.println(WiFi.RSSI());
     Serial.print(F("IP_ADDRESS:")); // Line required in this format for WifiSetup.html page to show IP Address correct.
     Serial.println(WiFi.localIP()); // Line required in this format for WifiSetup.html page to show IP Address correct.
-    
+
+    Serial.print(F("Use web browser to access 'http://"));  // Instruction for user to go to Config page
+    Serial.print(WiFi.localIP());                           // Instruction for user to go to Config page
+    Serial.println(F("/' to view the setup page"));          // Instruction for user to go to Config page
     Serial.println();
     return true;
 };

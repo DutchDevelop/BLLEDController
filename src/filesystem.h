@@ -28,43 +28,93 @@ void saveFileSystem(){
     Serial.println(F("Saving config"));
     
     JsonDocument json;
+    json["ssid"] = globalVariables.SSID;
+    json["appw"] = globalVariables.APPW;
     json["printerIp"] = printerConfig.printerIP;
     json["accessCode"] = printerConfig.accessCode;
     json["serialNumber"] = printerConfig.serialNumber;
-    json["ssid"] = globalVariables.SSID;
-    json["appw"] = globalVariables.APPW;
     //json["webpagePassword"] = printerConfig.webpagePassword;
     json["bssi"] = printerConfig.BSSID;
     json["brightness"] = printerConfig.brightness;
-    // BLLED Settings
+    // LED Behaviour (Choose One)
+    json["maintMode"] = printerConfig.maintMode;
+    json["discoMode"] = printerConfig.discoMode;
     json["replicatestate"] = printerConfig.replicatestate;
-    json["errordetection"] = printerConfig.errordetection;
+    // Running Color
+    json["runningRGB"] = printerConfig.runningColor.RGBhex;
+    json["runningWW"] = printerConfig.runningColor.ww;
+    json["runningCW"] = printerConfig.runningColor.cw;
+    // Test LED Colors
+    json["showtestcolor"] = printerConfig.testcolorEnabled;
+    json["testRGB"] = printerConfig.testColor.RGBhex;
+    json["testWW"] = printerConfig.testColor.ww;
+    json["testCW"] = printerConfig.testColor.cw;
+    json["debugwifi"] = printerConfig.debugwifi;
+    // Options
     json["finishindication"] = printerConfig.finishindication;
-    json["lidarLightsOff"] = printerConfig.lidarLightsOff;
+    json["finishColor"] = printerConfig.finishColor.RGBhex;
+    json["finishWW"] = printerConfig.finishColor.ww;
+    json["finishCW"] = printerConfig.finishColor.cw;
+    json["finishExit"] = printerConfig.finishExit;
+    json["finishTimerMins"] = printerConfig.finishTimeOut;
     json["inactivityEnabled"] = printerConfig.inactivityEnabled;
     json["inactivityTimeOut"] = printerConfig.inactivityTimeOut;
-    json["discoMode"] = printerConfig.discoMode;
-    json["maintMode"] = printerConfig.maintMode;
     // Debugging
     json["debuging"] = printerConfig.debuging;
     json["debugingchange"] = printerConfig.debugingchange;
     json["mqttdebug"] = printerConfig.mqttdebug;
-    // Test - Fixed LED Colors
-    json["testRGB"] = printerConfig.testRGB;
-    json["testwarmwhite"] = printerConfig.testwarmwhite;
-    json["testcoldwhite"] = printerConfig.testcoldwhite;
+    // Printer Dependant
+    json["p1Printer"] = printerVariables.isP1Printer;
+    json["doorSwitch"] =  printerVariables.useDoorSwtich;
+    // Customise LED Colors (during Lidar)
+    json["stage14RGB"] = printerConfig.stage14Color.RGBhex;
+    json["stage14WW"] = printerConfig.stage14Color.ww;
+    json["stage14CW"] = printerConfig.stage14Color.cw;
+    json["stage1RGB"] = printerConfig.stage1Color.RGBhex;
+    json["stage1WW"] = printerConfig.stage1Color.ww;
+    json["stage1CW"] = printerConfig.stage1Color.cw;
+    json["stage8RGB"] = printerConfig.stage8Color.RGBhex;
+    json["stage8WW"] = printerConfig.stage8Color.ww;
+    json["stage8CW"] = printerConfig.stage8Color.cw;
+    json["stage9RGB"] = printerConfig.stage9Color.RGBhex;
+    json["stage9WW"] = printerConfig.stage9Color.ww;
+    json["stage9CW"] = printerConfig.stage9Color.cw;
+    json["stage10RGB"] = printerConfig.stage10Color.RGBhex;
+    json["stage10WW"] = printerConfig.stage10Color.ww;
+    json["stage10CW"] = printerConfig.stage10Color.cw;
     // Customise LED Colors
-    json["wifiRGB"] = printerConfig.wifiRGB;
-    json["finishRGB"] = printerConfig.finishRGB;
-    json["pauseRGB"] = printerConfig.pauseRGB;
-    json["firstlayerRGB"] = printerConfig.firstlayerRGB;
-    json["nozzleclogRGB"] = printerConfig.nozzleclogRGB;
-    json["hmsSeriousRGB"] = printerConfig.hmsSeriousRGB;
-    json["hmsFatalRGB"] = printerConfig.hmsFatalRGB;
-    json["filamentRunoutRGB"] = printerConfig.filamentRunoutRGB;
-    json["frontCoverRGB"] = printerConfig.frontCoverRGB;
-    json["nozzleTempRGB"] = printerConfig.nozzleTempRGB;
-    json["bedTempRGB"] = printerConfig.bedTempRGB;
+    json["errordetection"] = printerConfig.errordetection;
+    json["wifiRGB"] = printerConfig.wifiRGB.RGBhex;
+    json["wifiWW"] = printerConfig.wifiRGB.ww;
+    json["wifiCW"] = printerConfig.wifiRGB.cw;
+    json["pauseRGB"] = printerConfig.pauseRGB.RGBhex;
+    json["pauseWW"] = printerConfig.pauseRGB.ww;
+    json["pauseCW"] = printerConfig.pauseRGB.cw;
+    json["firstlayerRGB"] = printerConfig.firstlayerRGB.RGBhex;
+    json["firstlayerWW"] = printerConfig.firstlayerRGB.ww;
+    json["firstlayerCW"] = printerConfig.firstlayerRGB.cw;
+    json["nozzleclogRGB"] = printerConfig.nozzleclogRGB.RGBhex;
+    json["nozzleclogWW"] = printerConfig.nozzleclogRGB.ww;
+    json["nozzleclogCW"] = printerConfig.nozzleclogRGB.cw;
+    json["hmsSeriousRGB"] = printerConfig.hmsSeriousRGB.RGBhex;
+    json["hmsSeriousWW"] = printerConfig.hmsSeriousRGB.ww;
+    json["hmsSeriousCW"] = printerConfig.hmsSeriousRGB.cw;
+    json["hmsFatalRGB"] = printerConfig.hmsFatalRGB.RGBhex;
+    json["hmsFatalWW"] = printerConfig.hmsFatalRGB.ww;
+    json["hmsFatalCW"] = printerConfig.hmsFatalRGB.cw;
+    json["filamentRunoutRGB"] = printerConfig.filamentRunoutRGB.RGBhex;
+    json["filamentRunoutWW"] = printerConfig.filamentRunoutRGB.ww;
+    json["filamentRunoutCW"] = printerConfig.filamentRunoutRGB.cw;
+    json["frontCoverRGB"] = printerConfig.frontCoverRGB.RGBhex;
+    json["frontCoverWW"] = printerConfig.frontCoverRGB.ww;
+    json["frontCoverCW"] = printerConfig.frontCoverRGB.cw;
+    json["nozzleTempRGB"] = printerConfig.nozzleTempRGB.RGBhex;
+    json["nozzleTempWW"] = printerConfig.nozzleTempRGB.ww;
+    json["nozzleTempCW"] = printerConfig.nozzleTempRGB.cw;
+    json["bedTempRGB"] = printerConfig.bedTempRGB.RGBhex;
+    json["bedTempWW"] = printerConfig.bedTempRGB.ww;
+    json["bedTempCW"] = printerConfig.bedTempRGB.cw;
+
     File configFile = LittleFS.open(configPath, "w");
     if (!configFile) {
         Serial.println(F("Failed to save config"));
@@ -115,36 +165,48 @@ void loadFileSystem(){
         //strcpy(printerConfig.webpagePassword, json["webpagePassword"]);
         strcpy(printerConfig.BSSID, json["bssi"]);
         printerConfig.brightness = json["brightness"];
-        //BLLED Settings
+        // LED Behaviour (Choose One)
+        printerConfig.maintMode = json["maintMode"];
+        printerConfig.discoMode = json["discoMode"];
         printerConfig.replicatestate = json["replicatestate"];
-        printerConfig.errordetection = json["errordetection"];
+        // Running Color
+        printerConfig.runningColor = hex2rgb(json["runningRGB"],json["runningWW"],json["runningCW"]);
+        // Test LED Colors
+        printerConfig.testcolorEnabled = json["showtestcolor"];
+        printerConfig.testColor = hex2rgb(json["testRGB"],json["testWW"],json["testCW"]);
+        printerConfig.debugwifi = json["debugwifi"];
+        // Options
         printerConfig.finishindication = json["finishindication"];
-        printerConfig.lidarLightsOff = json["lidarLightsOff"];
+        printerConfig.finishColor = hex2rgb(json["finishColor"],json["finishWW"],json["finishCW"]);
+        printerConfig.finishExit = json["finishExit"];
+        printerConfig.finishTimeOut = json["finishTimerMins"];
         printerConfig.inactivityEnabled = json["inactivityEnabled"];
         printerConfig.inactivityTimeOut = json["inactivityTimeOut"];
-        printerConfig.discoMode = json["discoMode"];
-        printerConfig.maintMode = json["maintMode"];
-        //Debugging
+        // Debugging
         printerConfig.debuging = json["debuging"];
         printerConfig.debugingchange = json["debugingchange"];
         printerConfig.mqttdebug = json["mqttdebug"];
-        //Test - Fixed LED Colors
-        strcpy(printerConfig.testRGB, json["testRGB"]);
-        printerConfig.testwarmwhite = json["testwarmwhite"];
-        printerConfig.testcoldwhite = json["testcoldwhite"];
+        // Printer Dependant
+        printerVariables.isP1Printer = json["p1Printer"];
+        printerVariables.useDoorSwtich = json["doorSwitch"];
+        printerConfig.stage14Color = hex2rgb(json["stage14RGB"],json["stage14WW"],json["stage14CW"]);
+        printerConfig.stage1Color = hex2rgb(json["stage1RGB"],json["stage1WW"],json["stage1CW"]);
+        printerConfig.stage8Color = hex2rgb(json["stage8RGB"],json["stage8WW"],json["stage8CW"]);
+        printerConfig.stage9Color = hex2rgb(json["stage9RGB"],json["stage9WW"],json["stage9CW"]);
+        printerConfig.stage10Color = hex2rgb(json["stage10RGB"],json["stage10WW"],json["stage10CW"]);
         // Customise LED Colors
-        strcpy(printerConfig.wifiRGB, json["wifiRGB"]);
-        strcpy(printerConfig.finishRGB, json["finishRGB"]);
-        strcpy(printerConfig.pauseRGB, json["pauseRGB"]);
-        strcpy(printerConfig.firstlayerRGB, json["firstlayerRGB"]);
-        strcpy(printerConfig.nozzleclogRGB, json["nozzleclogRGB"]);
-        strcpy(printerConfig.hmsSeriousRGB, json["hmsSeriousRGB"]);
-        strcpy(printerConfig.hmsFatalRGB, json["hmsFatalRGB"]);
-        strcpy(printerConfig.filamentRunoutRGB, json["filamentRunoutRGB"]);
-        strcpy(printerConfig.frontCoverRGB, json["frontCoverRGB"]);
-        strcpy(printerConfig.nozzleTempRGB, json["nozzleTempRGB"]);
-        strcpy(printerConfig.bedTempRGB, json["bedTempRGB"]);
+        printerConfig.errordetection = json["errordetection"];
+        printerConfig.wifiRGB = hex2rgb(json["wifiRGB"],json["wifiWW"],json["wifiCW"]);
 
+        printerConfig.pauseRGB = hex2rgb(json["pauseRGB"],json["pauseWW"],json["pauseCW"]);
+        printerConfig.firstlayerRGB = hex2rgb(json["firstlayerRGB"],json["firstlayerWW"],json["firstlayerCW"]);
+        printerConfig.nozzleclogRGB = hex2rgb(json["nozzleclogRGB"],json["nozzleclogWW"],json["nozzleclogCW"]);
+        printerConfig.hmsSeriousRGB = hex2rgb(json["hmsSeriousRGB"],json["hmsSeriousWW"],json["hmsSeriousCW"]);
+        printerConfig.hmsFatalRGB = hex2rgb(json["hmsFatalRGB"],json["hmsFatalWW"],json["hmsFatalCW"]);
+        printerConfig.filamentRunoutRGB = hex2rgb(json["filamentRunoutRGB"],json["filamentRunoutWW"],json["filamentRunoutCW"]);
+        printerConfig.frontCoverRGB = hex2rgb(json["frontCoverRGB"],json["frontCoverWW"],json["frontCoverCW"]);
+        printerConfig.nozzleTempRGB = hex2rgb(json["nozzleTempRGB"],json["nozzleTempWW"],json["nozzleTempCW"]);
+        printerConfig.bedTempRGB = hex2rgb(json["bedTempRGB"],json["bedTempWW"],json["bedTempCW"]);
         Serial.println(F("Loaded config"));
     } else {
         Serial.println(F("Failed loading config"));
