@@ -15,7 +15,7 @@ void defaultcolors(){
     printerConfig.finishColor = hex2rgb("#00FF00");         //Green Finish
 
     printerConfig.stage14Color = hex2rgb("#000000");        //OFF Cleaning Nozzle
-    printerConfig.stage1Color = hex2rgb("#000000");         //OFF Bed Leveling
+    printerConfig.stage1Color = hex2rgb("#0000AA");         //OFF Bed Leveling
     printerConfig.stage8Color = hex2rgb("#000000");         //OFF Calibrating Extrusion
     printerConfig.stage9Color = hex2rgb("#000000");         //OFF Scanning Bed Surface
     printerConfig.stage10Color = hex2rgb("#000000");        //OFF First Layer Inspection

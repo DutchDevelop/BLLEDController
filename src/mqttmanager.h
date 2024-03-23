@@ -136,8 +136,6 @@ void ParseCallback(char *topic, byte *payload, unsigned int length){
             doorState = doorState & 1;  // remove any bits above Door bit
 
             if (printerVariables.doorOpen != doorState){
-                printerConfig.inactivityLightsOff = false;   //turn lights On
-
                 printerVariables.doorOpen = doorState;
                 
                 if (printerConfig.debugingchange)Serial.print(F("MQTT Door "));
@@ -229,14 +227,17 @@ void ParseCallback(char *topic, byte *payload, unsigned int length){
         //Message only sent onChange
         if (messageobject["system"].containsKey("command")) {
             if (messageobject["system"]["command"] == "ledctrl"){
-                printerVariables.printerledstate = (messageobject["system"]["led_mode"] == "on");
-                printerConfig.replicate_update = true;
-                lastMQTTupdate = millis();
-                if (printerConfig.debugingchange || printerConfig.debuging){
-                    Serial.print(F("MQTT led_mode now: "));
-                    Serial.println(printerVariables.printerledstate);
+                //Ignore Printer sending attempts to turn light on when already on.
+                if(printerVariables.printerledstate != (messageobject["system"]["led_mode"] == "on")){
+                    printerVariables.printerledstate = (messageobject["system"]["led_mode"] == "on");
+                    printerConfig.replicate_update = true;
+                    lastMQTTupdate = millis();
+                    if (printerConfig.debugingchange || printerConfig.debuging){
+                        Serial.print(F("MQTT led_mode now: "));
+                        Serial.println(printerVariables.printerledstate);
+                    }
+                    Changed = true;
                 }
-                Changed = true;
             }
         }
 
@@ -291,6 +292,7 @@ void ParseCallback(char *topic, byte *payload, unsigned int length){
 
         if (Changed == true){
             printerConfig.inactivityStartms = millis();  //restart idle timer
+            printerConfig.isIdleOFFActive = false;
             if (printerConfig.debuging){
                 Serial.println(F("Change from mqtt"));
             }

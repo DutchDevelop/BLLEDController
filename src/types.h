@@ -86,9 +86,9 @@ extern "C"
         bool finish_check = false;    //When updateleds() is run, should the TEST LEDS be set?
         //Inactivity Timout
         bool inactivityEnabled = true;
-        bool inactivityLightsOff = false;       // Are the lights out due to inactivity Timeout?
+        bool isIdleOFFActive = false;       // Are the lights out due to inactivity Timeout?
         unsigned long inactivityStartms = 0;    // Time the inactivity countdown is measured from
-        int inactivityTimeOut = 60000;  // 1800000 = 30mins / 600000 = 10mins / 60000 = 1mins 
+        int inactivityTimeOut = 120000;  // 1800000 = 30mins / 600000 = 10mins / 60000 = 1mins 
         // Debugging
         bool debuging = false;          //Debugging for all interactions through functions
         bool debugingchange = true;     //Default debugging level - to shows onChange

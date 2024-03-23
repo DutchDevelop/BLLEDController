@@ -99,6 +99,7 @@ void submitSetup(){
         saveFileSystem();
         Serial.println(F("Packet received from config page"));
         printerConfig.inactivityStartms = millis();  //restart idle timer
+        printerConfig.isIdleOFFActive = false;
         printerConfig.replicate_update=true;
         printerConfig.maintMode_update=true;
         printerConfig.discoMode_update=true;

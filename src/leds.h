@@ -285,8 +285,8 @@ void updateleds(){
         {
             tweenToColor(0,0,0,0,0); //OFF
             //Shortcut to idle state - note: light will go back on immediately if there is an MQTT change of any sort
-            printerConfig.inactivityLightsOff = true;
-            printerConfig.inactivityStartms = millis()-printerConfig.inactivityTimeOut;
+            printerConfig.isIdleOFFActive = true;
+            printerConfig.inactivityStartms = (millis()-printerConfig.inactivityTimeOut);
             if (printerConfig.debuging || printerConfig.debugingchange) {
                 Serial.println(F("OFF"));
             }
@@ -312,7 +312,7 @@ void updateleds(){
     // replicate printer behaviour OFF
     if (printerConfig.replicatestate && printerConfig.replicate_update && !printerVariables.printerledstate){
         tweenToColor(0,0,0,0,0); //OFF
-        printLogs("LED Replication", 0,0,0,0,0);
+        printLogs("LED Replication OFF", 0,0,0,0,0);
         printerConfig.replicate_update = false;
         return;
     }
@@ -363,10 +363,10 @@ void updateleds(){
     if ((printerVariables.stage == -1 || printerVariables.stage == 255) 
     && !printerVariables.waitingForDoor && !printerConfig.finish_check
     && (millis() - printerConfig.inactivityStartms) > printerConfig.inactivityTimeOut 
-    && printerConfig.inactivityLightsOff == false
+    && printerConfig.isIdleOFFActive == false
     && printerConfig.inactivityEnabled){ 
         tweenToColor(0,0,0,0,0); //OFF
-        printerConfig.inactivityLightsOff = true;
+        printerConfig.isIdleOFFActive = true;
         if (printerConfig.debuging || printerConfig.debugingchange){
             Serial.print(F("Idle Timeout ["));
             Serial.print((int)(printerConfig.inactivityTimeOut / 60000));
@@ -509,7 +509,7 @@ void updateleds(){
     // replicate printer behaviour ON
     if (printerConfig.replicatestate && printerConfig.replicate_update && printerVariables.printerledstate){
         tweenToColor(printerConfig.runningColor); //Customisable - Default is WHITE
-        printLogs("LED Replication", printerConfig.runningColor);
+        printLogs("LED Replication ON", printerConfig.runningColor);
         printerConfig.replicate_update = false;
         return;
     }
@@ -563,7 +563,7 @@ void ledsloop(){
     if(printerConfig.inactivityEnabled 
     && (millis() - printerConfig.inactivityStartms) > printerConfig.inactivityTimeOut 
     && printerVariables.finished == false 
-    && printerConfig.inactivityLightsOff == false)
+    && printerConfig.isIdleOFFActive == false)
     {
         //Opening or Closing the Door will turn LEDs back on and restart the timer.
         updateleds();
