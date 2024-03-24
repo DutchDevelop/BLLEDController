@@ -256,7 +256,8 @@ void updateleds(){
     //Initial Boot
     if (printerVariables.initalisedLEDs == false) {     
         printerVariables.initalisedLEDs = true; //Run once per boot
-        printerConfig.inactivityStartms = millis();
+        printerConfig.inactivityStartms = millis();  //restart idle timer
+        printerConfig.isIdleOFFActive = false;
         printerVariables.waitingForDoor = false;
         printerConfig.finish_check = false;
         printerVariables.lastdoorClosems = millis();
