@@ -77,6 +77,9 @@ void setup(){
 
     Serial.println();
     Serial.println(F("** BLLED Controller started **"));
+    Serial.print(F("Using firmware version: "));
+    Serial.println(globalVariables.FWVersion);
+
     Serial.println();
     globalVariables.started = true;
 
