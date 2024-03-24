@@ -79,7 +79,7 @@ void setup(){
     Serial.println(F("** BLLED Controller started **"));
     Serial.println();
     globalVariables.started = true;
-    
+
 }
 
 void loop(){

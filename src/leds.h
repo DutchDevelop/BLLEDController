@@ -17,6 +17,7 @@ int currentWarm = 0;
 int currentCold = 0;
 
 unsigned long tempms = 0;
+unsigned long oldms = 0;
 
 COLOR hex2rgb(String hex, short ww_value = 0, short cw_value = 0) {
     COLOR color;
@@ -254,11 +255,12 @@ void updateleds(){
 
     //Initial Boot
     if (printerVariables.initalisedLEDs == false) {     
-        printerVariables.initalisedLEDs = true;
+        printerVariables.initalisedLEDs = true; //Run once per boot
         printerConfig.inactivityStartms = millis();
         printerVariables.waitingForDoor = false;
         printerConfig.finish_check = false;
         printerVariables.lastdoorClosems = millis();
+        Serial.println(F("Initial Boot"));
         return;
     }
 
@@ -275,6 +277,7 @@ void updateleds(){
             if (printerConfig.debuging || printerConfig.debugingchange) {
                 Serial.println(F("ON"));
             }
+            printerConfig.isIdleOFFActive = false;
         }
         else
         {
@@ -375,7 +378,7 @@ void updateleds(){
     }
 
     // replicate printer behaviour OFF
-    if (printerConfig.replicatestate && printerConfig.replicate_update && !printerVariables.printerledstate){
+    if (printerConfig.replicatestate && printerConfig.replicate_update && printerVariables.printerledstate == false){
         tweenToColor(0,0,0,0,0); //OFF
         printLogs("LED Replication OFF", 0,0,0,0,0);
         printerConfig.replicate_update = false;
@@ -419,14 +422,14 @@ void updateleds(){
 
     //Calibrating  MicroLidar
     if (printerVariables.stage == 12){ 
-        tweenToColor(printerConfig.stage10Color); //Customisable - Default is OFF
+        tweenToColor(printerConfig.stage10Color); 
         printLogs("Stage 12, CALIBRATING MICRO LIDAR", printerConfig.stage10Color);
         return;
     }
 
     // Idle Timeout (Has to be enabled)
     if ((printerVariables.stage == -1 || printerVariables.stage == 255) 
-    && !((printerConfig.finishExit && printerVariables.waitingForDoor) || (!printerConfig.finishExit && ((millis() - printerConfig.finishStartms) > printerConfig.finishTimeOut)))
+    && !((printerConfig.finishExit && printerVariables.waitingForDoor) || (printerConfig.finishExit == false && ((millis() - printerConfig.finishStartms) < printerConfig.finishTimeOut)))
     && (millis() - printerConfig.inactivityStartms) > printerConfig.inactivityTimeOut 
     && printerConfig.isIdleOFFActive == false
     && printerConfig.inactivityEnabled){ 
@@ -458,7 +461,7 @@ void updateleds(){
 
     //for IDLE - P1 uses 255, X1 uses -1
     if ((printerVariables.stage == -1 || printerVariables.stage == 255) 
-    && !((printerConfig.finishExit && printerVariables.waitingForDoor) || (!printerConfig.finishExit && ((millis() - printerConfig.finishStartms) > printerConfig.finishTimeOut)))
+    && !((printerConfig.finishExit && printerVariables.waitingForDoor) || (printerConfig.finishExit == false && ((millis() - printerConfig.finishStartms) < printerConfig.finishTimeOut)))
     && (millis() - printerConfig.inactivityStartms < printerConfig.inactivityTimeOut)){ 
         tweenToColor(printerConfig.runningColor); //Customisable - Default is WHITE
         printLogs("Stage -1/255, IDLE", printerConfig.runningColor);
@@ -475,6 +478,13 @@ void updateleds(){
     if (printerVariables.gcodeState == "PREPARE"){ 
         tweenToColor(printerConfig.runningColor); //Customisable - Default is WHITE
         printLogs("Stage -1/255, PREPARE", printerConfig.runningColor);
+        return;
+    }
+
+    //Homing ToolHead
+    if (printerVariables.stage == 13){ 
+        //No color change assigned
+        Serial.println(F("STAGE 13, HOMING TOOL HEAD"));
         return;
     }
 
@@ -497,7 +507,7 @@ void updateleds(){
 
     // replicate printer behaviour ON
     if (printerConfig.replicatestate && printerConfig.replicate_update && printerVariables.printerledstate
-    && !((printerConfig.finishExit && printerVariables.waitingForDoor) || (!printerConfig.finishExit && ((millis() - printerConfig.finishStartms) > printerConfig.finishTimeOut)))){
+    && !((printerConfig.finishExit && printerVariables.waitingForDoor) || (printerConfig.finishExit == false && ((millis() - printerConfig.finishStartms) < printerConfig.finishTimeOut)))){
         tweenToColor(printerConfig.runningColor); //Customisable - Default is WHITE
         printLogs("LED Replication ON", printerConfig.runningColor);
         printerConfig.replicate_update = false;
@@ -534,16 +544,18 @@ void ledsloop(){
         }
         printerVariables.waitingForDoor = false;
         printerConfig.inactivityStartms = millis();
+        printerConfig.isIdleOFFActive = false;
         updateleds();
     }
 
-    if((printerConfig.finish_check && printerConfig.finishindication && !printerConfig.finishExit
+    if((printerConfig.finish_check && printerConfig.finishindication && printerConfig.finishExit == false
     && ((millis() - printerConfig.finishStartms) > printerConfig.finishTimeOut))){
         if (printerConfig.debuging || printerConfig.debugingchange){
             Serial.println(F("Updating from finishloop after Finish timer expired - Starting IDLE timer"));
         }
         printerConfig.finish_check = false;
         printerConfig.inactivityStartms = millis();
+        printerConfig.isIdleOFFActive = false;
         updateleds();
     }
 
@@ -556,7 +568,7 @@ void ledsloop(){
         //Opening or Closing the Door will turn LEDs back on and restart the timer.
         updateleds();
     }
-   
+
     delay(10);
 }
 

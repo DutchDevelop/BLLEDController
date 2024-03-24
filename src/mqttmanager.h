@@ -217,6 +217,9 @@ void ParseCallback(char *topic, byte *payload, unsigned int length){
                             Serial.print(F("MQTT chamber_light now: "));
                             Serial.println(printerVariables.printerledstate);
                         }
+                        if(printerVariables.waitingForDoor && printerConfig.finish_check){
+                            printerVariables.finished = true;
+                        }
                         Changed = true;
                     }
                 }
@@ -235,6 +238,10 @@ void ParseCallback(char *topic, byte *payload, unsigned int length){
                         Serial.print(F("MQTT led_mode now: "));
                         Serial.println(printerVariables.printerledstate);
                     }
+                    if(printerVariables.waitingForDoor && printerConfig.finish_check){
+                        printerVariables.finished = true;
+                    }
+
                     Changed = true;
                 }
             }
@@ -299,10 +306,6 @@ void ParseCallback(char *topic, byte *payload, unsigned int length){
             printerConfig.discoMode_update = true;
             printerConfig.replicate_update = true;
             printerConfig.testcolor_update = true;
-
-            if(printerVariables.gcodeState =="FINISH" && printerConfig.finish_check){
-                printerVariables.finished = true;
-            }
 
             updateleds();
         }

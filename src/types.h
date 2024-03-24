@@ -31,7 +31,6 @@ extern "C"
         bool initalisedLEDs = false;
         //Time since
         unsigned long disconnectMQTTms = 0;        
-        unsigned long finishStateStartms = 0;    // Time since first finish state
 
         //PrinterType
         bool isP1Printer = false;               //Is this a P1 Printer without lidar or door switch
@@ -49,7 +48,7 @@ extern "C"
     typedef struct GlobalVariablesStruct{
         char SSID[32];
         char APPW[63];
-        String FWVersion = "Experimental(CyberKerb) 23.3.24";
+        String FWVersion = "Experimental(CyberKerb) 25.3.24";
         String Host = "BLLED";
         bool started = false;
     } GlobalVariables;
@@ -78,17 +77,17 @@ extern "C"
         COLOR testColor;                //Test Color
         bool debugwifi = false;         //Changes LED to a color range that represents WiFi signal Strength        
         // Options
-        bool finishindication = true;   //Utilises Finish Color when print ends successfully
-        COLOR finishColor;              //Finish Color
+        bool finishindication = true;   //Enable / Disable
+        COLOR finishColor;              //Set Finish Color
         bool finishExit = true;         //True = use Door / False = use Timer
+        bool finish_check = false;    //When updateleds() is run, should the TEST LEDS be set?
         unsigned long finishStartms = 0;    // Time the finish countdown is measured from
         int finishTimeOut = 300000;     //300000 = 5 mins
-        bool finish_check = false;    //When updateleds() is run, should the TEST LEDS be set?
         //Inactivity Timout
         bool inactivityEnabled = true;
         bool isIdleOFFActive = false;       // Are the lights out due to inactivity Timeout?
         unsigned long inactivityStartms = 0;    // Time the inactivity countdown is measured from
-        int inactivityTimeOut = 120000;  // 1800000 = 30mins / 600000 = 10mins / 60000 = 1mins 
+        int inactivityTimeOut = 600000;  // 1800000 = 30mins / 600000 = 10mins / 60000 = 1mins 
         // Debugging
         bool debuging = false;          //Debugging for all interactions through functions
         bool debugingchange = true;     //Default debugging level - to shows onChange
