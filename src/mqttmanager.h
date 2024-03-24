@@ -201,7 +201,6 @@ void ParseCallback(char *topic, byte *payload, unsigned int length){
                 Serial.println(F("MQTT update - manual PAUSE"));
                 printerVariables.gcodeState = "PAUSE";
                 Changed = true;
-                return;
             }
         }
 
@@ -300,6 +299,11 @@ void ParseCallback(char *topic, byte *payload, unsigned int length){
             printerConfig.discoMode_update = true;
             printerConfig.replicate_update = true;
             printerConfig.testcolor_update = true;
+
+            if(printerVariables.gcodeState =="FINISH" && printerConfig.finish_check){
+                printerVariables.finished = true;
+            }
+
             updateleds();
         }
     }else{

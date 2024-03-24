@@ -56,6 +56,7 @@ void saveFileSystem(){
     json["finishWW"] = printerConfig.finishColor.ww;
     json["finishCW"] = printerConfig.finishColor.cw;
     json["finishExit"] = printerConfig.finishExit;
+    json["finish_check"] = printerConfig.finish_check;
     json["finishTimerMins"] = printerConfig.finishTimeOut;
     json["inactivityEnabled"] = printerConfig.inactivityEnabled;
     json["inactivityTimeOut"] = printerConfig.inactivityTimeOut;
@@ -180,6 +181,7 @@ void loadFileSystem(){
         printerConfig.finishColor = hex2rgb(json["finishColor"],json["finishWW"],json["finishCW"]);
         printerConfig.finishExit = json["finishExit"];
         printerConfig.finishTimeOut = json["finishTimerMins"];
+        printerConfig.finish_check = json["finish_check"];
         printerConfig.inactivityEnabled = json["inactivityEnabled"];
         printerConfig.inactivityTimeOut = json["inactivityTimeOut"];
         // Debugging

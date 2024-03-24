@@ -78,8 +78,8 @@ void setup(){
     Serial.println();
     Serial.println(F("** BLLED Controller started **"));
     Serial.println();
-    tweenToColor(0,0,0,0,0,3000); //Fade to Black before starting
     globalVariables.started = true;
+    
 }
 
 void loop(){

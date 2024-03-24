@@ -16,6 +16,8 @@ int currentBlue = 0;
 int currentWarm = 0;
 int currentCold = 0;
 
+unsigned long tempms = 0;
+
 COLOR hex2rgb(String hex, short ww_value = 0, short cw_value = 0) {
     COLOR color;
     long hexcolor;
@@ -155,20 +157,13 @@ void RGBCycle() {
     currentWarm = 0;
     currentCold = 0;
 
-    //Adjust to set brightness level
-    float brightness = (float)printerConfig.brightness/100.0;
+    //Need to add code so it adjusts to set brightness level
 
-    int brightenedRed = round(currentRed * brightness);
-    int brightenedGreen = round(currentGreen * brightness);
-    int brightenedBlue = round(currentBlue * brightness);
-    int brightenedWarm = round(currentWarm * brightness);
-    int brightenedCold = round(currentCold * brightness);
-
-    analogWrite(redPin, brightenedRed);
-    analogWrite(greenPin, brightenedGreen);
-    analogWrite(bluePin, brightenedBlue);
-    analogWrite(warmPin, brightenedWarm);
-    analogWrite(coldPin, brightenedCold);
+    analogWrite(redPin, currentRed);
+    analogWrite(greenPin, currentGreen);
+    analogWrite(bluePin, currentBlue);
+    analogWrite(warmPin, currentWarm);
+    analogWrite(coldPin, currentCold);
 }
 
 void printLogs(String Desc, COLOR thisColor){
@@ -209,7 +204,7 @@ void updateleds(){
         tweenToColor(0,0,0,255,255); //WHITE
         printerConfig.maintMode_update = false;
         printLogs("Maintenance Mode", 0,0,0,255,255);
-        Serial.println(F("(expect MQTT connection to drop and need reconnecting after exiting maintenance mode)"));
+        Serial.println(F("(Expect MQTT connection to drop and need reconnecting after exiting maintenance mode)"));
         return;
     }
 
@@ -236,7 +231,7 @@ void updateleds(){
     if (printerConfig.testcolorEnabled && printerConfig.testcolor_update){
         tweenToColor(printerConfig.testColor); //Variable Test Color
         printLogs("LED Test ON", printerConfig.testColor);
-        Serial.println(F("(expect MQTT connection to drop and need reconnecting after exiting maintenance mode)"));
+        Serial.println(F("(Expect MQTT connection to drop and need reconnecting after exiting test color mode)"));
         printerConfig.testcolor_update = false;
         return;
     }
@@ -292,87 +287,6 @@ void updateleds(){
             }
         }
         printerVariables.doorSwitchTriggered = false;
-    }
-
-
-    //OFF -- OFF -- OFF -- OFF
-
-    if (printerConfig.discoMode == true){
-        //Skip all the following code that sets specific colors if RGB Mode is on - done in RGBCycle()
-        return;
-    }
-
-    //printer offline and MQTT disconnect more than 5 seconds.
-    if (printerVariables.online == false && (millis() - printerVariables.disconnectMQTTms) >= 5000){ 
-        tweenToColor(0,0,0,0,0); //OFF
-        printLogs("Printer offline", 0,0,0,0,0);
-        return;
-    }
-
-    // replicate printer behaviour OFF
-    if (printerConfig.replicatestate && printerConfig.replicate_update && !printerVariables.printerledstate){
-        tweenToColor(0,0,0,0,0); //OFF
-        printLogs("LED Replication OFF", 0,0,0,0,0);
-        printerConfig.replicate_update = false;
-        return;
-    }
-
-    //Cleaning nozzle
-    if (printerVariables.stage == 14){ 
-        tweenToColor(printerConfig.stage14Color); //Customisable - Default is OFF
-        printLogs("Stage 14, CLEANING NOZZLE", printerConfig.stage14Color);
-        return;
-    }
-
-    //Auto Bed Leveling
-    if (printerVariables.stage == 1){ 
-        tweenToColor(printerConfig.stage1Color); //Customisable - Default is OFF
-        printLogs("Stage 1, BED LEVELING", printerConfig.stage1Color);
-        return;
-    }
-
-    //Calibrating Extrusion
-    if (printerVariables.stage == 8){ 
-        tweenToColor(printerConfig.stage8Color); //Customisable - Default is OFF
-        printLogs("Stage 8, CALIBRATING EXTRUSION", printerConfig.stage8Color);
-        return;
-    }
-
-    //Scaning surface
-    if (printerVariables.stage == 9){ 
-        tweenToColor(printerConfig.stage9Color); //Customisable - Default is OFF
-        printLogs("Stage 9, SCANNING BED SURFACE", printerConfig.stage9Color);
-        return;
-    }
-
-    //Inspecting First Layer
-    if (printerVariables.stage == 10 || printerVariables.overridestage == 10){ 
-        tweenToColor(printerConfig.stage10Color); //Customisable - Default is OFF
-        printLogs("Stage 10 / HMS 0C00, FIRST LAYER INSPECTION", printerConfig.stage10Color);
-        return;
-    }
-
-    //Calibrating  MicroLidar
-    if (printerVariables.stage == 12){ 
-        tweenToColor(printerConfig.stage10Color); //Customisable - Default is OFF
-        printLogs("Stage 12, CALIBRATING MICRO LIDAR", printerConfig.stage10Color);
-        return;
-    }
-
-    // Idle Timeout (Has to be enabled)
-    if ((printerVariables.stage == -1 || printerVariables.stage == 255) 
-    && !printerVariables.waitingForDoor && !printerConfig.finish_check
-    && (millis() - printerConfig.inactivityStartms) > printerConfig.inactivityTimeOut 
-    && printerConfig.isIdleOFFActive == false
-    && printerConfig.inactivityEnabled){ 
-        tweenToColor(0,0,0,0,0); //OFF
-        printerConfig.isIdleOFFActive = true;
-        if (printerConfig.debuging || printerConfig.debugingchange){
-            Serial.print(F("Idle Timeout ["));
-            Serial.print((int)(printerConfig.inactivityTimeOut / 60000));
-            Serial.println(F(" mins] - Turning LEDs OFF"));
-        };
-        return;
     }
     
     //RED -- RED -- RED -- RED
@@ -451,6 +365,81 @@ void updateleds(){
         return;
     }
 
+    //OFF -- OFF -- OFF -- OFF
+
+    //printer offline and MQTT disconnect more than 5 seconds.
+    if (printerVariables.online == false && (millis() - printerVariables.disconnectMQTTms) >= 5000){ 
+        tweenToColor(0,0,0,0,0); //OFF
+        printLogs("Printer offline", 0,0,0,0,0);
+        return;
+    }
+
+    // replicate printer behaviour OFF
+    if (printerConfig.replicatestate && printerConfig.replicate_update && !printerVariables.printerledstate){
+        tweenToColor(0,0,0,0,0); //OFF
+        printLogs("LED Replication OFF", 0,0,0,0,0);
+        printerConfig.replicate_update = false;
+        return;
+    }
+
+    //Cleaning nozzle
+    if (printerVariables.stage == 14){ 
+        tweenToColor(printerConfig.stage14Color); //Customisable - Default is OFF
+        printLogs("Stage 14, CLEANING NOZZLE", printerConfig.stage14Color);
+        return;
+    }
+
+    //Auto Bed Leveling
+    if (printerVariables.stage == 1){ 
+        tweenToColor(printerConfig.stage1Color); //Customisable - Default is OFF
+        printLogs("Stage 1, BED LEVELING", printerConfig.stage1Color);
+        return;
+    }
+
+    //Calibrating Extrusion
+    if (printerVariables.stage == 8){ 
+        tweenToColor(printerConfig.stage8Color); //Customisable - Default is OFF
+        printLogs("Stage 8, CALIBRATING EXTRUSION", printerConfig.stage8Color);
+        return;
+    }
+
+    //Scaning surface
+    if (printerVariables.stage == 9){ 
+        tweenToColor(printerConfig.stage9Color); //Customisable - Default is OFF
+        printLogs("Stage 9, SCANNING BED SURFACE", printerConfig.stage9Color);
+        return;
+    }
+
+    //Inspecting First Layer
+    if (printerVariables.stage == 10 || printerVariables.overridestage == 10){ 
+        tweenToColor(printerConfig.stage10Color); //Customisable - Default is OFF
+        printLogs("Stage 10 / HMS 0C00, FIRST LAYER INSPECTION", printerConfig.stage10Color);
+        return;
+    }
+
+    //Calibrating  MicroLidar
+    if (printerVariables.stage == 12){ 
+        tweenToColor(printerConfig.stage10Color); //Customisable - Default is OFF
+        printLogs("Stage 12, CALIBRATING MICRO LIDAR", printerConfig.stage10Color);
+        return;
+    }
+
+    // Idle Timeout (Has to be enabled)
+    if ((printerVariables.stage == -1 || printerVariables.stage == 255) 
+    && !((printerConfig.finishExit && printerVariables.waitingForDoor) || (!printerConfig.finishExit && ((millis() - printerConfig.finishStartms) > printerConfig.finishTimeOut)))
+    && (millis() - printerConfig.inactivityStartms) > printerConfig.inactivityTimeOut 
+    && printerConfig.isIdleOFFActive == false
+    && printerConfig.inactivityEnabled){ 
+        tweenToColor(0,0,0,0,0); //OFF
+        printerConfig.isIdleOFFActive = true;
+        if (printerConfig.debuging || printerConfig.debugingchange){
+            Serial.print(F("Idle Timeout ["));
+            Serial.print((int)(printerConfig.inactivityTimeOut / 60000));
+            Serial.println(F(" mins] - Turning LEDs OFF"));
+        };
+        return;
+    }
+
     //ON -- ON -- ON -- ON 
 
     //Preheating Bed
@@ -469,7 +458,7 @@ void updateleds(){
 
     //for IDLE - P1 uses 255, X1 uses -1
     if ((printerVariables.stage == -1 || printerVariables.stage == 255) 
-    && (!printerVariables.waitingForDoor && !printerConfig.finish_check)
+    && !((printerConfig.finishExit && printerVariables.waitingForDoor) || (!printerConfig.finishExit && ((millis() - printerConfig.finishStartms) > printerConfig.finishTimeOut)))
     && (millis() - printerConfig.inactivityStartms < printerConfig.inactivityTimeOut)){ 
         tweenToColor(printerConfig.runningColor); //Customisable - Default is WHITE
         printLogs("Stage -1/255, IDLE", printerConfig.runningColor);
@@ -507,7 +496,8 @@ void updateleds(){
     }
 
     // replicate printer behaviour ON
-    if (printerConfig.replicatestate && printerConfig.replicate_update && printerVariables.printerledstate){
+    if (printerConfig.replicatestate && printerConfig.replicate_update && printerVariables.printerledstate
+    && !((printerConfig.finishExit && printerVariables.waitingForDoor) || (!printerConfig.finishExit && ((millis() - printerConfig.finishStartms) > printerConfig.finishTimeOut)))){
         tweenToColor(printerConfig.runningColor); //Customisable - Default is WHITE
         printLogs("LED Replication ON", printerConfig.runningColor);
         printerConfig.replicate_update = false;
@@ -524,7 +514,6 @@ void setupLeds() {
     pinMode(coldPin, OUTPUT);
     pinMode(warmPin, OUTPUT);
 }
-unsigned long tempms = 0;
 
 void ledsloop(){
     RGBCycle();
@@ -532,7 +521,7 @@ void ledsloop(){
         Serial.print(F("["));
         Serial.print(millis());
         Serial.print(F("]"));
-        Serial.println(F("RGB Cycle Mode (MQTT still connected) - next update in 30 seconds"));
+        Serial.print(F("RGB Cycle Mode - next update in 30 seconds"));
         tempms = millis();
     }
 
@@ -562,12 +551,12 @@ void ledsloop(){
     //There is no change in the printer STATE, just monitoring the timer and triggering when over a threshhold
     if(printerConfig.inactivityEnabled 
     && (millis() - printerConfig.inactivityStartms) > printerConfig.inactivityTimeOut 
-    && printerVariables.finished == false 
-    && printerConfig.isIdleOFFActive == false)
+    && printerVariables.finished == false && printerConfig.isIdleOFFActive == false)
     {
         //Opening or Closing the Door will turn LEDs back on and restart the timer.
         updateleds();
     }
+   
     delay(10);
 }
 

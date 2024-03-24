@@ -97,7 +97,7 @@ void submitSetup(){
         printerConfig.bedTempRGB = hex2rgb(webServer.arg("bedTempRGB").c_str(),webServer.arg("bedTempWW").toInt(),webServer.arg("bedTempCW").toInt());
 
         saveFileSystem();
-        Serial.println(F("Packet received from config page"));
+        Serial.println(F("Packet received from setuppage"));
         printerConfig.inactivityStartms = millis();  //restart idle timer
         printerConfig.isIdleOFFActive = false;
         printerConfig.replicate_update=true;
@@ -214,7 +214,7 @@ void handleGetConfig(){
     serializeJson(doc, jsonString);
     webServer.send(200, "application/json", jsonString);
 
-    Serial.println(F("Packet sent to config page"));
+    Serial.println(F("Packet sent to setuppage"));
     //serializeJson(doc, Serial);
     //Serial.println();
 }
