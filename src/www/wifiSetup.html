@@ -4,12 +4,8 @@
         <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css' integrity='sha512-ixlOZJxl8aj1Cz0mKjyFTJQx/s+U6wo0o6P+CZPRJX+gze3Jh8Fro/mTyLr5r/Vx+uV7J8RvRfZp5+X9fivG7A==' crossorigin='anonymous' referrerpolicy='no-referrer' />
         <style>
             body {
+                background-color: #f1f1f1;
                 font-family: Arial, sans-serif;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                margin: 0;
-                background-color: #f4f4f4;
             }
             .BLLEDlogo-container {
                 display: flex;
@@ -29,7 +25,7 @@
                 padding: 20px;
                 border-radius: 10px;
                 box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-                width: 100%;
+                width: 70%;
                 margin-top: 20px;
             }
             .center-container {
@@ -37,7 +33,7 @@
                 flex-direction: column;
                 align-items: center;
                 justify-content: center;
-                height: 100vh;
+                height: calc(100% - 100px);
             }
 
             label {
@@ -107,13 +103,13 @@
             <label for="password">Password:</label>
             <input type="password" id="password" placeholder="Enter Password"><br>
 
-            <label>Printer IP:</label>
+            <label for='ip'>Printer IP:</label>
             <input type='text' id='ip' title='Enter the IP address of your MQTT broker' placeholder="Enter Printer IP"><br>
 
-            <label>Printer Access Code:</label>
+            <label for='code'>Printer Access Code:</label>
             <input type='text' id='code' title='Enter the access code for your MQTT broker' placeholder="Enter Printer Access Code"><br>
 
-            <label>Printer Serial ID:</label>
+            <label for='id'>Printer Serial ID:</label>
             <input type='text' id='id' title='Enter the serial ID for your device' placeholder="Enter Printer Serial ID"><br>
         
             <button id="sendButton">Send Configuration</button><br /><br />
@@ -155,18 +151,23 @@
                     }
                     if (value) {
                         accumulatedData += value;
-                        if (value.includes('\n')) {
+                        if (value.includes('\n')|| value.includes('\r')|| value.includes('\f')) {
                             if (accumulatedData.includes("IP_ADDRESS:")) {
                                 const startIndex = accumulatedData.indexOf("IP_ADDRESS:") + "IP_ADDRESS:".length;
                                 const ipAddress = accumulatedData.substring(startIndex).trim();
-                                document.getElementById("status").innerText = `Successfully connected to wifi, Head over to http://${ipAddress} to change settings` ;
+                                document.getElementById("status").innerHTML = `Successfully connected to wifi. <span style="color:MediumSeaGreen;"><B>Head over to the <A HREF="http://${ipAddress}/">BLLED Conntroller Setup Page</A> to customise your settings</B></span><BR>`;
+                                document.getElementById("status").innerHTML += `BLLED Controller Setup page address: <A HREF="http://${ipAddress}/">http://${ipAddress}/</A>`;
+                                accumulatedData = '';
                                 break;
                             }else{
                                 const logContainer = document.getElementById("logContainer");
-                                logContainer.innerHTML += `<p>${accumulatedData}</p>`;
+                                
+                                logContainer.innerHTML += `${accumulatedData.substring(0, accumulatedData.indexOf("\n"))}<BR>`;
+                                    logContainer.innerHTML += `${accumulatedData.substring(accumulatedData.indexOf("\n"),accumulatedData.length)}`;
                                 logContainer.scrollTop = logContainer.scrollHeight;
+                                accumulatedData = '';
                             }
-                            accumulatedData = '';
+                            
                         }
                     }
                 }
@@ -199,9 +200,8 @@
   
             writer.releaseLock();
   
-            document.getElementById("status").innerText =
-              "Credentials sent to Controller";
-            }
+            document.getElementById("status").innerText = "Credentials sent to Controller";
+          }
   
           function writeToSerial(data) {
             if (!port) {

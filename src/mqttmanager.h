@@ -323,7 +323,7 @@ void mqttCallback(char *topic, byte *payload, unsigned int length){
 
 void setupMqtt(){
     clientId += String(random(0xffff), HEX);
-    Serial.print(F("Setting up MQTT with ip: "));
+    Serial.print(F("Setting up MQTT with Bambu Lab Printer IP address: "));
     Serial.println(printerConfig.printerIP);
 
     device_topic = String("device/") + printerConfig.serialNumber;

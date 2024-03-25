@@ -82,12 +82,12 @@ extern "C"
         bool finishExit = true;         //True = use Door / False = use Timer
         bool finish_check = false;    //When updateleds() is run, should the TEST LEDS be set?
         unsigned long finishStartms = 0;    // Time the finish countdown is measured from
-        int finishTimeOut = 300000;     //300000 = 5 mins
+        int finishTimeOut = 600000;     //300000 = 5 mins
         //Inactivity Timout
         bool inactivityEnabled = true;
         bool isIdleOFFActive = false;       // Are the lights out due to inactivity Timeout?
         unsigned long inactivityStartms = 0;    // Time the inactivity countdown is measured from
-        int inactivityTimeOut = 600000;  // 1800000 = 30mins / 600000 = 10mins / 60000 = 1mins 
+        int inactivityTimeOut = 3600000;  // 1800000 = 30mins / 600000 = 10mins / 60000 = 1mins 
         // Debugging
         bool debuging = false;          //Debugging for all interactions through functions
         bool debugingchange = true;     //Default debugging level - to shows onChange

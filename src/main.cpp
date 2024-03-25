@@ -41,6 +41,11 @@ void setup(){
     delay(100);
     Serial.println(F("Initializing"));
     Serial.println(ESP.getFreeHeap());
+    Serial.println("");
+    Serial.print(F("** Using firmware version: "));
+    Serial.print(globalVariables.FWVersion);
+    Serial.println(F(" **"));
+    Serial.println("");
     defaultcolors();
     setupLeds();
     tweenToColor(255,255,255,255,255); //ALL LEDS ON
@@ -76,10 +81,10 @@ void setup(){
     setupMqtt();
 
     Serial.println();
-    Serial.println(F("** BLLED Controller started **"));
-    Serial.print(F("Using firmware version: "));
-    Serial.println(globalVariables.FWVersion);
-
+    Serial.print(F("** BLLED Controller started "));
+    Serial.print(F("using firmware version: "));
+    Serial.print(globalVariables.FWVersion);
+    Serial.println(F(" **"));
     Serial.println();
     globalVariables.started = true;
 
