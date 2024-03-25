@@ -6,34 +6,41 @@ extern "C"
 {
 #endif
 
+    typedef struct COLORStruct {
+        short r;
+        short g;
+        short b;
+        short ww;
+        short cw;
+        char RGBhex[8];
+    } COLOR;
+
+
     typedef struct PrinterVaraiblesStruct{
-        String parsedHMS = "";
-        int parsedHMSattrib = 0;
+        String parsedHMSlevel = "";
+        uint64_t parsedHMScode = 0;            //8 bytes per code stored
         String gcodeState = "FINISH";           //Initialised to Finish so the logic doesn't 
                                                 //assume a Print has just finished and needs 
                                                 //to wait for a door interaction to continue
         int stage = 0;
-        bool testcolorEnabled = false;
+        int overridestage = 999;
         bool printerledstate = true;
         bool hmsstate = false;
         bool online = false;
         bool finished = false;
         bool initalisedLEDs = false;
-        bool inspectingFirstLayer = false;
         //Time since
         unsigned long disconnectMQTTms = 0;        
-        //InactivityLightsOff Timer and status
-        bool inactivityLightsOff = false;       // Are the lights out due to inactivity Timeout?
-        unsigned long inactivityStartms = 0;    // Time the inactivity countdown is measured from
-        
+
+        //PrinterType
+        bool isP1Printer = false;               //Is this a P1 Printer without lidar or door switch
         //Door Monitoring
+        bool useDoorSwtich = true;              //DoorSwitch to be used for Actions?
         bool doorOpen = false;                  // Current State of Door
-        bool doorSwitchenabled = false;         // Has door been closed twice within 6 seconds?
+        bool doorSwitchTriggered = false;       // Has door been closed twice within 6 seconds?
         bool waitingForDoor = false;            // Are we waiting for the door to be actuated?
         unsigned long lastdoorClosems = 0;      // Last time door was opened
         unsigned long lastdoorOpenms = 0;       // Last time door was closed
-        
-
     } PrinterVariables;
 
     PrinterVariables printerVariables;
@@ -41,7 +48,7 @@ extern "C"
     typedef struct GlobalVariablesStruct{
         char SSID[32];
         char APPW[63];
-        String FWVersion = "Stable 19.3.24";
+        String FWVersion = "Experimental 26.3.24";
         String Host = "BLLED";
         bool started = false;
     } GlobalVariables;
@@ -57,38 +64,52 @@ extern "C"
         char BSSID[18];                 //Nominated AP to connect to (Useful if multiple accesspoints with same name)
         int brightness = 100;           //Brightness of LEDS
         bool rescanWiFiNetwork = false; //Scans available WiFi networks for strongest signal
-        // BLLED Settings
-        bool replicatestate = true;     //LED will be on if the BBPL Light is on
-        bool errordetection = true;     //Utilises Error Colors when BBLP give an error
-        bool finishindication = true;   //Utilises Finish Color when print ends successfully
-        bool lidarLightsOff = true;     //For X1C owners - option to turn off if you have a P1P with no Lidar.
-        bool inactivityEnabled = true;
-        int inactivityTimeOut = 1800000;// 1800000 = 30 mins
-        bool discoMode = false;         //Cycles through RGB colors slowly for 'pretty' timelapse movie
+        // LED Behaviour (Choose One)
         bool maintMode = false;         //White lights on, even if printer is unpowered
-        bool updateMaintenance = false; //When updateleds() is run, should the Maintenance LEDS be set?
+        bool maintMode_update = true;
+        bool discoMode = false;         //Cycles through RGB colors slowly for 'pretty' timelapse movie
+        bool discoMode_update = true;
+        bool replicatestate = true;     //LED will be on if the BBPL Light is on
+        bool replicate_update = true;     //LED will be on if the BBPL Light is on
+        COLOR runningColor;             //Running Color (Default if no issues)
+        bool testcolorEnabled = false;
+        bool testcolor_update= true;    //When updateleds() is run, should the TEST LEDS be set?
+        COLOR testColor;                //Test Color
+        bool debugwifi = false;         //Changes LED to a color range that represents WiFi signal Strength        
+        // Options
+        bool finishindication = true;   //Enable / Disable
+        COLOR finishColor;              //Set Finish Color
+        bool finishExit = true;         //True = use Door / False = use Timer
+        bool finish_check = false;    //When updateleds() is run, should the TEST LEDS be set?
+        unsigned long finishStartms = 0;    // Time the finish countdown is measured from
+        int finishTimeOut = 600000;     //300000 = 5 mins
+        //Inactivity Timout
+        bool inactivityEnabled = true;
+        bool isIdleOFFActive = false;       // Are the lights out due to inactivity Timeout?
+        unsigned long inactivityStartms = 0;    // Time the inactivity countdown is measured from
+        int inactivityTimeOut = 3600000;  // 1800000 = 30mins / 600000 = 10mins / 60000 = 1mins 
         // Debugging
         bool debuging = false;          //Debugging for all interactions through functions
         bool debugingchange = true;     //Default debugging level - to shows onChange
         bool mqttdebug = false;         //Writes each packet from BBLP to the serial log
-        bool debugwifi = false;         //Changes LED to a color range that represents WiFi signal Strength        
-        // Test - Fixed LED Colors
-        char testRGB[8];                //Test Color (RGB only)
-        int testwarmwhite = 100;        //Testing just the Warm White LED line
-        int testcoldwhite = 100;        //Testing just the Cold White LED line
-        bool updateTestLEDS = false;    //When updateleds() is run, should the TEST LEDS be set?
+        //Custom Colors for events using lidar
+        COLOR stage14Color;
+        COLOR stage1Color;
+        COLOR stage8Color;
+        COLOR stage9Color;
+        COLOR stage10Color;
         // Customise LED Colors
-        char wifiRGB[8];                //These need to be 8 char: '#' + 123456 + end char '/0'
-        char finishRGB[8];
-        char pauseRGB[8];
-        char firstlayerRGB[8];
-        char nozzleclogRGB[8];
-        char hmsSeriousRGB[8];
-        char hmsFatalRGB[8];
-        char filamentRunoutRGB[8];
-        char frontCoverRGB[8];
-        char nozzleTempRGB[8];
-        char bedTempRGB[8];
+        bool errordetection = true;     //Utilises Error Colors when BBLP give an error
+        COLOR wifiRGB;                  
+        COLOR pauseRGB;
+        COLOR firstlayerRGB;
+        COLOR nozzleclogRGB;
+        COLOR hmsSeriousRGB;
+        COLOR hmsFatalRGB;
+        COLOR filamentRunoutRGB;
+        COLOR frontCoverRGB;
+        COLOR nozzleTempRGB;
+        COLOR bedTempRGB;
 
         //char webpagePassword[8];
     } PrinterConfig;

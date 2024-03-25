@@ -142,63 +142,229 @@
                 x.style.display = 'none';
             }            
         }
-        function showTestOptions() {
-            var x = document.getElementById("LEDTestSettings");
-            if (document.getElementById('replicateLedState').checked) {
-                x.style.display = 'none';
-                document.getElementById('debugwifi').checked = false;
+
+        function setFinishColor() {
+            if (document.getElementById('finishIndication').checked) {
+                document.getElementById("finishcolorchoice").style.display = 'block';
+                document.getElementById("finishendchoice").style.display = 'block';
+                document.getElementById("finishendchoicetitle").style.display = 'block';
+                
             } else {
-                x.style.display = 'block';
+                document.getElementById("finishcolorchoice").style.display = 'none';
+                document.getElementById("finishendchoice").style.display = 'none';
+                document.getElementById("finishendchoicetitle").style.display = 'none';
             }
         }
-        function showAdvanced() {
-            var x = document.getElementById("AdvancedDiv");
-            if (document.getElementById('advancedSettings').checked) {
-                x.style.display = 'block';
+        function setFinishExit(id){
+            var myCheckbox = document.getElementsByClassName("finishOption");
+            if(id.checked){
+                Array.prototype.forEach.call(myCheckbox,function(el){
+                    el.checked = false;
+                });
+                id.checked = true;
+            } else{
+                Array.prototype.forEach.call(myCheckbox,function(el){
+                    el.checked = true;
+                });
+                id.checked = false;
+            }
+
+        }
+        function setFinishChoice() {
+            if (document.getElementById('finishEndDoor').checked) {
+                document.getElementById("finishdooroption").style.display = 'block';
+                document.getElementById("finishtimeroption").style.display = 'none';
+
             } else {
-                x.style.display = 'none';
+                document.getElementById("finishtimeroption").style.display = 'block';
+                document.getElementById("finishdooroption").style.display = 'none';
+            }
+        }
+        //LED Behavious
+        function selectOnlyOne(id){
+            var myCheckbox = document.getElementsByClassName("LEDBehavior")
+            Array.prototype.forEach.call(myCheckbox,function(el){
+                el.checked = false;
+            });
+            id.checked = true;
+        }
+        function showhideOptions() {
+            if (document.getElementById('showtestcolor').checked) {
+                document.getElementById("testcolorchoice").style.display = 'block';
+            } else {
+                document.getElementById("testcolorchoice").style.display = 'none';
+            }
+            if (document.getElementById('debugwifi').checked) {
+                document.getElementById("displayWifiStrength").style.display = 'block';
+            } else {
+                document.getElementById("displayWifiStrength").style.display = 'none';
+            }
+            if (document.getElementById('replicateLedState').checked) {
+                document.getElementById("runningcolorchoice").style.display = 'block';
+            } else {
+                document.getElementById("runningcolorchoice").style.display = 'none';
+            }
+            
+        }
+        //Error colors
+        function showcustomColors() {
+            if (document.getElementById('errorDetection').checked) {
+                document.getElementById("CustomColorsDiv").style.display = 'block';
+            } else {
+                document.getElementById("CustomColorsDiv").style.display = 'none';
             }                                         
+        }
+        function hasP1(){
+            if (document.getElementById('p1Printer').checked) {
+                document.getElementById("doorSwitch").checked = false;
+                document.getElementById("AllowDoorSwitch").style.display = 'none';
+
+                document.getElementById("stage14WW").value = 255;
+                document.getElementById("stage1WW").value = 255;
+                document.getElementById("stage8WW").value = 255;
+                document.getElementById("stage9WW").value = 255;
+                document.getElementById("stage10WW").value = 255;
+
+                document.getElementById("stage14CW").value = 255;
+                document.getElementById("stage1CW").value = 255;
+                document.getElementById("stage8CW").value = 255;
+                document.getElementById("stage9CW").value = 255;
+                document.getElementById("stage10CW").value = 255;
+                if (document.getElementById('finishIndication').checked) {
+                    if (document.getElementById('finishEndDoor').checked) {
+                        document.getElementById('finishEndDoor').checked = false;
+                        document.getElementById('finishEndTimer').checked = true;
+                        document.getElementById("finishdooroption").style.display = 'none';
+                        document.getElementById("finishtimeroption").style.display = 'block';
+                    }
+                }
+            } else {
+                document.getElementById("doorSwitch").checked = true;
+                document.getElementById("AllowDoorSwitch").style.display = 'block';
+
+                document.getElementById("stage14RGB").value = '#000000';
+                document.getElementById("stage1RGB").value = '#000000';
+                document.getElementById("stage8RGB").value = '#000000';
+                document.getElementById("stage9RGB").value = '#000000';
+                document.getElementById("stage10RGB").value = '#000000';
+
+                document.getElementById("stage14WW").value = 0;
+                document.getElementById("stage1WW").value = 0;
+                document.getElementById("stage8WW").value = 0;
+                document.getElementById("stage9WW").value = 0;
+                document.getElementById("stage10WW").value = 0;
+
+                document.getElementById("stage14CW").value = 0;
+                document.getElementById("stage1CW").value = 0;
+                document.getElementById("stage8CW").value = 0;
+                document.getElementById("stage9CW").value = 0;
+                document.getElementById("stage10CW").value = 0;
+
+                if (document.getElementById('finishIndication').checked) {
+                    document.getElementById('finishEndDoor').checked = true;
+                    document.getElementById('finishEndTimer').checked = false;
+                    document.getElementById("finishdooroption").style.display = 'block';
+                    document.getElementById("finishtimeroption").style.display = 'none';
+                }
+            }  
         }
         function updateConfig() {
             var xhr = new XMLHttpRequest();
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4 && xhr.status === 200) {
                     var configData = JSON.parse(xhr.responseText);
+                    document.getElementById("firmwareversion").textContent = "Firmware Version: "+(configData.firmwareversion || "Unknown version");
+                    if(configData.wifiStrength != ""){
+                        document.getElementById("wifiStrength").textContent = "Connection Strength: "+(configData.wifiStrength || "")+"dBm";
+                    }
                     document.getElementById('ip').value = configData.ip || '';
                     document.getElementById('code').value = configData.code || '';
                     document.getElementById('id').value = configData.id || '';
-                    document.getElementById('replicateLedState').checked = configData.replicateled || false;
-                    document.getElementById('errorDetection').checked = configData.errordetection || false;
-                    document.getElementById('finishIndication').checked = configData.finishindication || false;
-                    document.getElementById('debuging').checked = configData.debuging || false;
-                    document.getElementById('debugingchange').checked = configData.debugingchange || false;
-                    document.getElementById('mqttdebug').checked = configData.mqttdebug || false;
-                    document.getElementById('lidarLightsOff').checked = configData.lidarLightsOff || false;
-                    document.getElementById('inactivityEnabled').checked = configData.inactivityEnabled || false;
-                    document.getElementById('inactivityMins').value = configData.inactivityMins || '30';
-                    document.getElementById('maintMode').checked = configData.maintMode || false;
-                    document.getElementById('discoMode').checked = configData.discoMode || false;
-                    document.getElementById('testRGB').value = configData.testRGB || '';
-                    document.getElementById('cw_slider').value = configData.testcoldwhite || 100;
-                    document.getElementById('ww_slider').value = configData.testwarmwhite || 100;
-                    document.getElementById('debugwifi').checked = configData.debugwifi || false;
                     document.getElementById('apMAC').value = configData.apMAC || '';
                     document.getElementById('brightnessslider').value = configData.brightness || 100;
                     document.getElementById("brightnesssliderDisplay").textContent = "Brightness: "+ (configData.brightness || 100) + "%";
-                    document.getElementById("firmwareversion").textContent = "Firmware Version:"+(configData.firmwareversion  || "Unknown version");
+                    document.getElementById('maintMode').checked = configData.maintMode || false;
+                    document.getElementById('discoMode').checked = configData.discoMode || false;
+                    document.getElementById('replicateLedState').checked = configData.replicateled || false;
+                    document.getElementById('runningRGB').value = configData.runningRGB || '';
+                    document.getElementById('runningWW').value = configData.runningWW || 255;
+                    document.getElementById('runningCW').value = configData.runningCW || 255;
+                    document.getElementById('showtestcolor').checked = configData.showtestcolor || false;
+                    document.getElementById('testRGB').value = configData.testRGB || '';
+                    document.getElementById('testWW').value = configData.testWW || 0;
+                    document.getElementById('testCW').value = configData.testCW || 0;
+                    document.getElementById('debugwifi').checked = configData.debugwifi || false;
+                    document.getElementById('finishIndication').checked = configData.finishindication || false;
+                    document.getElementById('finishColor').value = configData.finishColor || '';
+                    document.getElementById('finishWW').value = configData.finishWW || 0;
+                    document.getElementById('finishCW').value = configData.finishCW || 0;
+                    if(configData.finishExit){
+                        document.getElementById('finishEndDoor').checked = true;
+                        setFinishExit(document.getElementById('finishEndDoor'));
+                    } else {
+                        document.getElementById('finishEndTimer').checked = true;
+                        setFinishExit(document.getElementById('finishEndTimer'));
+                    }
+                    document.getElementById('finishTimerMins').value = configData.finishTimerMins || 10;
+                    document.getElementById('inactivityEnabled').checked = configData.inactivityEnabled || false;
+                    document.getElementById('inactivityMins').value = configData.inactivityMins || 30;
+                    document.getElementById('debuging').checked = configData.debuging || false;
+                    document.getElementById('debugingchange').checked = configData.debugingchange || false;
+                    document.getElementById('mqttdebug').checked = configData.mqttdebug || false;
+                    document.getElementById('p1Printer').checked = configData.p1Printer || false;
+                    document.getElementById('doorSwitch').checked = configData.doorSwitch || false;
+                    document.getElementById('stage14RGB').value = configData.stage14RGB || '';
+                    document.getElementById('stage14WW').value = configData.stage14WW || 0;
+                    document.getElementById('stage14CW').value = configData.stage14CW || 0;
+                    document.getElementById('stage1RGB').value = configData.stage1RGB || '';
+                    document.getElementById('stage1WW').value = configData.stage1WW || 0;
+                    document.getElementById('stage1CW').value = configData.stage1CW || 0;
+                    document.getElementById('stage8RGB').value = configData.stage8RGB || '';
+                    document.getElementById('stage8WW').value = configData.stage8WW || 0;
+                    document.getElementById('stage8CW').value = configData.stage8CW || 0;
+                    document.getElementById('stage9RGB').value = configData.stage9RGB || '';
+                    document.getElementById('stage9WW').value = configData.stage9WW || 0;
+                    document.getElementById('stage9CW').value = configData.stage9CW || 0;
+                    document.getElementById('stage10RGB').value = configData.stage10RGB || '';
+                    document.getElementById('stage10WW').value = configData.stage10WW || 0;
+                    document.getElementById('stage10CW').value = configData.stage10CW || 0;
+                    document.getElementById('errorDetection').checked = configData.errordetection || false;
                     document.getElementById('wifiRGB').value = configData.wifiRGB || '';
-                    document.getElementById('finishRGB').value = configData.finishRGB || '';
+                    document.getElementById('wifiWW').value = configData.wifiWW || 0;
+                    document.getElementById('wifiCW').value = configData.wifiCW || 0;
                     document.getElementById('pauseRGB').value = configData.pauseRGB || '';
+                    document.getElementById('pauseWW').value = configData.pauseWW || 0;
+                    document.getElementById('pauseCW').value = configData.pauseCW || 0;
                     document.getElementById('firstlayerRGB').value = configData.firstlayerRGB || '';
+                    document.getElementById('firstlayerWW').value = configData.firstlayerWW || 0;
+                    document.getElementById('firstlayerCW').value = configData.firstlayerCW || 0;
                     document.getElementById('nozzleclogRGB').value = configData.nozzleclogRGB || '';
+                    document.getElementById('nozzleclogWW').value = configData.nozzleclogWW || 0;
+                    document.getElementById('nozzleclogCW').value = configData.nozzleclogCW || 0;
                     document.getElementById('hmsSeriousRGB').value = configData.hmsSeriousRGB || '';
+                    document.getElementById('hmsSeriousWW').value = configData.hmsSeriousWW || 0;
+                    document.getElementById('hmsSeriousCW').value = configData.hmsSeriousCW || 0;
                     document.getElementById('hmsFatalRGB').value = configData.hmsFatalRGB || '';
+                    document.getElementById('hmsFatalWW').value = configData.hmsFatalWW || 0;
+                    document.getElementById('hmsFatalCW').value = configData.hmsFatalCW || 0;
                     document.getElementById('filamentRunoutRGB').value = configData.filamentRunoutRGB || '';
+                    document.getElementById('filamentRunoutWW').value = configData.filamentRunoutWW || 0;
+                    document.getElementById('filamentRunoutCW').value = configData.filamentRunoutCW || 0;
                     document.getElementById('frontCoverRGB').value = configData.frontCoverRGB || '';
+                    document.getElementById('frontCoverWW').value = configData.frontCoverWW || 0;
+                    document.getElementById('frontCoverCW').value = configData.frontCoverCW || 0;
                     document.getElementById('nozzleTempRGB').value = configData.nozzleTempRGB || '';
+                    document.getElementById('nozzleTempWW').value = configData.nozzleTempWW || 0;
+                    document.getElementById('nozzleTempCW').value = configData.nozzleTempCW || 0;
                     document.getElementById('bedTempRGB').value = configData.bedTempRGB || '';
-                    showTestOptions();
+                    document.getElementById('bedTempWW').value = configData.bedTempWW || 0;
+                    document.getElementById('bedTempCW').value = configData.bedTempCW || 0;
+
                     updateIdle();
+                    showhideOptions();
+                    showcustomColors();
+                    setFinishColor();
+                    setFinishChoice();
                 }
             };
             xhr.open('GET', '/getConfig', true);
@@ -209,8 +375,11 @@
                 document.getElementById("brightnesssliderDisplay").textContent = "Brightness: "+ e.target.value + "%";
             });
             updateConfig();
-            showTestOptions();
             updateIdle();
+            showhideOptions();
+            showcustomColors();
+            setFinishColor();
+            setFinishChoice();
         };
 
 
@@ -251,7 +420,7 @@
         </div>
         <div class='form-container'>
             <h1>BL LED Controller Settings Page</h1>
-            <h2 id="firmwareversion">Firmware version: Expirimental 15.3.24</h3>
+            <h2 id="firmwareversion">Firmware version: Expirimental 26.3.24</h3>
             <p>This page allows you to change the MQTT broker info and any additional settings.</p>
             <form method='POST' action='/submitSetup' onsubmit='return submitForm();'>
                 <label for='ip'>IP:</label>
@@ -263,11 +432,11 @@
                 <label for='apMAC'>Wifi Access Point MAC Address:</label>
                 <table width='100%'>
                     <TR>
-                        <td width='200px'>
-                            <input type='text' id='apMAC' name='apMAC' title='Enter the MAC address of your specific Access Point' value='' maxlength='17' size='17'>
+                        <td width="20%">
+                            <input type='text' id='apMAC' name='apMAC' title='Enter the MAC address of your specific Access Point' value='' maxlength='17' size='17' style="width: 200px">
                         </td>
-                        <td width='60px'>&nbsp;</td>
-                        <td width='300px'>
+                        <td width='20px'><p id="wifiStrength"></p></td>
+                        <td>
                             <div class='toggle-container'>
                                 <label class='toggle-switch'>
                                     <input type='checkbox' id='rescanWiFiNetwork' name='rescanWiFiNetwork'>
@@ -284,58 +453,135 @@
                 <input type="range" id="brightnessslider" name="brightnessslider" min="0" max="100" value="100">
                 <table width="100%">
                     <TR>
-                        <TD valign="top" width="50%">
-                            <h2 id="GeneralSettings">General Settings</h2>
-                            <BR><BR>
+                        <!-- Column One-->
+                        <TD valign="top" width="49%">
+
+
+                            <h3 style="text-align: center; color:white; background-color:rgb(76, 175, 80);">LED Behaviour (Choose One)</h3>
                             <div class='toggle-container'>
                                 <label class='toggle-switch'>
-                                    <input type='checkbox' id='replicateLedState' name='replicateLedState' onchange='return showTestOptions()'>
+                                    <input type='checkbox' id='maintMode' name='maintMode' class="LEDBehavior" onchange='selectOnlyOne(this);showhideOptions();'>
                                     <span class='slider'></span>
                                 </label>
-                                &nbsp;&nbsp;&nbsp;<span class='toggle-label'>Replicate LED State</span>&nbsp;<span style="font-size: smaller;"><B>(Turn off for more settings)</B></span>
+                                &nbsp;&nbsp;&nbsp;<span class='toggle-label'>Maintenance Mode (Always On)</span>
                             </div>
                             <div class='toggle-container'>
                                 <label class='toggle-switch'>
-                                    <input type='checkbox' id='errorDetection' name='errorDetection'>
+                                    <input type='checkbox' id='discoMode' name='discoMode' class="LEDBehavior" onchange='selectOnlyOne(this);showhideOptions();'> 
                                     <span class='slider'></span>
                                 </label>
-                                &nbsp;&nbsp;&nbsp;<span class='toggle-label'>Error Detection</span>
+                                &nbsp;&nbsp;&nbsp;<span class='toggle-label'>RGB Color Cycle Mode (Always On)</span>
                             </div>
                             <div class='toggle-container'>
                                 <label class='toggle-switch'>
-                                    <input type='checkbox' id='finishIndication' name='finishIndication'>
+                                    <input type='checkbox' id='replicateLedState' name='replicateLedState' class="LEDBehavior" onchange='selectOnlyOne(this);showhideOptions();'>
                                     <span class='slider'></span>
                                 </label>
-                                &nbsp;&nbsp;&nbsp;<span class='toggle-label'>Finish Indication</span>
+                                &nbsp;&nbsp;&nbsp;<span class='toggle-label'>Replicate LED State</span>
+                                <div id="runningcolorchoice">
+                                    <input type="color" id='runningRGB' name='runningRGB' value='#000000'>
+                                    &nbsp;WW&nbsp;<input style="text-align:center; height:20px; width: 43px" type="number" step=1 max=255 min=0 id='runningWW' name='runningWW' value='255'>
+                                    &nbsp;CW&nbsp;<input style="text-align:center; height:20px; width: 43px" type="number" step=1 max=255 min=0 id='runningCW' name='runningCW' value='255'>
+                                </div>
                             </div>
+
                             <div class='toggle-container'>
                                 <label class='toggle-switch'>
-                                    <input type='checkbox' id='lidarLightsOff' name='lidarLightsOff'>
+                                    <input type='checkbox' id='showtestcolor' name='showtestcolor' class="LEDBehavior" onchange='selectOnlyOne(this);showhideOptions();'>
                                     <span class='slider'></span>
                                 </label>
-                                &nbsp;&nbsp;&nbsp;<span class='toggle-label'>Light Off for Lidar</span>
+                                
+                                    &nbsp;&nbsp;&nbsp;<span class='toggle-label'>Test LED Colors  (Always On)</span>
+                                <div id="testcolorchoice">
+                                    <input type="color" id='testRGB' name='testRGB' value='#3F3CFB'>
+                                    &nbsp;WW&nbsp;<input style="text-align:center; height:20px; width: 43px" type="number" step=1 max=255 min=0 id='testWW' name='testWW' value='100'>
+                                    &nbsp;CW&nbsp;<input style="text-align:center; height:20px; width: 43px" type="number" step=1 max=255 min=0 id='testCW' name='testCW' value='100'>
+                                </div>
                             </div>
+
+                            <table style="border-spacing:0" width="100%">
+                                <TR>
+                                    <TD valign="middle">
+                                        <div class='toggle-container'>
+                                            <label class='toggle-switch'>
+                                                <input type='checkbox' id='debugwifi' name='debugwifi' class="LEDBehavior" onchange='selectOnlyOne(this);showhideOptions();'>
+                                                <span class='slider'></span>
+                                            </label>
+                                            &nbsp;&nbsp;&nbsp;<span class='toggle-label'>Show Wifi Strength via LEDs</span>
+                                        </div>
+                                    </TD>
+                                    <TD valign="top" id='displayWifiStrength' style='display:none'>
+                                        <table style="border-spacing:0">
+                                            <TR style="color:white;background-color: #303030;text-align: center;">
+                                                <TD width="70px"><B>RSSI</B></TD><TD> &nbsp; </TD><TD><B>Signal Strength</B></TD>
+                                            </TR>
+                                            <TR style="background-color: #00ff00;"><TD style="text-align: center;">-30 to -50</TD><TD width='20px'> &nbsp; </TD><TD>Excellent</TD></TR> 
+                                            <TR style="background-color: #aaffaa;"><TD style="text-align: center;">-51 to -60</TD><TD> &nbsp; </TD><TD>Good</TD></TR> 
+                                            <TR style="background-color: #ffff00;"><TD style="text-align: center;">-61 to -70</TD><TD> &nbsp; </TD><TD>Fair</TD></TR> 
+                                            <TR style="background-color: #ff8800;"><TD style="text-align: center;">-71 to -80</TD><TD> &nbsp; </TD><TD>Poor</TD></TR> 
+                                            <TR style="background-color: #ff0000;"><TD style="text-align: center;">&lt; -80</TD><TD> &nbsp; </TD><TD>Unreliable</TD></TR>
+                                        </table>
+                                    </TD>
+                                </TR>
+                            </table>
+
+
+                            <h3 style="text-align: center; color:white; background-color:rgb(76, 175, 80);">Options</h3>
+                            <table style="border-spacing:0; padding:1px;">
+                                <TR valign="top">
+                                    <TD width="200px">
+                                        <div class='toggle-container'>
+                                            <label class='toggle-switch'>
+                                                <input type='checkbox' id='finishIndication' name='finishIndication' onchange='setFinishColor()'> 
+                                                <span class='slider'></span>
+                                            </label>
+                                            &nbsp;&nbsp;&nbsp;<span class='toggle-label'>Finish Indication</span>
+                                        </div>
+                                    </TD>
+                                    <TD>
+                                        <div id="finishcolorchoice">
+                                            <input type="color" id='finishColor' name='finishColor' value='#00FF00'>
+                                            &nbsp;WW&nbsp;<input style="text-align:center; height:20px; width: 43px" type="number" step=1 max=255 min=0 id='finishWW' name='finishWW' value='0'>
+                                            &nbsp;CW&nbsp;<input style="text-align:center; height:20px; width: 43px" type="number" step=1 max=255 min=0 id='finishCW' name='finishCW' value='0'>
+                                        </div>
+                                    </TD>
+                                </TR>
+                                
+                                <TR valign="middle">
+                                    <TD>
+                                        <div id="finishendchoicetitle" style='display:none'>
+                                            Exit Finish after:
+                                        </div>
+                                    </TD>
+                                    <TD valign="middle">
+                                        <div id="finishendchoice" style='display:none'>
+                                            <div id="finishdooroption">
+                                                <label class='toggle-switch'>
+                                                    <input type='checkbox' id='finishEndDoor' name='finishEndDoor' class='finishOption' onchange='setFinishExit(this);setFinishChoice();'> 
+                                                    <span class='slider'></span>
+                                                </label>
+                                                &nbsp;&nbsp;&nbsp;Door Open/Close
+                                            </div>
+                                            <div id="finishtimeroption">
+                                                <label class='toggle-switch'>
+                                                    <input checked type='checkbox' id='finishEndTimer' name='finishEndTimer' class='finishOption' onchange='setFinishExit(this);setFinishChoice();'> 
+                                                    <span class='slider'></span>
+                                                </label>
+                                                &nbsp;&nbsp;&nbsp;Timer
+                                                <input style="text-align:center; height:20px; width: 43px" type="number" step=1 max=255 min=0 id='finishTimerMins' name='finishTimerMins' value='10'>
+                                                minutes
+                                            </div>
+                                        </div>
+                                    </TD>
+                                </TR>
+                            </table>
                             <div class='toggle-container'>
                                 <label class='toggle-switch'>
-                                    <input type='checkbox' id='inactivityEnabled' name='inactivityEnabled' onchange='return updateIdle()'>
+                                    <input type='checkbox' id='inactivityEnabled' name='inactivityEnabled' onchange='updateIdle()'>
                                     <span class='slider'></span>
                                 </label>
                                 &nbsp;&nbsp;&nbsp;<span class='toggle-label'>Inactivity Timeout (Minutes)</span>
                                 <input style="width:40px;display:block" type='text' id='inactivityMins' name='inactivityMins' title='Number of idle minutes before BLLED LEDs are turned off ' value='1' maxlength='5' size='5'>
-                            </div>
-                            <div class='toggle-container'>
-                                <label class='toggle-switch'>
-                                    <input type='checkbox' id='maintMode' name='maintMode'>
-                                    <span class='slider'></span>
-                                </label>
-                                &nbsp;&nbsp;&nbsp;<span class='toggle-label'>Maintenance Mode</span>
-                            </div>
-                            <div class='toggle-container'>
-                                <label class='toggle-switch'>
-                                    <input type='checkbox' id='discoMode' name='discoMode'>
-                                    <span class='slider'></span>
-                                </label>
-                                &nbsp;&nbsp;&nbsp;<span class='toggle-label'>RGB Mode</span>
                             </div>
                             <div class='toggle-container'>
                                 <label class='toggle-switch'>
@@ -349,7 +595,7 @@
                                     <input type='checkbox' id='debugingchange' name='debugingchange'>
                                     <span class='slider'></span>
                                 </label>
-                                &nbsp;&nbsp;&nbsp;<span class='toggle-label'>Debugging Changes</span>
+                                &nbsp;&nbsp;&nbsp;<span class='toggle-label'>Debugging OnChange Events</span>
                             </div>
                             <div class='toggle-container'>
                                 <label class='toggle-switch'>
@@ -358,120 +604,125 @@
                                 </label>
                                 &nbsp;&nbsp;&nbsp;<span class='toggle-label'>MQTT Logging</span>
                             </div>
+                        </TD>
+                        
+                        <!-- Spacer Column-->
+                        <TD valign="top"></TD>
+
+                        <!-- Column Two-->
+                        <TD valign="top" width="49%">
+                            <h3 style="text-align: center; color:white; background-color:rgb(76, 175, 80);">Printer Dependant</h3>
                             <div class='toggle-container'>
                                 <label class='toggle-switch'>
-                                    <input type='checkbox' id='advancedSettings' name='advancedSettings' onchange='return showAdvanced()'>
+                                    <input type='checkbox' id='p1Printer' name='p1Printer' onchange='hasP1()'>
                                     <span class='slider'></span>
                                 </label>
-                                &nbsp;&nbsp;&nbsp;<span class='toggle-label'>Advanced</span>
+                                &nbsp;&nbsp;&nbsp;<span class='toggle-label'>Connecting to a P1 Printer? (No Door Switch, No Lidar)
                             </div>
-                        </TD>
-                        <TD valign="top" width="50%">
-                            <div  id='LEDTestSettings' style='display:none'>
-                                <h2>Display Wifi Network Strength via LEDs</h2>
-                                <table style="border-spacing:0" width="100%">
-                                    <TR>
-                                        <TD valign="middle">
-                                            <div class='toggle-container'>
-                                                <label class='toggle-switch'>
-                                                    <input type='checkbox' id='debugwifi' name='debugwifi'>
-                                                    <span class='slider'></span>
-                                                </label>
-                                                &nbsp;&nbsp;&nbsp;<span class='toggle-label'>Debug Wifi</span>
-                                            </div>
-                                        </TD>
-                                        <TD valign="top">
-                                            <table style="border-spacing:0">
-                                                <TR style="color:white;background-color: #303030;text-align: center;">
-                                                    <TD width="70px"><B>RSSI</B></TD><TD> &nbsp; </TD><TD><B>Signal Strength</B></TD>
-                                                </TR>
-                                                <TR style="background-color: #00ff00;"><TD style="text-align: center;">-30 to -50</TD><TD width='20px'> &nbsp; </TD><TD>Excellent</TD></TR> 
-                                                <TR style="background-color: #aaffaa;"><TD style="text-align: center;">-51 to -60</TD><TD> &nbsp; </TD><TD>Good</TD></TR> 
-                                                <TR style="background-color: #ffff00;"><TD style="text-align: center;">-61 to -70</TD><TD> &nbsp; </TD><TD>Fair</TD></TR> 
-                                                <TR style="background-color: #ff8800;"><TD style="text-align: center;">-71 to -80</TD><TD> &nbsp; </TD><TD>Poor</TD></TR> 
-                                                <TR style="background-color: #ff0000;"><TD style="text-align: center;">&lt; -80</TD><TD> &nbsp; </TD><TD>Unreliable</TD></TR>
-                                            </table>
-                                        </TD>
-                                    </TR>
-                                </table>
+                            <div class='toggle-container' id="AllowDoorSwitch">
+                                <label class='toggle-switch'>
+                                    <input type='checkbox' id='doorSwitch' name='doorSwitch'>
+                                    <span class='slider'></span>
+                                </label>
+                                &nbsp;&nbsp;&nbsp;<span class='toggle-label'>Door Switch used for actions (P1 has no switch)
+                            </div><table width="100%">
+                                <TR>
+                                    <TD width="10%"></TD>
+                                    <TD><h4 style="text-align: center; color:white; background-color:rgb(145, 145, 145);">Stages with Lidar in use (if installed)</h4></TD>
+                                    <TD width="10%"></TD>
+                                </TR>
+                            </table>
+                            <input type="color" id='stage14RGB' name='stage14RGB' value='#000000'>
+                            &nbsp;WW&nbsp;<input style="text-align:center; height:20px; width: 43px" type="number" step=1 max=255 min=0 id='stage14WW' name='stage14WW' value='0'>
+                            &nbsp;CW&nbsp;<input style="text-align:center; height:20px; width: 43px" type="number" step=1 max=255 min=0 id='stage14CW' name='stage14CW' value='0'>
+                            &nbsp;&nbsp;&nbsp;<span class='toggle-label'>Cleaning Nozzle</span><BR>
 
-                                <h2>Test LED colors</h2>
-                                While active,  MQTT msgs, printer states & brightness is ignored<BR><BR>
-                                <table width="100%">
-                                    <TR>
-                                        <TD width="25%"><label for="testRGB">Set Test Color</label></TD>
-                                        <TD><input type="color" id='testRGB' name='testRGB' value='#3F3CFB'></TD>
-                                    </TR>
-                                    <TR>
-                                        <TD><label for="ww_slider">Warm White</label></TD>
-                                        <TD><input type="range" id="ww_slider" name="ww_slider" min="0" max="255" value="100"></TD>
-                                    </TR>
-                                    <TR>
-                                        <TD><label for="cw_slider">Cold White</label></TD>
-                                        <TD><input type="range" id="cw_slider" name="cw_slider" min="0" max="255" value="100"></TD>
-                                    </TR>
-                                </table>
-                                <HR>
+                            <input type="color" id='stage1RGB' name='stage1RGB' value='#0000AA'>
+                            &nbsp;WW&nbsp;<input style="text-align:center; height:20px; width: 43px" type="number" step=1 max=255 min=0 id='stage1WW' name='stage1WW' value='0'>
+                            &nbsp;CW&nbsp;<input style="text-align:center; height:20px; width: 43px" type="number" step=1 max=255 min=0 id='stage1CW' name='stage1CW' value='0'>
+                            &nbsp;&nbsp;&nbsp;<span class='toggle-label'>Bed Leveling</span><BR>
+
+                            <input type="color" id='stage8RGB' name='stage8RGB' value='#000000'>
+                            &nbsp;WW&nbsp;<input style="text-align:center; height:20px; width: 43px" type="number" step=1 max=255 min=0 id='stage8WW' name='stage8WW' value='0'>
+                            &nbsp;CW&nbsp;<input style="text-align:center; height:20px; width: 43px" type="number" step=1 max=255 min=0 id='stage8CW' name='stage8CW' value='0'>
+                            &nbsp;&nbsp;&nbsp;<span class='toggle-label'>Calibrating Extrusion</span><BR>
+
+                            <input type="color" id='stage9RGB' name='stage9RGB' value='#000000'>
+                            &nbsp;WW&nbsp;<input style="text-align:center; height:20px; width: 43px" type="number" step=1 max=255 min=0 id='stage9WW' name='stage9WW' value='0'>
+                            &nbsp;CW&nbsp;<input style="text-align:center; height:20px; width: 43px" type="number" step=1 max=255 min=0 id='stage9CW' name='stage9CW' value='0'>
+                            &nbsp;&nbsp;&nbsp;<span class='toggle-label'>Scanning Bed Surface</span><BR>
+
+                            <input type="color" id='stage10RGB' name='stage10RGB' value='#000000'>
+                            &nbsp;WW&nbsp;<input style="text-align:center; height:20px; width: 43px" type="number" step=1 max=255 min=0 id='stage10WW' name='stage10WW' value='0'>
+                            &nbsp;CW&nbsp;<input style="text-align:center; height:20px; width: 43px" type="number" step=1 max=255 min=0 id='stage10CW' name='stage10CW' value='0'>
+                            &nbsp;&nbsp;&nbsp;<span class='toggle-label'>First Layer Inspection</span><BR>
+
+
+                            <h3 style="text-align: center; color:white; background-color:rgb(76, 175, 80);">Customise Colors</h3>
+                            <div class='toggle-container'>
+                                <label class='toggle-switch'>
+                                    <input type='checkbox' id='errorDetection' name='errorDetection' onchange='return showcustomColors()'>
+                                    <span class='slider'></span>
+                                </label>
+                                &nbsp;&nbsp;&nbsp;<span class='toggle-label'>Error Detection</span>
                             </div>
-                            <div id='AdvancedDiv' style='display:none'>
-                                <h2>Advanced Settings</h2>
-                                <B>Customise LED colors for states</B><BR>
-                                (Brightness setting still applied)<BR><BR>
-                                <table width="100%">
-                                    <TR>
-                                        <TD width="10%"><input type="color" id='wifiRGB' name='wifiRGB' value='#FFA500'></TD>
-                                        <TD ><label for="wifiRGB">WiFi Setup / Scanning</label></TD>
-                                    </TR>
-                                    <TR>
-                                        <TD width="10%"><input type="color" id='finishRGB' name='finishRGB' value='#00FF00'></TD>
-                                        <TD ><label for="finishRGB">Finished</label></TD>
-                                    </TR>
-                                    <TR>
-                                        <TD width="10%"><input type="color" id='pauseRGB' name='pauseRGB' value='#0000FF'></TD>
-                                        <TD><label for="pauseRGB">Pause (Gcode or User)</label></TD>
-                                    </TR>
-                                    <TR>
-                                        <TD width="10%"><input type="color" id='firstlayerRGB' name='firstlayerRGB' value='#0000FF'></TD>
-                                        <TD ><label for="firstlayerRGB">First Layer Error (Pause for user)</label></TD>
-                                    </TR>
-                                    <TR>
+                            <div id='CustomColorsDiv'>
 
-                                        <TD width="10%"><input type="color" id='nozzleclogRGB' name='nozzleclogRGB' value='#0000FF'></TD>
-                                        <TD><label for="nozzleclogRGB">Nozzle Clog (Pause for user)</label></TD>
-                                    </TR>
-                                    <TR>
-                                        <TD width="10%"><input type="color" id='hmsSeriousRGB' name='hmsSeriousRGB' value='#FF0000'></TD>
-                                        <TD ><label for="hmsSeriousRGB">HMS Severity, SERIOUS</label></TD>
-                                    </TR>
-                                    <TR>
+                                <input type="color" id='wifiRGB' name='wifiRGB' value='#FFA500'>
+                                &nbsp;WW&nbsp;<input style="text-align:center; height:20px; width: 43px" type="number" step=1 max=255 min=0 id='wifiWW' name='wifiWW' value='0'>
+                                &nbsp;CW&nbsp;<input style="text-align:center; height:20px; width: 43px" type="number" step=1 max=255 min=0 id='wifiCW' name='wifiCW' value='0'>
+                                &nbsp;&nbsp;&nbsp;<span class='toggle-label'>WiFi Setup / Scanning</span><BR>
 
-                                        <TD width="10%"><input type="color" id='hmsFatalRGB' name='hmsFatalRGB' value='#FF0000'></TD>
-                                        <TD><label for="hmsFatalRGB">HMS Severity, FATAL</label></TD>
-                                    </TR>
-                                    <TR>
-                                        <TD width="10%"><input type="color" id='filamentRunoutRGB' name='filamentRunoutRGB' value='#FF0000'></TD>
-                                        <TD ><label for="filamentRunoutRGB">Filament Runout</label></TD>
-                                    </TR>
-                                    <TR>
 
-                                        <TD width="10%"><input type="color" id='frontCoverRGB' name='frontCoverRGB' value='#FF0000'></TD>
-                                        <TD><label for="frontCoverRGB">Front Cover Removed</label></TD>
-                                    </TR>
-                                    <TR>
-                                        <TD width="10%"><input type="color" id='nozzleTempRGB' name='nozzleTempRGB' value='#FF0000'></TD>
-                                        <TD ><label for="nozzleTempRGB">Nozzle Temp Fail</label></TD>
-                                    </TR>
-                                    <TR>
+                                <input type="color" id='pauseRGB' name='pauseRGB' value='#0000FF'>
+                                &nbsp;WW&nbsp;<input style="text-align:center; height:20px; width: 43px" type="number" step=1 max=255 min=0 id='pauseWW' name='pauseWW' value='0'>
+                                &nbsp;CW&nbsp;<input style="text-align:center; height:20px; width: 43px" type="number" step=1 max=255 min=0 id='pauseCW' name='pauseCW' value='0'>
+                                &nbsp;&nbsp;&nbsp;<span class='toggle-label'>Pause (Gcode or User)</span><BR>
 
-                                        <TD width="10%"><input type="color" id='bedTempRGB' name='bedTempRGB' value='#FF0000'></TD>
-                                        <TD><label for="bedTempRGB">Bed Temp Fail</label></TD>
-                                    </TR>
-                                </table>
+                                <input type="color" id='firstlayerRGB' name='firstlayerRGB' value='#0000FF'>
+                                &nbsp;WW&nbsp;<input style="text-align:center; height:20px; width: 43px" type="number" step=1 max=255 min=0 id='firstlayerWW' name='firstlayerWW' value='0'>
+                                &nbsp;CW&nbsp;<input style="text-align:center; height:20px; width: 43px" type="number" step=1 max=255 min=0 id='firstlayerCW' name='firstlayerCW' value='0'>
+                                &nbsp;&nbsp;&nbsp;<span class='toggle-label'>First Layer Error (Pause for user)</span><BR>
+
+                                <input type="color" id='nozzleclogRGB' name='nozzleclogRGB' value='#0000FF'>
+                                &nbsp;WW&nbsp;<input style="text-align:center; height:20px; width: 43px" type="number" step=1 max=255 min=0 id='nozzleclogWW' name='nozzleclogWW' value='0'>
+                                &nbsp;CW&nbsp;<input style="text-align:center; height:20px; width: 43px" type="number" step=1 max=255 min=0 id='nozzleclogCW' name='nozzleclogCW' value='0'>
+                                &nbsp;&nbsp;&nbsp;<span class='toggle-label'>Nozzle Clog (Pause for user)</span><BR>
+
+                                <input type="color" id='hmsSeriousRGB' name='hmsSeriousRGB' value='#FF0000'>
+                                &nbsp;WW&nbsp;<input style="text-align:center; height:20px; width: 43px" type="number" step=1 max=255 min=0 id='hmsSeriousWW' name='hmsSeriousWW' value='0'>
+                                &nbsp;CW&nbsp;<input style="text-align:center; height:20px; width: 43px" type="number" step=1 max=255 min=0 id='hmsSeriousCW' name='hmsSeriousCW' value='0'>
+                                &nbsp;&nbsp;&nbsp;<span class='toggle-label'>HMS Severity, SERIOUS</span><BR>
+
+                                <input type="color" id='hmsFatalRGB' name='hmsFatalRGB' value='#FF0000'>
+                                &nbsp;WW&nbsp;<input style="text-align:center; height:20px; width: 43px" type="number" step=1 max=255 min=0 id='hmsFatalWW' name='hmsFatalWW' value='0'>
+                                &nbsp;CW&nbsp;<input style="text-align:center; height:20px; width: 43px" type="number" step=1 max=255 min=0 id='hmsFatalCW' name='hmsFatalCW' value='0'>
+                                &nbsp;&nbsp;&nbsp;<span class='toggle-label'>HMS Severity, FATAL</span><BR>
+
+                                <input type="color" id='filamentRunoutRGB' name='filamentRunoutRGB' value='#FF0000'>
+                                &nbsp;WW&nbsp;<input style="text-align:center; height:20px; width: 43px" type="number" step=1 max=255 min=0 id='filamentRunoutWW' name='filamentRunoutWW' value='0'>
+                                &nbsp;CW&nbsp;<input style="text-align:center; height:20px; width: 43px" type="number" step=1 max=255 min=0 id='filamentRunoutCW' name='filamentRunoutCW' value='0'>
+                                &nbsp;&nbsp;&nbsp;<span class='toggle-label'>Filament Runout</span><BR>
+
+                                <input type="color" id='frontCoverRGB' name='frontCoverRGB' value='#FF0000'>
+                                &nbsp;WW&nbsp;<input style="text-align:center; height:20px; width: 43px" type="number" step=1 max=255 min=0 id='frontCoverWW' name='frontCoverWW' value='0'>
+                                &nbsp;CW&nbsp;<input style="text-align:center; height:20px; width: 43px" type="number" step=1 max=255 min=0 id='frontCoverCW' name='frontCoverCW' value='0'>
+                                &nbsp;&nbsp;&nbsp;<span class='toggle-label'>Front Cover Removed</span><BR>
+
+                                <input type="color" id='nozzleTempRGB' name='nozzleTempRGB' value='#FF0000'>
+                                &nbsp;WW&nbsp;<input style="text-align:center; height:20px; width: 43px" type="number" step=1 max=255 min=0 id='nozzleTempWW' name='nozzleTempWW' value='0'>
+                                &nbsp;CW&nbsp;<input style="text-align:center; height:20px; width: 43px" type="number" step=1 max=255 min=0 id='nozzleTempCW' name='nozzleTempCW' value='0'>
+                                &nbsp;&nbsp;&nbsp;<span class='toggle-label'>Nozzle Temp Fail</span><BR>
+
+                                <input type="color" id='bedTempRGB' name='bedTempRGB' value='#FF0000'>
+                                &nbsp;WW&nbsp;<input style="text-align:center; height:20px; width: 43px" type="number" step=1 max=255 min=0 id='bedTempWW' name='bedTempWW' value='0'>
+                                &nbsp;CW&nbsp;<input style="text-align:center; height:20px; width: 43px" type="number" step=1 max=255 min=0 id='bedTempCW' name='bedTempCW' value='0'>
+                                &nbsp;&nbsp;&nbsp;<span class='toggle-label'>Bed Temp Fail</span><BR>
                             </div>
                         </TD>
                     </TR>
                 </table>
-
+                <input type='submit' value='Save Configuration'><BR>
             </form>
             <!--<button type='button' onclick='window.location.href="/update";'>Update Controller</button>-->
         </div>
