@@ -291,6 +291,7 @@ void updateleds(){
             }
         }
         printerVariables.doorSwitchTriggered = false;
+        return;
     }
     
     //RED -- RED -- RED -- RED
