@@ -106,10 +106,8 @@ bool connectToWifi(){
             switch (status)
             {
                 case WL_CONNECTED:
-                    Serial.print(F("Wifi Status: "));
-                    Serial.println(wl_status_to_string(status));
-                    break;
                 case WL_IDLE_STATUS:
+                case WL_CONNECT_FAILED:
                     Serial.print(F("Wifi Status: "));
                     Serial.println(wl_status_to_string(status));
                     break;
@@ -118,14 +116,10 @@ bool connectToWifi(){
                     Serial.println(wl_status_to_string(status));
                     Serial.println(F("Bad WiFi credentials"));
                     return false;
-                case WL_CONNECT_FAILED:
-                    Serial.print(F("Wifi Status: "));
-                    Serial.println(wl_status_to_string(status));
-                    break;
                 case WL_DISCONNECTED:
                     Serial.print(F("Wifi Status: "));
                     Serial.println(wl_status_to_string(status));
-                    Serial.print(F("Disconnected. (Check low RSSI)"));
+                    Serial.println(F("Disconnected. (Check low RSSI)"));
                     return false;
                 default:
                     Serial.print(F("Uncaught Status - Wifi Status: "));

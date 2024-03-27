@@ -16,7 +16,7 @@ int currentBlue = 0;
 int currentWarm = 0;
 int currentCold = 0;
 
-unsigned long tempms = 0;
+unsigned long lastUpdatems = 0;
 unsigned long oldms = 0;
 
 COLOR hex2rgb(String hex, short ww_value = 0, short cw_value = 0) {
@@ -135,7 +135,10 @@ void RGBCycle() {
     if(printerConfig.discoMode_update){
         printerConfig.discoMode_update = false;
         if (printerConfig.debugingchange){
-            Serial.println(F("RGB Mode, turning LEDs... w-i-l-d!"));
+            Serial.print(F("["));
+            Serial.print(millis());
+            Serial.print(F("]"));
+            Serial.println(F(" ** RGB Cycle Mode **"));
         };
     }
 
@@ -205,12 +208,15 @@ void updateleds(){
         tweenToColor(0,0,0,255,255); //WHITE
         printerConfig.maintMode_update = false;
         printLogs("Maintenance Mode", 0,0,0,255,255);
-        Serial.println(F("(Expect MQTT connection to drop and need reconnecting after exiting maintenance mode)"));
+        Serial.print(F("["));
+        Serial.print(millis());
+        Serial.print(F("]"));
+        Serial.println(F(" ** Maintenance Mode **"));
         return;
     }
 
-    //Use LED to show WIFI Strength (enabled via Setup Webpage, priortised over Custom TEST color)
-    if (printerConfig.debugwifi == true && !printerConfig.maintMode){  
+    //Use LED to show WIFI Strength (enabled via Setup Webpage)
+    if (printerConfig.debugwifi){  
         //<=-50 dBm Green, <= -60 dBm LightGreen, <= -70 dBm Yellow, <= -80 dBm Orange, >80 Red
         if (WiFi.status() == WL_CONNECTED){
             long wifiNow = WiFi.RSSI();
@@ -232,13 +238,11 @@ void updateleds(){
     if (printerConfig.testcolorEnabled && printerConfig.testcolor_update){
         tweenToColor(printerConfig.testColor); //Variable Test Color
         printLogs("LED Test ON", printerConfig.testColor);
-        Serial.println(F("(Expect MQTT connection to drop and need reconnecting after exiting test color mode)"));
+        Serial.print(F("["));
+        Serial.print(millis());
+        Serial.print(F("]"));
+        Serial.println(F(" ** Test Color Mode **"));
         printerConfig.testcolor_update = false;
-        return;
-    }
-
-    if(printerConfig.testcolorEnabled || printerConfig.maintMode || printerConfig.debugwifi){
-        //Skip trying to set a color as it's in one of the override states
         return;
     }
 
@@ -265,6 +269,10 @@ void updateleds(){
         return;
     }
 
+    if(printerConfig.testcolorEnabled || printerConfig.maintMode || printerConfig.debugwifi || printerConfig.discoMode){
+        //Skip trying to set a color as it's in one of the override states
+        return;
+    }
 
     //TOGGLE LIGHTS via DOOR
     //If door is closed twice in 6 seconds, it will flip the state of the lights
@@ -529,12 +537,15 @@ void setupLeds() {
 
 void ledsloop(){
     RGBCycle();
-    if((millis() - tempms) > 30000 && printerConfig.discoMode) {
+    if((millis() - lastUpdatems) > 30000 && (printerConfig.maintMode || printerConfig.testcolorEnabled || printerConfig.discoMode || printerConfig.debugwifi)) {
         Serial.print(F("["));
         Serial.print(millis());
         Serial.print(F("]"));
-        Serial.print(F("RGB Cycle Mode - next update in 30 seconds"));
-        tempms = millis();
+        if(printerConfig.maintMode) Serial.println(F(" Maintenance Mode - next update in 30 seconds"));
+        if(printerConfig.testcolorEnabled) Serial.println(F(" Test Color - next update in 30 seconds"));
+        if(printerConfig.discoMode) Serial.println(F(" RGB Cycle Mode - next update in 30 seconds"));
+        if(printerConfig.debugwifi) Serial.println(F(" Wifi Debug Mode - next update in 30 seconds"));
+        lastUpdatems = millis();
     }
 
     // Turn off GREEN if... finished and Door OPENED or CLOSED in last 5 secs AND user wants Finish Indication enabled
