@@ -15,7 +15,7 @@ void defaultcolors(){
     printerConfig.finishColor = hex2rgb("#00FF00");         //Green Finish
 
     printerConfig.stage14Color = hex2rgb("#000000");        //OFF Cleaning Nozzle
-    printerConfig.stage1Color = hex2rgb("#0000AA");         //OFF Bed Leveling
+    printerConfig.stage1Color = hex2rgb("#000055");         //OFF Bed Leveling
     printerConfig.stage8Color = hex2rgb("#000000");         //OFF Calibrating Extrusion
     printerConfig.stage9Color = hex2rgb("#000000");         //OFF Scanning Bed Surface
     printerConfig.stage10Color = hex2rgb("#000000");        //OFF First Layer Inspection
@@ -34,7 +34,6 @@ void defaultcolors(){
 
 
 }
-unsigned long lastUpdatems = 0;
 
 void setup(){
     Serial.begin(115200);
@@ -48,7 +47,7 @@ void setup(){
     Serial.println("");
     defaultcolors();
     setupLeds();
-    tweenToColor(255,255,255,255,255); //ALL LEDS ON
+    tweenToColor(100,100,100,100,100); //ALL LEDS ON
     Serial.println(F(""));
     delay(1000);
 
@@ -63,7 +62,7 @@ void setup(){
 
     if (strlen(globalVariables.SSID) == 0 || strlen(globalVariables.APPW) == 0) {
         Serial.println(F("SSID or password is missing. Please configure both by going to: https://dutchdevelop.com/blled-configuration-setup/"));
-        tweenToColor(255,0,255,0,0); //PINK
+        tweenToColor(100,0,100,0,0); //PINK
         return;
     }
    
@@ -92,31 +91,7 @@ void setup(){
 
 void loop(){
     serialLoop();
-    if(printerConfig.maintMode){
-        //Doesn't require monitoring of Wifi or MQTT if LEDs only need to be ON
-        webserverloop();
-        if(printerConfig.maintMode_update) updateleds();
-        if((millis() - lastUpdatems) > 30000) {
-            Serial.print(F("["));
-            Serial.print(millis());
-            Serial.print(F("]"));
-            Serial.println(F(" Maintenance Mode (no MQTT updates) - next update in 30 seconds"));
-            lastUpdatems = millis();
-        }
-    }
-    else if (printerConfig.testcolorEnabled){
-        //Doesn't require monitoring of Wifi or MQTT if LEDs set to a custom color
-        webserverloop();
-        if(printerConfig.testcolor_update) updateleds();
-        if((millis() - lastUpdatems) > 30000) {
-            Serial.print(F("["));
-            Serial.print(millis());
-            Serial.print(F("]"));
-            Serial.println(F(" Test Color (no MQTT updates) - next update in 30 seconds"));
-            lastUpdatems = millis();
-        }
-    }
-    else if (globalVariables.started){
+    if (globalVariables.started){
         mqttloop();
         webserverloop();
         ledsloop();

@@ -125,6 +125,16 @@ void ParseCallback(char *topic, byte *payload, unsigned int length){
             Serial.println();
         }
 
+        if(printerConfig.mqttdebug && (printerConfig.maintMode || printerConfig.testcolorEnabled || printerConfig.discoMode || printerConfig.debugwifi)) {
+            Serial.print(F("MQTT Message Ignored while in "));
+            if (printerConfig.maintMode) Serial.print(F("Maintenance"));
+            if (printerConfig.testcolorEnabled) Serial.print(F("Test Color"));
+            if (printerConfig.discoMode) Serial.print(F("RGB Cycle"));
+            if (printerConfig.debugwifi) Serial.print(F("Wifi Debug"));
+            Serial.println(F(" mode"));
+            return;
+        }
+
         //Check for Door Status
         if (messageobject["print"].containsKey("home_flag")){
             //https://github.com/greghesp/ha-bambulab/blob/main/custom_components/bambu_lab/pybambu/const.py#L324
@@ -168,7 +178,7 @@ void ParseCallback(char *topic, byte *payload, unsigned int length){
         }
 
         //Check BBLP GCode State
-        if (messageobject["print"].containsKey("gcode_state") && ((millis() - lastMQTTupdate) > 2000)){
+        if (messageobject["print"].containsKey("gcode_state") && ((millis() - lastMQTTupdate) > 3000)){
             String mqttgcodeState = messageobject["print"]["gcode_state"].as<String>();
 
             if(mqttgcodeState =="RUNNING" || mqttgcodeState =="PAUSE"){
@@ -205,7 +215,7 @@ void ParseCallback(char *topic, byte *payload, unsigned int length){
         }
 
         //Added a delay so the slower MQTT status message doesn't reverse the "system" commands
-        if (messageobject["print"].containsKey("lights_report") && ((millis() - lastMQTTupdate) > 2000)) {
+        if (messageobject["print"].containsKey("lights_report") && ((millis() - lastMQTTupdate) > 3000)) {
             JsonArray lightsReport = messageobject["print"]["lights_report"];
             for (JsonObject light : lightsReport) {
                 if (light["node"] == "chamber_light") {
