@@ -10,6 +10,16 @@ def compress_html(html_file):
         with gzip.open(compressed_file, "wb", compresslevel=6) as output_file:
             output_file.write(input_file.read())
 
+    # Check if .h file exists and if HTML file is newer
+    header_file = os.path.splitext(html_file)[0] + ".h"
+    html_modified_time = os.path.getmtime(html_file)
+    if os.path.exists(header_file):
+        header_modified_time = os.path.getmtime(header_file)
+        if html_modified_time < header_modified_time:
+            print("No need to generate header file. HTML file is not modified.")
+            os.remove(compressed_file)
+            return
+
     # Generate header file
     header_file = os.path.splitext(html_file)[0] + ".h"
     print("Header file path:", header_file)  # Debug print
