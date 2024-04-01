@@ -3,7 +3,22 @@ import gzip
 import subprocess
 import os
 
+def should_compress(html_file, header_file):
+    if not os.path.exists(header_file):
+        return True
+    
+    html_modified_time = os.path.getmtime(html_file)
+    header_modified_time = os.path.getmtime(header_file)
+    
+    return html_modified_time > header_modified_time
+
 def compress_html(html_file):
+    # Check if compression is necessary
+    header_file = os.path.splitext(html_file)[0] + ".h"
+    if not should_compress(html_file, header_file):
+        print("No need to compress:", html_file)
+        return
+    
     # Compress HTML file
     compressed_file = html_file + ".gz"
     with open(html_file, "rb") as input_file:
@@ -11,17 +26,15 @@ def compress_html(html_file):
             output_file.write(input_file.read())
 
     # Check if .h file exists and if HTML file is newer
-    header_file = os.path.splitext(html_file)[0] + ".h"
-    html_modified_time = os.path.getmtime(html_file)
     if os.path.exists(header_file):
         header_modified_time = os.path.getmtime(header_file)
+        html_modified_time = os.path.getmtime(html_file)
         if html_modified_time < header_modified_time:
             print("No need to generate header file. HTML file is not modified.")
             os.remove(compressed_file)
             return
 
     # Generate header file
-    header_file = os.path.splitext(html_file)[0] + ".h"
     print("Header file path:", header_file)  # Debug print
     result = subprocess.run(["xxd", "-i", compressed_file], stdout=open(header_file, "w"))
     if result.returncode != 0:
