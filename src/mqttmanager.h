@@ -55,8 +55,8 @@ void connectMqtt(){
             mqttClient.subscribe(report_topic.c_str());
             printerVariables.online = true;
             printerVariables.disconnectMQTTms = 0;
-            Serial.println(F("Updating LEDs from MQTT connect"));
-            updateleds();
+            //Serial.println(F("Updating LEDs from MQTT connect"));
+            //updateleds();
         }else{
             Serial.println(F("Failed to connect with error code: "));
             Serial.print(mqttClient.state());
@@ -93,7 +93,7 @@ void ParseCallback(char *topic, byte *payload, unsigned int length){
     auto deserializeError = deserializeJson(messageobject, payload, length, DeserializationOption::Filter(filter));
     if (!deserializeError){
         if (printerConfig.debuging){
-            Serial.print(F("Mqtt message received,  "));
+            Serial.println(F("Mqtt message received."));
             Serial.print(F("FreeHeap: "));
             Serial.println(ESP.getFreeHeap());
         }
@@ -106,6 +106,7 @@ void ParseCallback(char *topic, byte *payload, unsigned int length){
             || messageobject["print"]["command"] == "project_file"          //1 message per print
             || messageobject["print"]["command"] == "clean_print_error"     //During error (no info)
             || messageobject["print"]["command"] == "resume"                //After error or pause
+            || messageobject["print"]["command"] == "get_accessories"       //After error or pause
             || messageobject["print"]["command"] == "prepare"){             //1 message per print
                 return;
             }

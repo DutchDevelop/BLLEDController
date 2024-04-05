@@ -86,7 +86,8 @@ void setup(){
     Serial.println(F(" **"));
     Serial.println();
     globalVariables.started = true;
-
+    Serial.println(F("Updating LEDs from Setup"));
+    updateleds();
 }
 
 void loop(){
