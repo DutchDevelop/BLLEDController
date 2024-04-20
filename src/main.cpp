@@ -100,7 +100,7 @@ void loop(){
         if (WiFi.status() != WL_CONNECTED){
             Serial.print(F("Wifi connection dropped.  "));
             Serial.print(F("Wifi Status: ")); 
-            Serial.println(wl_status_to_string(status));
+            Serial.println(wl_status_to_string(WiFi.status()));
             Serial.println(F("Attempting to reconnect to WiFi..."));
             wifi_reconnect_count += 1;
             if(wifi_reconnect_count <= 2){
