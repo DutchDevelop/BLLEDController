@@ -7,7 +7,7 @@
 #include "serialmanager.h"
 #include "wifi-manager.h"
 
-
+int wifi_reconnect_count = 0;
 void defaultcolors(){
     Serial.println(F("Setting default customisable colors"));
     printerConfig.runningColor = hex2rgb("#000000",255,255);//WHITE Running
@@ -98,12 +98,22 @@ void loop(){
         ledsloop();
         
         if (WiFi.status() != WL_CONNECTED){
-            if (WiFi.status() == WL_DISCONNECTED) Serial.print(F("Wifi connection Disconnected.  "));
-
+            Serial.print(F("Wifi connection dropped.  "));
+            Serial.print(F("Wifi Status: ")); 
+            Serial.println(wl_status_to_string(status));
             Serial.println(F("Attempting to reconnect to WiFi..."));
-            WiFi.disconnect();
-            delay(10);
-            WiFi.reconnect();
+            wifi_reconnect_count += 1;
+            if(wifi_reconnect_count <= 2){
+                WiFi.disconnect();
+                delay(100);
+                WiFi.reconnect();
+            } else {
+                //Not connecting after 10 simple disconnect / reconnects
+                //Do something more drastic in case needing to switch to new AP
+                scanNetwork();
+                connectToWifi();
+                wifi_reconnect_count = 0;
+            }
         }
     }
     if(printerConfig.rescanWiFiNetwork)
