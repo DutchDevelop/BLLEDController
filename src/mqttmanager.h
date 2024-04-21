@@ -55,8 +55,8 @@ void connectMqtt(){
             mqttClient.subscribe(report_topic.c_str());
             printerVariables.online = true;
             printerVariables.disconnectMQTTms = 0;
-            Serial.println(F("Updating LEDs from MQTT connect"));
-            updateleds();
+            //Serial.println(F("Updating LEDs from MQTT connect"));
+            //updateleds();
         }else{
             Serial.println(F("Failed to connect with error code: "));
             Serial.print(mqttClient.state());
@@ -93,7 +93,7 @@ void ParseCallback(char *topic, byte *payload, unsigned int length){
     auto deserializeError = deserializeJson(messageobject, payload, length, DeserializationOption::Filter(filter));
     if (!deserializeError){
         if (printerConfig.debuging){
-            Serial.print(F("Mqtt message received,  "));
+            Serial.println(F("Mqtt message received."));
             Serial.print(F("FreeHeap: "));
             Serial.println(ESP.getFreeHeap());
         }
@@ -106,6 +106,7 @@ void ParseCallback(char *topic, byte *payload, unsigned int length){
             || messageobject["print"]["command"] == "project_file"          //1 message per print
             || messageobject["print"]["command"] == "clean_print_error"     //During error (no info)
             || messageobject["print"]["command"] == "resume"                //After error or pause
+            || messageobject["print"]["command"] == "get_accessories"       //After error or pause
             || messageobject["print"]["command"] == "prepare"){             //1 message per print
                 return;
             }
@@ -123,6 +124,16 @@ void ParseCallback(char *topic, byte *payload, unsigned int length){
             Serial.print(F("], "));
             serializeJson(messageobject, Serial);
             Serial.println();
+        }
+
+        if(printerConfig.mqttdebug && (printerConfig.maintMode || printerConfig.testcolorEnabled || printerConfig.discoMode || printerConfig.debugwifi)) {
+            Serial.print(F("MQTT Message Ignored while in "));
+            if (printerConfig.maintMode) Serial.print(F("Maintenance"));
+            if (printerConfig.testcolorEnabled) Serial.print(F("Test Color"));
+            if (printerConfig.discoMode) Serial.print(F("RGB Cycle"));
+            if (printerConfig.debugwifi) Serial.print(F("Wifi Debug"));
+            Serial.println(F(" mode"));
+            return;
         }
 
         //Check for Door Status
@@ -168,7 +179,7 @@ void ParseCallback(char *topic, byte *payload, unsigned int length){
         }
 
         //Check BBLP GCode State
-        if (messageobject["print"].containsKey("gcode_state") && ((millis() - lastMQTTupdate) > 2000)){
+        if (messageobject["print"].containsKey("gcode_state") && ((millis() - lastMQTTupdate) > 3000)){
             String mqttgcodeState = messageobject["print"]["gcode_state"].as<String>();
 
             if(mqttgcodeState =="RUNNING" || mqttgcodeState =="PAUSE"){
@@ -205,7 +216,7 @@ void ParseCallback(char *topic, byte *payload, unsigned int length){
         }
 
         //Added a delay so the slower MQTT status message doesn't reverse the "system" commands
-        if (messageobject["print"].containsKey("lights_report") && ((millis() - lastMQTTupdate) > 2000)) {
+        if (messageobject["print"].containsKey("lights_report") && ((millis() - lastMQTTupdate) > 3000)) {
             JsonArray lightsReport = messageobject["print"]["lights_report"];
             for (JsonObject light : lightsReport) {
                 if (light["node"] == "chamber_light") {
