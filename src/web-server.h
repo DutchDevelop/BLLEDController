@@ -15,7 +15,7 @@ WebServer webServer(80);
 
 
 
-#include "www/setupPage.h"
+#include "www/setuppage.h"
 
 bool isAuthorized() {
   return true; //webServer.authenticate("BLLC", printerConfig.webpagePassword);
