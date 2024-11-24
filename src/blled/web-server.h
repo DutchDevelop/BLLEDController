@@ -11,11 +11,11 @@
 #include "leds.h"
 #include "filesystem.h"
 
+
 WebServer webServer(80);
 
-
-
-#include "www/setuppage.h"
+#include "../www/setuppage.h"
+#include "../www/updatepage.h"
 
 bool isAuthorized() {
   return true; //webServer.authenticate("BLLC", printerConfig.webpagePassword);
@@ -30,7 +30,17 @@ void handleSetup(){
     webServer.send_P(200, "text/html", (const char*)setuppage_html_gz, (int)setuppage_html_gz_len);
 }
 
-void submitSetup(){
+template <typename T>
+String toJson(T val) {
+    return String(val);
+}
+
+template <>
+String toJson<bool>(bool val) {
+    return val ? "true" : "false";
+}
+
+void submitConfig(){
     bool newBSSID = false;
     if (webServer.args() > 0) {
         if( strcmp(printerConfig.BSSID,webServer.arg("apMAC").c_str()) != 0 ){
@@ -115,6 +125,19 @@ void submitSetup(){
     }
 }
 
+char* obfuscate(const char* charstring) {
+    int length = strlen(charstring); 
+    char* blurredstring = new char[length + 1]; 
+    strcpy(blurredstring, charstring); 
+    if (length > 3) {
+        for (int i = 0; i < length - 3; i++) {
+            blurredstring[i] = '*'; 
+        }
+    }
+    blurredstring[length] = '\0'; 
+    return blurredstring; 
+}
+
 void handleGetConfig(){
     if (!isAuthorized()){
         webServer.requestAuthentication();
@@ -126,8 +149,8 @@ void handleGetConfig(){
     doc["firmwareversion"] = firmwareVersionChar;
     doc["wifiStrength"] = WiFi.RSSI();
     doc["ip"] = printerConfig.printerIP;
-    doc["code"] = printerConfig.accessCode;
-    doc["id"] = printerConfig.serialNumber;
+    doc["code"] = obfuscate(printerConfig.accessCode);
+    doc["id"] = obfuscate(printerConfig.serialNumber);
 
     doc["apMAC"] = printerConfig.BSSID;
     doc["brightness"] = printerConfig.brightness;
@@ -230,7 +253,7 @@ void setupWebserver(){
     Serial.println(F("Setting up webserver"));
     
     webServer.on("/", handleSetup);
-    webServer.on("/submitSetup",HTTP_POST,submitSetup);
+    webServer.on("/submitConfig",HTTP_POST,submitConfig);
     webServer.on("/getConfig", handleGetConfig);
 
     webServer.on("/update", HTTP_POST, []() {

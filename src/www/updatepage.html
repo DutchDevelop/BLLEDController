@@ -1,46 +1,73 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BLLED Setup</title>
     <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css' integrity='sha512-ixlOZJxl8aj1Cz0mKjyFTJQx/s+U6wo0o6P+CZPRJX+gze3Jh8Fro/mTyLr5r/Vx+uV7J8RvRfZp5+X9fivG7A==' crossorigin='anonymous' referrerpolicy='no-referrer' />
     <style>
+        :root {
+            --color-black: black;
+            --color-cod-gray: #101010;
+            --color-white: white;
+            --color-error: rgb(191, 95, 95);
+            --color-primary: #484;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            background-color: #f1f1f1;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: var(--color-black);
+            overflow: hidden;
             font-family: Arial, sans-serif;
         }
 
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
         .container {
             display: flex;
             flex-direction: column;
-            align-items: center;
             justify-content: center;
-            min-height: 100vh;
-            margin: 0 auto;
+            align-items: center;
+            height: calc(100% - 100px);
+            z-index: 2;
         }
-
         .logo-container {
             display: flex;
             align-items: center;
-            margin-bottom: 20px;
         }
-
         .logo {
             width: 100px;
             height: 100px;
             margin-right: 20px;
         }
-
         .logo-text {
             font-size: 36px;
             font-weight: bold;
+            color: white;
+            stroke: black;
         }
-
         .form-container {
             background-color: white;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-            width: 60%;
+            width: 100%;
             margin-top: 20px;
         }
 
@@ -86,20 +113,20 @@
             color: #4CAF50;
             margin-top: 10px;
         }
-
     </style>
 </head>
-
 <body>
+    <canvas id="particleCanvas" style="background: rgb(20,80,49);"></canvas>
+
     <div class='container'>
         <div class='logo-container'>
-            <img class='logo' src='https://dutchdevelop.com/wp-content/uploads/2023/08/Icon-square.png' alt='Logo'>
-            <span class='logo-text'>BLLEDController</span>
+            <img class='logo' src='https://raw.githubusercontent.com/DutchDevelop/BLLEDController/main/src/www/Icon-square.png' alt='Logo'>
+            <span class='logo-text'>BLLED Controller</span>
         </div>
         <div class='form-container'>
-            <h1>BLLEDController Update Page</h1>
+            <h1>BLLED OTA</h1>
             <p>
-                This page allows you to update your device.
+                This page allows you to update your device over the air.
             </p>
             <form enctype="multipart/form-data" id="upload_form" method="post">
                 <label>bin file:</label>
@@ -170,6 +197,103 @@
             </script>
         </div>
     </div>
-</body>
 
+
+    <script>
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let particlesArray = [];
+        const numberOfParticles = 100;
+
+        class Particle {
+            constructor(x, y, directionX, directionY, size, color) {
+                this.x = x;
+                this.y = y;
+                this.directionX = directionX;
+                this.directionY = directionY;
+                this.size = size;
+                this.color = color;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, false);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+            }
+
+
+            update() {
+                if (this.x + this.size > canvas.width || this.x - this.size < 0) {
+                    this.directionX = -this.directionX;
+                }
+
+                if (this.y + this.size > canvas.height || this.y - this.size < 0) {
+                    this.directionY = -this.directionY;
+                }
+
+                this.x += this.directionX;
+                this.y += this.directionY;
+
+                this.draw();
+            }
+        }
+
+        function init() {
+            particlesArray = [];
+            for (let i = 0; i < numberOfParticles; i++) {
+                let size = Math.random() * 5 + 1;
+                let x = Math.random() * (canvas.width - size * 2) + size;
+                let y = Math.random() * (canvas.height - size * 2) + size;
+                let directionX = (Math.random() * 0.5) - 0.25;
+                let directionY = (Math.random() * 0.5) - 0.25;
+                let color = 'rgba(255, 255, 255, 0.8)';
+
+                particlesArray.push(new Particle(x, y, directionX, directionY, size, color));
+            }
+        }
+
+        function connect() {
+            let opacityValue = 1;
+            for (let a = 0; a < particlesArray.length; a++) {
+                for (let b = a; b < particlesArray.length; b++) {
+                    let distance = ((particlesArray[a].x - particlesArray[b].x) * (particlesArray[a].x - particlesArray[b].x)) 
+                                 + ((particlesArray[a].y - particlesArray[b].y) * (particlesArray[a].y - particlesArray[b].y));
+
+                    if (distance < (canvas.width / 7) * (canvas.height / 7)) {
+                        opacityValue = 1 - (distance / 20000);
+                        ctx.strokeStyle = 'rgba(255, 255, 255,' + opacityValue + ')';
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.moveTo(particlesArray[a].x, particlesArray[a].y);
+                        ctx.lineTo(particlesArray[b].x, particlesArray[b].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (let i = 0; i < particlesArray.length; i++) {
+                particlesArray[i].update();
+            }
+
+            connect();
+            requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            init();
+        });
+
+        init();
+        animate();
+    </script>
+</body>
 </html>

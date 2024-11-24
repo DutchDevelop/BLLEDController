@@ -1,11 +1,12 @@
 #include <Arduino.h>
-#include "web-server.h"
-#include "mqttmanager.h"
-#include "filesystem.h"
-#include "types.h"
-#include "leds.h"
-#include "serialmanager.h"
-#include "wifi-manager.h"
+#include "./blled/web-server.h"
+#include "./blled/mqttmanager.h"
+#include "./blled/filesystem.h"
+#include "./blled/types.h"
+#include "./blled/leds.h"
+#include "./blled/serialmanager.h"
+#include "./blled/wifi-manager.h"
+#include "./blled/ssdp.h"
 
 int wifi_reconnect_count = 0;
 void defaultcolors(){
@@ -75,6 +76,7 @@ void setup(){
     setupWebserver();
     delay(500);
 
+    start_ssdp();
     
     tweenToColor(34,224,238,0,0); //CYAN
     setupMqtt();
