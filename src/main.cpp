@@ -32,6 +32,27 @@ void defaultcolors(){
     printerConfig.nozzleTempRGB = hex2rgb("#FF0000");       //Red
     printerConfig.bedTempRGB = hex2rgb("#FF0000");          //Red
 
+    printerConfigDefault.runningColor = printerConfig.runningColor;
+    printerConfigDefault.testColor = printerConfig.testColor;
+    printerConfigDefault.finishColor = printerConfig.finishColor;
+
+    printerConfigDefault.stage14Color = printerConfig.stage14Color;
+    printerConfigDefault.stage1Color = printerConfig.stage1Color;
+    printerConfigDefault.stage8Color = printerConfig.stage8Color;
+    printerConfigDefault.stage9Color = printerConfig.stage9Color;
+    printerConfigDefault.stage10Color = printerConfig.stage10Color;
+
+    printerConfigDefault.wifiRGB = printerConfig.wifiRGB;
+
+    printerConfigDefault.pauseRGB = printerConfig.pauseRGB;
+    printerConfigDefault.firstlayerRGB = printerConfig.firstlayerRGB;
+    printerConfigDefault.nozzleclogRGB = printerConfig.nozzleclogRGB;
+    printerConfigDefault.hmsSeriousRGB = printerConfig.hmsSeriousRGB;
+    printerConfigDefault.hmsFatalRGB = printerConfig.hmsFatalRGB;
+    printerConfigDefault.filamentRunoutRGB = printerConfig.filamentRunoutRGB;
+    printerConfigDefault.frontCoverRGB = printerConfig.frontCoverRGB;
+    printerConfigDefault.nozzleTempRGB = printerConfig.nozzleTempRGB;
+    printerConfigDefault.bedTempRGB = printerConfig.bedTempRGB;
 
 }
 

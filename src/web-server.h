@@ -46,12 +46,12 @@ void submitSetup(){
         strcpy(printerConfig.serialNumber,temperserial);
 
         strcpy(printerConfig.BSSID,webServer.arg("apMAC").c_str());
-        printerConfig.brightness = webServer.arg("brightnessslider").toInt();
+        printerConfig.brightness = webServer.arg("brightness").toInt();
         printerConfig.rescanWiFiNetwork = (webServer.arg("rescanWiFiNetwork") == "on");
         // LED Behaviour (Choose One)
         printerConfig.maintMode = (webServer.arg("maintMode") == "on");
         printerConfig.discoMode = (webServer.arg("discoMode") == "on");
-        printerConfig.replicatestate = (webServer.arg("replicateLedState") == "on");
+        printerConfig.replicatestate = (webServer.arg("replicateled") == "on");
         // Running Color
         printerConfig.runningColor = hex2rgb(webServer.arg("runningRGB").c_str(),webServer.arg("runningWW").toInt(),webServer.arg("runningCW").toInt());
         // Test - Fixed LED Colors
@@ -59,7 +59,7 @@ void submitSetup(){
         printerConfig.testColor = hex2rgb(webServer.arg("testRGB").c_str(),webServer.arg("testWW").toInt(),webServer.arg("testCW").toInt());
         printerConfig.debugwifi = webServer.arg("debugwifi") == "on";
         // Options
-        printerConfig.finishindication = (webServer.arg("finishIndication") == "on");
+        printerConfig.finishindication = (webServer.arg("finishindication") == "on");
         printerConfig.finishColor = hex2rgb(webServer.arg("finishColor").c_str(),webServer.arg("finishWW").toInt(),webServer.arg("finishCW").toInt());
         if(webServer.arg("finishEndTimer") == "on"){
             printerConfig.finishExit = false;
@@ -83,7 +83,7 @@ void submitSetup(){
         printerConfig.stage9Color = hex2rgb(webServer.arg("stage9RGB").c_str(),webServer.arg("stage9WW").toInt(),webServer.arg("stage9CW").toInt());
         printerConfig.stage10Color = hex2rgb(webServer.arg("stage10RGB").c_str(),webServer.arg("stage10WW").toInt(),webServer.arg("stage10CW").toInt());
         // Customise LED Colors
-        printerConfig.errordetection = (webServer.arg("errorDetection") == "on");
+        printerConfig.errordetection = (webServer.arg("errordetection") == "on");
         printerConfig.wifiRGB = hex2rgb(webServer.arg("wifiRGB").c_str(),webServer.arg("wifiWW").toInt(),webServer.arg("wifiCW").toInt());
 
         printerConfig.pauseRGB = hex2rgb(webServer.arg("pauseRGB").c_str(),webServer.arg("pauseWW").toInt(),webServer.arg("pauseCW").toInt());
@@ -121,6 +121,8 @@ void handleGetConfig(){
         return;
     }
 
+    JsonDocument result;
+    JsonDocument docDefault;
     JsonDocument doc;
     const char* firmwareVersionChar = globalVariables.FWVersion.c_str();
     doc["firmwareversion"] = firmwareVersionChar;
@@ -130,6 +132,7 @@ void handleGetConfig(){
     doc["id"] = printerConfig.serialNumber;
 
     doc["apMAC"] = printerConfig.BSSID;
+    doc["ssid"] = globalVariables.SSID;
     doc["brightness"] = printerConfig.brightness;
     // LED Behaviour (Choose One)
     doc["maintMode"] = printerConfig.maintMode;
@@ -210,8 +213,86 @@ void handleGetConfig(){
     doc["bedTempWW"] = printerConfig.bedTempRGB.ww;
     doc["bedTempCW"] = printerConfig.bedTempRGB.cw;
 
+    docDefault["brightness"] = printerConfigDefault.brightness;
+    // LED Behaviour (Choose One)
+    docDefault["maintMode"] = printerConfigDefault.maintMode;
+    docDefault["discoMode"] = printerConfigDefault.discoMode;
+    docDefault["replicateled"] = printerConfigDefault.replicatestate;
+    // Running Color
+    docDefault["runningRGB"] = printerConfigDefault.runningColor.RGBhex;
+    docDefault["runningWW"] = printerConfigDefault.runningColor.ww;
+    docDefault["runningCW"] = printerConfigDefault.runningColor.cw;
+    // LED Test Colors
+    docDefault["showtestcolor"] = printerConfigDefault.testcolorEnabled;
+    docDefault["testRGB"] = printerConfigDefault.testColor.RGBhex;
+    docDefault["testWW"] = printerConfigDefault.testColor.ww;
+    docDefault["testCW"] = printerConfigDefault.testColor.cw;
+    docDefault["debugwifi"] = printerConfigDefault.debugwifi;
+    // Options
+    docDefault["finishindication"] = printerConfigDefault.finishindication;
+    docDefault["finishColor"] = printerConfigDefault.finishColor.RGBhex;
+    docDefault["finishWW"] = printerConfigDefault.finishColor.ww;
+    docDefault["finishCW"] = printerConfigDefault.finishColor.cw;
+    docDefault["finishExit"] = printerConfigDefault.finishExit;
+    docDefault["inactivityEnabled"] = printerConfigDefault.inactivityEnabled;
+    // Printer Dependant
+    docDefault["debuging"] = printerConfigDefault.debuging;
+    docDefault["debugingchange"] = printerConfigDefault.debugingchange;
+    docDefault["mqttdebug"] = printerConfigDefault.mqttdebug;
+    // Customise LED Colors (during Lidar)
+    docDefault["stage14RGB"] = printerConfigDefault.stage14Color.RGBhex;
+    docDefault["stage14WW"] = printerConfigDefault.stage14Color.ww;
+    docDefault["stage14CW"] = printerConfigDefault.stage14Color.cw;
+    docDefault["stage1RGB"] = printerConfigDefault.stage1Color.RGBhex;
+    docDefault["stage1WW"] = printerConfigDefault.stage1Color.ww;
+    docDefault["stage1CW"] = printerConfigDefault.stage1Color.cw;
+    docDefault["stage8RGB"] = printerConfigDefault.stage8Color.RGBhex;
+    docDefault["stage8WW"] = printerConfigDefault.stage8Color.ww;
+    docDefault["stage8CW"] = printerConfigDefault.stage8Color.cw;
+    docDefault["stage9RGB"] = printerConfigDefault.stage9Color.RGBhex;
+    docDefault["stage9WW"] = printerConfigDefault.stage9Color.ww;
+    docDefault["stage9CW"] = printerConfigDefault.stage9Color.cw;
+    docDefault["stage10RGB"] = printerConfigDefault.stage10Color.RGBhex;
+    docDefault["stage10WW"] = printerConfigDefault.stage10Color.ww;
+    docDefault["stage10CW"] = printerConfigDefault.stage10Color.cw;
+    // Customise LED Colors
+    docDefault["errordetection"] = printerConfigDefault.errordetection;
+    docDefault["wifiRGB"] = printerConfigDefault.wifiRGB.RGBhex;
+    docDefault["wifiWW"] = printerConfigDefault.wifiRGB.ww;
+    docDefault["wifiCW"] = printerConfigDefault.wifiRGB.cw;
+    docDefault["pauseRGB"] = printerConfigDefault.pauseRGB.RGBhex;
+    docDefault["pauseWW"] = printerConfigDefault.pauseRGB.ww;
+    docDefault["pauseCW"] = printerConfigDefault.pauseRGB.cw;
+    docDefault["firstlayerRGB"] = printerConfigDefault.firstlayerRGB.RGBhex;
+    docDefault["firstlayerWW"] = printerConfigDefault.firstlayerRGB.ww;
+    docDefault["firstlayerCW"] = printerConfigDefault.firstlayerRGB.cw;
+    docDefault["nozzleclogRGB"] = printerConfigDefault.nozzleclogRGB.RGBhex;
+    docDefault["nozzleclogWW"] = printerConfigDefault.nozzleclogRGB.ww;
+    docDefault["nozzleclogCW"] = printerConfigDefault.nozzleclogRGB.cw;
+    docDefault["hmsSeriousRGB"] = printerConfigDefault.hmsSeriousRGB.RGBhex;
+    docDefault["hmsSeriousWW"] = printerConfigDefault.hmsSeriousRGB.ww;
+    docDefault["hmsSeriousCW"] = printerConfigDefault.hmsSeriousRGB.cw;
+    docDefault["hmsFatalRGB"] = printerConfigDefault.hmsFatalRGB.RGBhex;
+    docDefault["hmsFatalWW"] = printerConfigDefault.hmsFatalRGB.ww;
+    docDefault["hmsFatalCW"] = printerConfigDefault.hmsFatalRGB.cw;
+    docDefault["filamentRunoutRGB"] = printerConfigDefault.filamentRunoutRGB.RGBhex;
+    docDefault["filamentRunoutWW"] = printerConfigDefault.filamentRunoutRGB.ww;
+    docDefault["filamentRunoutCW"] = printerConfigDefault.filamentRunoutRGB.cw;
+    docDefault["frontCoverRGB"] = printerConfigDefault.frontCoverRGB.RGBhex;
+    docDefault["frontCoverWW"] = printerConfigDefault.frontCoverRGB.ww;
+    docDefault["frontCoverCW"] = printerConfigDefault.frontCoverRGB.cw;
+    docDefault["nozzleTempRGB"] = printerConfigDefault.nozzleTempRGB.RGBhex;
+    docDefault["nozzleTempWW"] = printerConfigDefault.nozzleTempRGB.ww;
+    docDefault["nozzleTempCW"] = printerConfigDefault.nozzleTempRGB.cw;
+    docDefault["bedTempRGB"] = printerConfigDefault.bedTempRGB.RGBhex;
+    docDefault["bedTempWW"] = printerConfigDefault.bedTempRGB.ww;
+    docDefault["bedTempCW"] = printerConfigDefault.bedTempRGB.cw;
+
+    result["config"] = doc;
+    result["default"] = docDefault;
+
     String jsonString;
-    serializeJson(doc, jsonString);
+    serializeJson(result, jsonString);
     webServer.send(200, "application/json", jsonString);
 
     Serial.println(F("Packet sent to setuppage"));

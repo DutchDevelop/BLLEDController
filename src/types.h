@@ -30,7 +30,7 @@ extern "C"
         bool finished = false;
         bool initalisedLEDs = false;
         //Time since
-        unsigned long disconnectMQTTms = 0;        
+        unsigned long disconnectMQTTms = 0;
 
         //PrinterType
         bool isP1Printer = false;               //Is this a P1 Printer without lidar or door switch
@@ -61,6 +61,7 @@ extern "C"
         char accessCode[9];             //BBLP Access Code - used for MQTT reports
         char serialNumber[16];          //BBLP Serial Number - used for MQTT reports
 
+        char SSID[32];                  //WiFi SSID
         char BSSID[18];                 //Nominated AP to connect to (Useful if multiple accesspoints with same name)
         int brightness = 20;            //Brightness of LEDS - Default to 20% in case user use LED's that draw too much power for their PS
         bool rescanWiFiNetwork = false; //Scans available WiFi networks for strongest signal
@@ -100,7 +101,7 @@ extern "C"
         COLOR stage10Color;
         // Customise LED Colors
         bool errordetection = true;     //Utilises Error Colors when BBLP give an error
-        COLOR wifiRGB;                  
+        COLOR wifiRGB;
         COLOR pauseRGB;
         COLOR firstlayerRGB;
         COLOR nozzleclogRGB;
@@ -115,7 +116,7 @@ extern "C"
     } PrinterConfig;
 
     PrinterConfig printerConfig;
-
+    PrinterConfig printerConfigDefault;
 #ifdef __cplusplus
 } /*extern "C"*/
 #endif
