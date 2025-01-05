@@ -47,7 +47,8 @@ void connectMqtt(){
         //Abort MQTT connection attempt when no Wifi
         return;
     }
-    if (!mqttClient.connected() && (millis() - mqttattempt) >= 3000){   
+    if (!mqttClient.connected() && (millis() - mqttattempt) >= 3000){
+	tweenToColor(10,10,10,10,10);
         Serial.println(F("Connecting to mqtt..."));
         if (mqttClient.connect(clientId.c_str(),"bblp",printerConfig.accessCode)){
             Serial.print(F("MQTT connected, subscribing to MQTT Topic:  "));
@@ -63,9 +64,13 @@ void connectMqtt(){
             Serial.print(F("  "));
             ParseMQTTState(mqttClient.state());
             if(mqttClient.state() == 5){
-                Serial.println(F("Restarting Device"));
-                delay(1000);
-                ESP.restart();                
+                delay(500);
+                tweenToColor(127,0,0,0,0); //light red, indicating not authorized
+                delay(500);
+                mqttattempt = (millis()-3000);
+//                Serial.println(F("Restarting Device"));
+//                delay(1000);
+//                ESP.restart();                
             }
         }
     }
