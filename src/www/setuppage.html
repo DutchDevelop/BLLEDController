@@ -179,15 +179,15 @@
         </div>
         <div class='form-container'>
             <h1>BL LED Controller Settings Page</h1>
-            <h2 id="firmwareversion">Firmware version: Expirimental ??.??.??</h3>
+            <h2 id="firmwareversion">Firmware version: ??.??.??</h2>
             <p>This page allows you to change the MQTT broker info and any additional settings.</p>
             <form method='POST' action='/submitConfig' onsubmit='return submitForm();'>
-                <label for='ip'>IP:</label>
-                <input type='text' id='ip' name='ip' title='Enter the IP address of your MQTT broker' value=''><br>
-                <label for='code'>Access Code:</label>
-                <input type='text' id='code' name='code' title='Enter the access code for your MQTT broker' value=''><br>
-                <label for='id'>Serial ID:</label>
-                <input type='text' id='id' name='id' title='Enter the serial ID for your device' value=''><br>
+                <label for='ip'>Printer IP:</label>
+                <input type='text' id='ip' name='ip' title='Enter the IP address of your Bambulab Printer' value=''><br>
+                <label for='code'>Printer Access Code:</label>
+                <input type='text' id='code' name='code' title='Enter the access code of your Bambulab Printer' value=''><br>
+                <label for='id'>Printer Serial Number:</label>
+                <input type='text' id='id' name='id' title='Enter the serial Number for your Bambulab Printer' value=''><br>
                 <label for='apMAC'>Wifi Access Point MAC Address:</label>
                 <table width='100%'>
                     <TR>
