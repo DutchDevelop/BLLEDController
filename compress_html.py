@@ -1,66 +1,44 @@
 import sys
 import gzip
-import subprocess
 import os
 
-def should_compress(html_file, header_file):
-    if not os.path.exists(header_file):
-        return True
-    
-    html_modified_time = os.path.getmtime(html_file)
-    header_modified_time = os.path.getmtime(header_file)
-    
-    return html_modified_time > header_modified_time
-
 def compress_html(html_file):
-    # Check if compression is necessary
+    # Erzeuge Namen der Header-Datei
     header_file = os.path.splitext(html_file)[0] + ".h"
-    if not should_compress(html_file, header_file):
-        print("No need to compress:", html_file)
-        return
-    
-    # Compress HTML file
+
+    # Komprimiere HTML-Datei als Gzip
     compressed_file = html_file + ".gz"
     with open(html_file, "rb") as input_file:
         with gzip.open(compressed_file, "wb", compresslevel=6) as output_file:
             output_file.write(input_file.read())
 
-    # Check if .h file exists and if HTML file is newer
-    if os.path.exists(header_file):
-        header_modified_time = os.path.getmtime(header_file)
-        html_modified_time = os.path.getmtime(html_file)
-        if html_modified_time < header_modified_time:
-            print("No need to generate header file. HTML file is not modified.")
-            os.remove(compressed_file)
-            return
+    # Lese komprimierte Datei
+    with open(compressed_file, "rb") as f:
+        data = f.read()
 
-    # Generate header file
-    print("Header file path:", header_file)  # Debug print
-    result = subprocess.run(["xxd", "-i", compressed_file], stdout=open(header_file, "w"))
-    if result.returncode != 0:
-        print("Error: xxd failed to generate the header file")
-        return
+    # Erzeuge Array-Namen aus Dateinamen
+    array_name = os.path.basename(html_file).replace(".", "_")
 
-    # Modify the generated header file to include PROGMEM attribute
-    with open(header_file, "r") as file:
-        content = file.read()
-    
-    with open(header_file, "w") as file:
-        # Add PROGMEM attribute after the array declaration
-        content = content.replace("unsigned char ", "const uint8_t ")
-        # Remove "__" prefix from the length variable
-        content = content.replace("unsigned int ", "unsigned int ")
-        # Add PROGMEM attribute after the variable name
-        content = content.replace("const uint8_t ", "const uint8_t ", 1).replace("{", "PROGMEM {")
-        file.write(content)
+    # Schreibe C-Header-Datei mit PROGMEM Array
+    with open(header_file, "w") as f:
+        f.write("#include <pgmspace.h>\n\n")
+        f.write(f"const uint8_t {array_name}_gz[] PROGMEM = {{\n")
 
-    # Clean up
+        for i in range(0, len(data), 16):
+            line = ', '.join(f'0x{b:02x}' for b in data[i:i+16])
+            f.write(f"  {line},\n")
+
+        f.write("};\n\n")
+        f.write(f"const unsigned int {array_name}_gz_len = {len(data)};\n")
+
+    # Entferne temporäre .gz-Datei
     os.remove(compressed_file)
+    print("Generated:", header_file)
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
         print("Usage: python compress_html.py <html_file>")
         sys.exit(1)
-    
+
     html_file = sys.argv[1]
     compress_html(html_file)
