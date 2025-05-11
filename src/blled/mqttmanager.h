@@ -147,9 +147,21 @@ void ParseCallback(char *topic, byte *payload, unsigned int length){
 
             bool doorState = false;
             long homeFlag = 0;
+            //int test = 0x00800000;
+            //long test2 = -1067070056;
             homeFlag = messageobject["print"]["home_flag"];
-            doorState = homeFlag >> 23; //shift left 23 to the Door bit
-            doorState = doorState & 1;  // remove any bits above Door bit
+            doorState= bitRead(homeFlag, 23);
+            //doorState = homeFlag >> 23; //shift left 23 to the Door bit
+            //doorState = doorState & 1;  // remove any bits above Door bit
+/*             Serial.println("---------------------------------------");
+            for (size_t i = 0; i < 29; i++)
+            {
+            Serial.print(" ");
+            Serial.print(i);
+            Serial.print(":");
+            Serial.print(bitRead(homeFlag, i));
+            }
+            Serial.println(""); */
 
             if (printerVariables.doorOpen != doorState){
                 printerVariables.doorOpen = doorState;
