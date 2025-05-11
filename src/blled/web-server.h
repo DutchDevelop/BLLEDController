@@ -36,7 +36,7 @@ void handleUpdatePage(){
         return;
     }
     webServer.sendHeader(F("Content-Encoding"), F("gzip"));
-    webServer.send_P(200, "text/html", (const char*)updatepPage_html_gz, (int)updatePage_html_gz_len);
+    webServer.send_P(200, "text/html", (const char*)updatePage_html_gz, (int)updatePage_html_gz_len);
 }
 
 template <typename T>
