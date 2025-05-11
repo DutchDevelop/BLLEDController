@@ -30,6 +30,15 @@ void handleSetup(){
     webServer.send_P(200, "text/html", (const char*)setuppage_html_gz, (int)setuppage_html_gz_len);
 }
 
+void handleUpdatePage(){
+    if (!isAuthorized()){
+        webServer.requestAuthentication();
+        return;
+    }
+    webServer.sendHeader(F("Content-Encoding"), F("gzip"));
+    webServer.send_P(200, "text/html", (const char*)updatepPage_html_gz, (int)updatePage_html_gz_len);
+}
+
 template <typename T>
 String toJson(T val) {
     return String(val);
@@ -253,6 +262,7 @@ void setupWebserver(){
     Serial.println(F("Setting up webserver"));
     
     webServer.on("/", handleSetup);
+    webServer.on("/fwupdate", handleUpdatePage);
     webServer.on("/submitConfig",HTTP_POST,submitConfig);
     webServer.on("/getConfig", handleGetConfig);
 

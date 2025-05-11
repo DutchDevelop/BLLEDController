@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>BLLED Setup</title>
-    <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css' integrity='sha512-ixlOZJxl8aj1Cz0mKjyFTJQx/s+U6wo0o6P+CZPRJX+gze3Jh8Fro/mTyLr5r/Vx+uV7J8RvRfZp5+X9fivG7A==' crossorigin='anonymous' referrerpolicy='no-referrer' />
+    <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css'  crossorigin='anonymous' referrerpolicy='no-referrer' />
     <style>
         :root {
             --color-black: black;
@@ -729,6 +729,7 @@
                 document.getElementById("brightnesssliderDisplay").textContent = "Brightness: "+ e.target.value + "%";
             });
             updateIdle();
+            updateConfig();
             showhideOptions();
             showcustomColors();
             setFinishColor();
