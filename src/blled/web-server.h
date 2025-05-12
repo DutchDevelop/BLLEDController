@@ -16,6 +16,7 @@ WebServer webServer(80);
 
 #include "../www/www.h"
 #include "../www/blled_svg.h"
+#include "../www/favicon.h"
 #include "../www/awesomeFont.h"
 
 bool isAuthorized() {
@@ -46,7 +47,15 @@ void handleGetIcon(){
         return;
     }
     webServer.send_P(200, "image/svg+xml", (const char*)BBLED_svg, (int)BBLED_svg_len);
-    //webServer.send(200, "text/html", String(sizeof(BBLED_svg)/sizeof(BBLED_svg[0])));
+}
+
+void handleGetfavicon(){
+    if (!isAuthorized()){
+        webServer.requestAuthentication();
+        return;
+    }
+    webServer.send_P(200, "image/x-icon", (const char*)BBLED_favicon, (int)BBLED_favicon_len);
+    //webServer.send(200, "text/html", String(sizeof(BBLED_favicon)/sizeof(BBLED_favicon[0])));
 }
 
 void handleGetCSS(){
@@ -55,7 +64,6 @@ void handleGetCSS(){
         return;
     }
     webServer.send_P(200, "text/html", (const char*)awsomeFont_css, (int)awsomeFont_css_len);
-    //webServer.send(200, "text/html", String(sizeof(awsomeFont_css)/sizeof(awsomeFont_css[0])));
 }
 
 template <typename T>
@@ -285,6 +293,7 @@ void setupWebserver(){
     webServer.on("/submitConfig",HTTP_POST,submitConfig);
     webServer.on("/getConfig", handleGetConfig);
     webServer.on("/blled.png", HTTP_GET, handleGetIcon);
+    webServer.on("/favicon.ico", HTTP_GET, handleGetfavicon);
     webServer.on("/awesomeFont.css", HTTP_GET, handleGetCSS);
 
     webServer.on("/update", HTTP_POST, []() {
