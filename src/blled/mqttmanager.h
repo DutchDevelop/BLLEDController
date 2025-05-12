@@ -105,7 +105,7 @@ void ParseCallback(char *topic, byte *payload, unsigned int length){
 
         bool Changed = false;
 
-        if (messageobject["print"].containsKey("command")){
+        if (messageobject["print"]["command"].is<const char*>()){
             if (messageobject["print"]["command"] == "gcode_line"           //gcode_line used a lot during print initialisations - Skip these
             || messageobject["print"]["command"] == "project_prepare"       //1 message per print
             || messageobject["print"]["command"] == "project_file"          //1 message per print
@@ -142,26 +142,13 @@ void ParseCallback(char *topic, byte *payload, unsigned int length){
         }
 
         //Check for Door Status
-        if (messageobject["print"].containsKey("home_flag")){
+        if (messageobject["print"]["home_flag"].is<signed long>()){
             //https://github.com/greghesp/ha-bambulab/blob/main/custom_components/bambu_lab/pybambu/const.py#L324
 
             bool doorState = false;
             long homeFlag = 0;
-            //int test = 0x00800000;
-            //long test2 = -1067070056;
             homeFlag = messageobject["print"]["home_flag"];
             doorState= bitRead(homeFlag, 23);
-            //doorState = homeFlag >> 23; //shift left 23 to the Door bit
-            //doorState = doorState & 1;  // remove any bits above Door bit
-/*             Serial.println("---------------------------------------");
-            for (size_t i = 0; i < 29; i++)
-            {
-            Serial.print(" ");
-            Serial.print(i);
-            Serial.print(":");
-            Serial.print(bitRead(homeFlag, i));
-            }
-            Serial.println(""); */
 
             if (printerVariables.doorOpen != doorState){
                 printerVariables.doorOpen = doorState;
@@ -183,7 +170,7 @@ void ParseCallback(char *topic, byte *payload, unsigned int length){
         }
 
         //Check BBLP Stage
-        if (messageobject["print"].containsKey("stg_cur")){
+        if (messageobject["print"]["stg_cur"].is<const char*>()){
             if (printerVariables.stage != messageobject["print"]["stg_cur"].as<int>() ){
                 printerVariables.stage = messageobject["print"]["stg_cur"];
                 
@@ -196,7 +183,7 @@ void ParseCallback(char *topic, byte *payload, unsigned int length){
         }
 
         //Check BBLP GCode State
-        if (messageobject["print"].containsKey("gcode_state") && ((millis() - lastMQTTupdate) > 3000)){
+        if (messageobject["print"]["gcode_state"].is<const char*>() && ((millis() - lastMQTTupdate) > 3000)){
             String mqttgcodeState = messageobject["print"]["gcode_state"].as<String>();
 
             if(mqttgcodeState =="RUNNING" || mqttgcodeState =="PAUSE"){
@@ -223,7 +210,7 @@ void ParseCallback(char *topic, byte *payload, unsigned int length){
         }
 
         //Pause Command - quicker, but Only for user generated pause - error & code pauses don't trigger this.
-        if (messageobject["print"].containsKey("command")){
+        if (messageobject["print"]["command"].is<const char*>()){
             if (messageobject["print"]["command"] == "pause"){
                 lastMQTTupdate = millis();
                 Serial.println(F("MQTT update - manual PAUSE"));
@@ -233,7 +220,7 @@ void ParseCallback(char *topic, byte *payload, unsigned int length){
         }
 
         //Added a delay so the slower MQTT status message doesn't reverse the "system" commands
-        if (messageobject["print"].containsKey("lights_report") && ((millis() - lastMQTTupdate) > 3000)) {
+        if (messageobject["print"]["lights_report"].is<const char*>() && ((millis() - lastMQTTupdate) > 3000)) {
             JsonArray lightsReport = messageobject["print"]["lights_report"];
             for (JsonObject light : lightsReport) {
                 if (light["node"] == "chamber_light") {
@@ -255,7 +242,7 @@ void ParseCallback(char *topic, byte *payload, unsigned int length){
         }
         //System Commands are sent quicker than the push_status
         //Message only sent onChange
-        if (messageobject["system"].containsKey("command")) {
+        if (messageobject["system"]["command"].is<const char*>()) {
             if (messageobject["system"]["command"] == "ledctrl"){
                 //Ignore Printer sending attempts to turn light on when already on.
                 if(printerVariables.printerledstate != (messageobject["system"]["led_mode"] == "on")){
@@ -276,7 +263,7 @@ void ParseCallback(char *topic, byte *payload, unsigned int length){
         }
 
         //Bambu Health Management System (HMS)
-        if (messageobject["print"].containsKey("hms")){
+        if (messageobject["print"]["hms"].is<const char*>()){
             String oldHMSlevel = "";
             oldHMSlevel = printerVariables.parsedHMSlevel;
 

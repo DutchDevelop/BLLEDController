@@ -14,9 +14,8 @@
 
 WebServer webServer(80);
 
-#include "../www/setuppage.h"
-#include "../www/updatepage.h"
-#include "../www/icon.h"
+#include "../www/www.h"
+#include "../www/blled_svg.h"
 #include "../www/awesomeFont.h"
 
 bool isAuthorized() {
@@ -29,7 +28,7 @@ void handleSetup(){
         return;
     }
     webServer.sendHeader(F("Content-Encoding"), F("gzip"));
-    webServer.send_P(200, "text/html", (const char*)setuppage_html_gz, (int)setuppage_html_gz_len);
+    webServer.send_P(200, "text/html", (const char*)setupPage_html_gz, (int)setupPage_html_gz_len);
 }
 
 void handleUpdatePage(){
@@ -46,8 +45,8 @@ void handleGetIcon(){
         webServer.requestAuthentication();
         return;
     }
-    webServer.send_P(200, "image/png", (const char*)BBLED_icon, (int)BBLED_icon_len);
-    //webServer.send(200, "text/html", String(sizeof(BBLED_icon)/sizeof(BBLED_icon[0])));
+    webServer.send_P(200, "image/svg+xml", (const char*)BBLED_svg, (int)BBLED_svg_len);
+    //webServer.send(200, "text/html", String(sizeof(BBLED_svg)/sizeof(BBLED_svg[0])));
 }
 
 void handleGetCSS(){

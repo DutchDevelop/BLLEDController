@@ -3,6 +3,4 @@
 build/
 BLLEDController.code-workspace
 .python-version
-
-# generated .h files from html
-src/www/setuppage.h
+www/www.h
