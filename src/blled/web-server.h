@@ -17,6 +17,7 @@ WebServer webServer(80);
 #include "../www/setuppage.h"
 #include "../www/updatepage.h"
 #include "../www/icon.h"
+#include "../www/awesomeFont.h"
 
 bool isAuthorized() {
   return true; //webServer.authenticate("BLLC", printerConfig.webpagePassword);
@@ -45,8 +46,17 @@ void handleGetIcon(){
         webServer.requestAuthentication();
         return;
     }
-    webServer.sendHeader(F("Content-Encoding"), F("gzip")); //not needed, png allready compressed
-    webServer.send_P(200, "image/png", (const char*)BBLED_icon_gz);
+    webServer.send_P(200, "image/png", (const char*)BBLED_icon, (int)BBLED_icon_len);
+    //webServer.send(200, "text/html", String(sizeof(BBLED_icon)/sizeof(BBLED_icon[0])));
+}
+
+void handleGetCSS(){
+    if (!isAuthorized()){
+        webServer.requestAuthentication();
+        return;
+    }
+    webServer.send_P(200, "text/html", (const char*)awsomeFont_css, (int)awsomeFont_css_len);
+    //webServer.send(200, "text/html", String(sizeof(awsomeFont_css)/sizeof(awsomeFont_css[0])));
 }
 
 template <typename T>
@@ -276,6 +286,7 @@ void setupWebserver(){
     webServer.on("/submitConfig",HTTP_POST,submitConfig);
     webServer.on("/getConfig", handleGetConfig);
     webServer.on("/blled.png", HTTP_GET, handleGetIcon);
+    webServer.on("/awesomeFont.css", HTTP_GET, handleGetCSS);
 
     webServer.on("/update", HTTP_POST, []() {
         webServer.sendHeader("Connection", "close");
