@@ -1,10 +1,9 @@
 Import("env")
 import os
 import shutil
-import gzip
 
 # === Konfiguration ===
-ENABLE_MERGE_BIN = True  # Steuert ob Merge ausgeführt wird (OTA .gz wird immer erstellt!)
+ENABLE_MERGE_BIN = True  # Steuert ob Merge ausgeführt wird (OTA .bin.ota wird immer erstellt!)
 # ======================
 
 BUILD_DIR = env.subst("$BUILD_DIR")
@@ -16,21 +15,15 @@ BOARD_CONFIG = env.BoardConfig()
 project_name = env.GetProjectOption("custom_project_name") or "Firmware"
 version = env.GetProjectOption("custom_version") or "0.0.0"
 firmware_filename_merged = f"{project_name}_V{version}.bin"
-firmware_filename_ota = f"{project_name}_V{version}.ota.gz"
+firmware_filename_ota = f"{project_name}_V{version}.bin.ota"
 
 firmware_path_merged = os.path.normpath(os.path.join(env.subst("$PROJECT_DIR"), ".firmware", firmware_filename_merged))
 firmware_path_ota = os.path.normpath(os.path.join(env.subst("$PROJECT_DIR"), ".firmware", firmware_filename_ota))
 
-def create_gz(input_file, output_file):
-    os.makedirs(os.path.dirname(output_file), exist_ok=True)
-    with open(input_file, 'rb') as f_in:
-        with gzip.open(output_file, 'wb', compresslevel=9) as f_out:
-            shutil.copyfileobj(f_in, f_out)
-    print(f'Firmware (OTA, gzipped) created at: {output_file}')
-
-def copy_bin_and_gz(source, target, env):
-    # Immer nur .gz für OTA, kein extra unkomprimiertes .ota
-    create_gz(APP_BIN, firmware_path_ota)
+def copy_bin_as_ota(source, target, env):
+    os.makedirs(os.path.dirname(firmware_path_ota), exist_ok=True)
+    shutil.copyfile(APP_BIN, firmware_path_ota)
+    print(f'Firmware (OTA, uncompressed) copied to: {firmware_path_ota}')
 
 def merge_bin(source, target, env):
     flash_images = env.Flatten(env.get("FLASH_EXTRA_IMAGES", []))
@@ -60,8 +53,8 @@ def merge_bin(source, target, env):
     print(f'Firmware (merged) copied to: {firmware_path_merged}')
     return result
 
-# Immer OTA.gz erstellen
-env.AddPostAction(APP_BIN, copy_bin_and_gz)
+# Immer OTA-Datei erzeugen (unkomprimiert, mit Endung .bin.ota)
+env.AddPostAction(APP_BIN, copy_bin_as_ota)
 
 # Optional merged .bin erzeugen
 if ENABLE_MERGE_BIN:
