@@ -16,6 +16,7 @@ WebServer webServer(80);
 
 #include "../www/setuppage.h"
 #include "../www/updatepage.h"
+#include "../www/icon.h"
 
 bool isAuthorized() {
   return true; //webServer.authenticate("BLLC", printerConfig.webpagePassword);
@@ -37,6 +38,15 @@ void handleUpdatePage(){
     }
     webServer.sendHeader(F("Content-Encoding"), F("gzip"));
     webServer.send_P(200, "text/html", (const char*)updatePage_html_gz, (int)updatePage_html_gz_len);
+}
+
+void handleGetIcon(){
+    if (!isAuthorized()){
+        webServer.requestAuthentication();
+        return;
+    }
+    webServer.sendHeader(F("Content-Encoding"), F("gzip")); //not needed, png allready compressed
+    webServer.send_P(200, "image/png", (const char*)BBLED_icon_gz);
 }
 
 template <typename T>
@@ -265,6 +275,7 @@ void setupWebserver(){
     webServer.on("/fwupdate", handleUpdatePage);
     webServer.on("/submitConfig",HTTP_POST,submitConfig);
     webServer.on("/getConfig", handleGetConfig);
+    webServer.on("/blled.png", HTTP_GET, handleGetIcon);
 
     webServer.on("/update", HTTP_POST, []() {
         webServer.sendHeader("Connection", "close");
