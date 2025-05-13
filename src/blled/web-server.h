@@ -2,209 +2,118 @@
 #define _BLLEDWEB_SERVER
 
 #include <Arduino.h>
-#include <ArduinoJson.h> 
+#include <ArduinoJson.h>
 #include <WiFi.h>
-#include <WiFiClient.h>
-#include <WebServer.h>
 #include <ESPmDNS.h>
 #include <Update.h>
+#include <ESPAsyncWebServer.h>
 #include "leds.h"
 #include "filesystem.h"
 
-
-WebServer webServer(80);
+AsyncWebServer webServer(80);
 
 #include "../www/www.h"
 #include "../www/blled_svg.h"
 #include "../www/favicon.h"
 #include "../www/awesomeFont.h"
 
-bool isAuthorized() {
-  return true; //webServer.authenticate("BLLC", printerConfig.webpagePassword);
+bool isAuthorized(AsyncWebServerRequest *request)
+{
+    return true;
 }
 
-void handleSetup(){
-    if (!isAuthorized()){
-        webServer.requestAuthentication();
-        return;
+void handleSetup(AsyncWebServerRequest *request)
+{
+    if (!isAuthorized(request))
+    {
+        return request->requestAuthentication();
     }
-    webServer.sendHeader(F("Content-Encoding"), F("gzip"));
-    webServer.send_P(200, "text/html", (const char*)setupPage_html_gz, (int)setupPage_html_gz_len);
+    AsyncWebServerResponse *response = request->beginResponse(200, "text/html", setupPage_html_gz, setupPage_html_gz_len);
+    response->addHeader("Content-Encoding", "gzip");
+    request->send(response);
 }
 
-void handleUpdatePage(){
-    if (!isAuthorized()){
-        webServer.requestAuthentication();
-        return;
+void handleUpdatePage(AsyncWebServerRequest *request)
+{
+    if (!isAuthorized(request))
+    {
+        return request->requestAuthentication();
     }
-    webServer.sendHeader(F("Content-Encoding"), F("gzip"));
-    webServer.send_P(200, "text/html", (const char*)updatePage_html_gz, (int)updatePage_html_gz_len);
+    AsyncWebServerResponse *response = request->beginResponse(200, "text/html", updatePage_html_gz, updatePage_html_gz_len);
+    response->addHeader("Content-Encoding", "gzip");
+    request->send(response);
 }
 
-void handleGetIcon(){
-    if (!isAuthorized()){
-        webServer.requestAuthentication();
-        return;
+void handleGetIcon(AsyncWebServerRequest *request)
+{
+    if (!isAuthorized(request))
+    {
+        return request->requestAuthentication();
     }
-    webServer.send_P(200, "image/svg+xml", (const char*)BBLED_svg, (int)BBLED_svg_len);
+    request->send(200, "image/svg+xml", BBLED_svg, BBLED_svg_len);
 }
 
-void handleGetfavicon(){
-    if (!isAuthorized()){
-        webServer.requestAuthentication();
-        return;
+void handleGetfavicon(AsyncWebServerRequest *request)
+{
+    if (!isAuthorized(request))
+    {
+        return request->requestAuthentication();
     }
-    webServer.send_P(200, "image/x-icon", (const char*)BBLED_favicon, (int)BBLED_favicon_len);
-    //webServer.send(200, "text/html", String(sizeof(BBLED_favicon)/sizeof(BBLED_favicon[0])));
+    request->send(200, "image/x-icon", BBLED_favicon, BBLED_favicon_len);
 }
 
-void handleGetCSS(){
-    if (!isAuthorized()){
-        webServer.requestAuthentication();
-        return;
+void handleGetCSS(AsyncWebServerRequest *request)
+{
+    if (!isAuthorized(request))
+    {
+        return request->requestAuthentication();
     }
-    webServer.send_P(200, "text/html", (const char*)awsomeFont_css, (int)awsomeFont_css_len);
+    request->send(200, "text/css", (const uint8_t*)awsomeFont_css, awsomeFont_css_len);
 }
 
-template <typename T>
-String toJson(T val) {
-    return String(val);
-}
-
-template <>
-String toJson<bool>(bool val) {
-    return val ? "true" : "false";
-}
-
-void submitConfig(){
-    bool newBSSID = false;
-    if (webServer.args() > 0) {
-        if( strcmp(printerConfig.BSSID,webServer.arg("apMAC").c_str()) != 0 ){
-            newBSSID = true;
-        }
-        strcpy(printerConfig.printerIP,webServer.arg("ip").c_str());
-        strcpy(printerConfig.accessCode,webServer.arg("code").c_str());
-        //Force Uppercase
-        char temperserial[20];
-        strcpy(temperserial,webServer.arg("id").c_str());
-        for (int x=0; x<strlen(temperserial); x++)
-            temperserial[x] = toupper(temperserial[x]);
-        strcpy(printerConfig.serialNumber,temperserial);
-
-        strcpy(printerConfig.BSSID,webServer.arg("apMAC").c_str());
-        printerConfig.brightness = webServer.arg("brightnessslider").toInt();
-        printerConfig.rescanWiFiNetwork = (webServer.arg("rescanWiFiNetwork") == "on");
-        // LED Behaviour (Choose One)
-        printerConfig.maintMode = (webServer.arg("maintMode") == "on");
-        printerConfig.discoMode = (webServer.arg("discoMode") == "on");
-        printerConfig.replicatestate = (webServer.arg("replicateLedState") == "on");
-        // Running Color
-        printerConfig.runningColor = hex2rgb(webServer.arg("runningRGB").c_str(),webServer.arg("runningWW").toInt(),webServer.arg("runningCW").toInt());
-        // Test - Fixed LED Colors
-        printerConfig.testcolorEnabled = (webServer.arg("showtestcolor") == "on");
-        printerConfig.testColor = hex2rgb(webServer.arg("testRGB").c_str(),webServer.arg("testWW").toInt(),webServer.arg("testCW").toInt());
-        printerConfig.debugwifi = webServer.arg("debugwifi") == "on";
-        // Options
-        printerConfig.finishindication = (webServer.arg("finishIndication") == "on");
-        printerConfig.finishColor = hex2rgb(webServer.arg("finishColor").c_str(),webServer.arg("finishWW").toInt(),webServer.arg("finishCW").toInt());
-        if(webServer.arg("finishEndTimer") == "on"){
-            printerConfig.finishExit = false;
-        } else {
-            printerConfig.finishExit = true;
-        }
-        printerConfig.finishTimeOut = (webServer.arg("finishTimerMins").toInt() * 60000);
-        printerConfig.inactivityEnabled = (webServer.arg("inactivityEnabled") == "on");
-        printerConfig.inactivityTimeOut = (webServer.arg("inactivityMins").toInt() * 60000);
-        // Debugging
-        printerConfig.debuging = (webServer.arg("debuging") == "on");
-        printerConfig.debugingchange = (webServer.arg("debugingchange") == "on");
-        printerConfig.mqttdebug = (webServer.arg("mqttdebug") == "on");
-        // Printer Dependant
-        printerVariables.isP1Printer = (webServer.arg("p1Printer") == "on");
-        printerVariables.useDoorSwtich = (webServer.arg("doorSwitch") == "on");
-        // Customise LED Colors (during Lidar)
-        printerConfig.stage14Color = hex2rgb(webServer.arg("stage14RGB").c_str(),webServer.arg("stage14WW").toInt(),webServer.arg("stage14CW").toInt());
-        printerConfig.stage1Color = hex2rgb(webServer.arg("stage1RGB").c_str(),webServer.arg("stage1WW").toInt(),webServer.arg("stage1CW").toInt());
-        printerConfig.stage8Color = hex2rgb(webServer.arg("stage8RGB").c_str(),webServer.arg("stage8WW").toInt(),webServer.arg("stage8CW").toInt());
-        printerConfig.stage9Color = hex2rgb(webServer.arg("stage9RGB").c_str(),webServer.arg("stage9WW").toInt(),webServer.arg("stage9CW").toInt());
-        printerConfig.stage10Color = hex2rgb(webServer.arg("stage10RGB").c_str(),webServer.arg("stage10WW").toInt(),webServer.arg("stage10CW").toInt());
-        // Customise LED Colors
-        printerConfig.errordetection = (webServer.arg("errorDetection") == "on");
-        printerConfig.wifiRGB = hex2rgb(webServer.arg("wifiRGB").c_str(),webServer.arg("wifiWW").toInt(),webServer.arg("wifiCW").toInt());
-
-        printerConfig.pauseRGB = hex2rgb(webServer.arg("pauseRGB").c_str(),webServer.arg("pauseWW").toInt(),webServer.arg("pauseCW").toInt());
-        printerConfig.firstlayerRGB = hex2rgb(webServer.arg("firstlayerRGB").c_str(),webServer.arg("firstlayerWW").toInt(),webServer.arg("firstlayerCW").toInt());
-        printerConfig.nozzleclogRGB = hex2rgb(webServer.arg("nozzleclogRGB").c_str(),webServer.arg("nozzleclogWW").toInt(),webServer.arg("nozzleclogCW").toInt());
-        printerConfig.hmsSeriousRGB = hex2rgb(webServer.arg("hmsSeriousRGB").c_str(),webServer.arg("hmsSeriousWW").toInt(),webServer.arg("hmsSeriousCW").toInt());
-        printerConfig.hmsFatalRGB = hex2rgb(webServer.arg("hmsFatalRGB").c_str(),webServer.arg("hmsFatalWW").toInt(),webServer.arg("hmsFatalCW").toInt());
-        printerConfig.filamentRunoutRGB = hex2rgb(webServer.arg("filamentRunoutRGB").c_str(),webServer.arg("filamentRunoutWW").toInt(),webServer.arg("filamentRunoutCW").toInt());
-        printerConfig.frontCoverRGB = hex2rgb(webServer.arg("frontCoverRGB").c_str(),webServer.arg("frontCoverWW").toInt(),webServer.arg("frontCoverCW").toInt());
-        printerConfig.nozzleTempRGB = hex2rgb(webServer.arg("nozzleTempRGB").c_str(),webServer.arg("nozzleTempWW").toInt(),webServer.arg("nozzleTempCW").toInt());
-        printerConfig.bedTempRGB = hex2rgb(webServer.arg("bedTempRGB").c_str(),webServer.arg("bedTempWW").toInt(),webServer.arg("bedTempCW").toInt());
-
-        saveFileSystem();
-        Serial.println(F("Packet received from setuppage"));
-        printerConfig.inactivityStartms = millis();  //restart idle timer
-        printerConfig.isIdleOFFActive = false;
-        printerConfig.replicate_update=true;
-        printerConfig.maintMode_update=true;
-        printerConfig.discoMode_update=true;
-        printerConfig.testcolor_update=true;
-        updateleds();
-        handleSetup();
-        if(newBSSID)
+char *obfuscate(const char *charstring)
+{
+    int length = strlen(charstring);
+    char *blurredstring = new char[length + 1];
+    strcpy(blurredstring, charstring);
+    if (length > 3)
+    {
+        for (int i = 0; i < length - 3; i++)
         {
-            Serial.println(F("New MAC address (BSSID) assigned. Restarting..."));
-            delay(1000);
-            ESP.restart();
+            blurredstring[i] = '*';
         }
     }
+    blurredstring[length] = '\0';
+    return blurredstring;
 }
 
-char* obfuscate(const char* charstring) {
-    int length = strlen(charstring); 
-    char* blurredstring = new char[length + 1]; 
-    strcpy(blurredstring, charstring); 
-    if (length > 3) {
-        for (int i = 0; i < length - 3; i++) {
-            blurredstring[i] = '*'; 
-        }
-    }
-    blurredstring[length] = '\0'; 
-    return blurredstring; 
-}
-
-void handleGetConfig(){
-    if (!isAuthorized()){
-        webServer.requestAuthentication();
-        return;
+void handleGetConfig(AsyncWebServerRequest *request)
+{
+    if (!isAuthorized(request))
+    {
+        return request->requestAuthentication();
     }
 
     JsonDocument doc;
-    const char* firmwareVersionChar = globalVariables.FWVersion.c_str();
-    doc["firmwareversion"] = firmwareVersionChar;
+
+    doc["firmwareversion"] = globalVariables.FWVersion.c_str();
     doc["wifiStrength"] = WiFi.RSSI();
     doc["ip"] = printerConfig.printerIP;
     doc["code"] = obfuscate(printerConfig.accessCode);
     doc["id"] = obfuscate(printerConfig.serialNumber);
-
     doc["apMAC"] = printerConfig.BSSID;
     doc["brightness"] = printerConfig.brightness;
-    // LED Behaviour (Choose One)
     doc["maintMode"] = printerConfig.maintMode;
     doc["discoMode"] = printerConfig.discoMode;
     doc["replicateled"] = printerConfig.replicatestate;
-    // Running Color
     doc["runningRGB"] = printerConfig.runningColor.RGBhex;
     doc["runningWW"] = printerConfig.runningColor.ww;
     doc["runningCW"] = printerConfig.runningColor.cw;
-    // LED Test Colors
     doc["showtestcolor"] = printerConfig.testcolorEnabled;
     doc["testRGB"] = printerConfig.testColor.RGBhex;
     doc["testWW"] = printerConfig.testColor.ww;
     doc["testCW"] = printerConfig.testColor.cw;
     doc["debugwifi"] = printerConfig.debugwifi;
-    // Options
     doc["finishindication"] = printerConfig.finishindication;
     doc["finishColor"] = printerConfig.finishColor.RGBhex;
     doc["finishWW"] = printerConfig.finishColor.ww;
@@ -212,15 +121,12 @@ void handleGetConfig(){
     doc["finishExit"] = printerConfig.finishExit;
     doc["finishTimerMins"] = (int)(printerConfig.finishTimeOut / 60000);
     doc["inactivityEnabled"] = printerConfig.inactivityEnabled;
-    doc["inactivityMins"] =(int)( printerConfig.inactivityTimeOut / 60000);
-    // Debugging
+    doc["inactivityMins"] = (int)(printerConfig.inactivityTimeOut / 60000);
     doc["debuging"] = printerConfig.debuging;
     doc["debugingchange"] = printerConfig.debugingchange;
     doc["mqttdebug"] = printerConfig.mqttdebug;
-    // Printer Dependant
     doc["p1Printer"] = printerVariables.isP1Printer;
-    doc["doorSwitch"] =  printerVariables.useDoorSwtich;
-    // Customise LED Colors (during Lidar)
+    doc["doorSwitch"] = printerVariables.useDoorSwtich;
     doc["stage14RGB"] = printerConfig.stage14Color.RGBhex;
     doc["stage14WW"] = printerConfig.stage14Color.ww;
     doc["stage14CW"] = printerConfig.stage14Color.cw;
@@ -236,7 +142,6 @@ void handleGetConfig(){
     doc["stage10RGB"] = printerConfig.stage10Color.RGBhex;
     doc["stage10WW"] = printerConfig.stage10Color.ww;
     doc["stage10CW"] = printerConfig.stage10Color.cw;
-    // Customise LED Colors
     doc["errordetection"] = printerConfig.errordetection;
     doc["wifiRGB"] = printerConfig.wifiRGB.RGBhex;
     doc["wifiWW"] = printerConfig.wifiRGB.ww;
@@ -271,67 +176,177 @@ void handleGetConfig(){
 
     String jsonString;
     serializeJson(doc, jsonString);
-    webServer.send(200, "application/json", jsonString);
-
-    Serial.println(F("Packet sent to setuppage"));
-    //serializeJson(doc, Serial);
-    //Serial.println();
+    request->send(200, "application/json", jsonString);
 }
 
-void setupWebserver(){
-    if (!MDNS.begin(globalVariables.Host.c_str())) {
-        Serial.println(F("Error setting up MDNS responder!"));
-        while (1) {
-        delay(1000);
+void handleSubmitConfig(AsyncWebServerRequest *request)
+{
+    if (!isAuthorized(request))
+    {
+        return request->requestAuthentication();
+    }
+
+    bool newBSSID = false;
+    if (request->hasParam("apMAC", true))
+    {
+        if (strcmp(printerConfig.BSSID, request->getParam("apMAC", true)->value().c_str()) != 0)
+        {
+            newBSSID = true;
         }
+        strcpy(printerConfig.printerIP, request->getParam("ip", true)->value().c_str());
+        strcpy(printerConfig.accessCode, request->getParam("code", true)->value().c_str());
+
+        char temperserial[20];
+        strcpy(temperserial, request->getParam("id", true)->value().c_str());
+        for (int x = 0; x < strlen(temperserial); x++)
+            temperserial[x] = toupper(temperserial[x]);
+        strcpy(printerConfig.serialNumber, temperserial);
+
+        strcpy(printerConfig.BSSID, request->getParam("apMAC", true)->value().c_str());
+        printerConfig.brightness = request->getParam("brightnessslider", true)->value().toInt();
+        printerConfig.rescanWiFiNetwork = (request->hasParam("rescanWiFiNetwork", true));
+        printerConfig.maintMode = (request->hasParam("maintMode", true));
+        printerConfig.discoMode = (request->hasParam("discoMode", true));
+        printerConfig.replicatestate = (request->hasParam("replicateLedState", true));
+        printerConfig.runningColor = hex2rgb(request->getParam("runningRGB", true)->value().c_str(),
+                                             request->getParam("runningWW", true)->value().toInt(),
+                                             request->getParam("runningCW", true)->value().toInt());
+        printerConfig.testcolorEnabled = (request->hasParam("showtestcolor", true));
+        printerConfig.testColor = hex2rgb(request->getParam("testRGB", true)->value().c_str(),
+                                          request->getParam("testWW", true)->value().toInt(),
+                                          request->getParam("testCW", true)->value().toInt());
+        printerConfig.debugwifi = (request->hasParam("debugwifi", true));
+        printerConfig.finishindication = (request->hasParam("finishIndication", true));
+        printerConfig.finishColor = hex2rgb(request->getParam("finishColor", true)->value().c_str(),
+                                            request->getParam("finishWW", true)->value().toInt(),
+                                            request->getParam("finishCW", true)->value().toInt());
+        printerConfig.finishExit = !(request->hasParam("finishEndTimer", true));
+        printerConfig.finishTimeOut = request->getParam("finishTimerMins", true)->value().toInt() * 60000;
+        printerConfig.inactivityEnabled = (request->hasParam("inactivityEnabled", true));
+        printerConfig.inactivityTimeOut = request->getParam("inactivityMins", true)->value().toInt() * 60000;
+        printerConfig.debuging = (request->hasParam("debuging", true));
+        printerConfig.debugingchange = (request->hasParam("debugingchange", true));
+        printerConfig.mqttdebug = (request->hasParam("mqttdebug", true));
+        printerVariables.isP1Printer = (request->hasParam("p1Printer", true));
+        printerVariables.useDoorSwtich = (request->hasParam("doorSwitch", true));
+
+        printerConfig.stage14Color = hex2rgb(request->getParam("stage14RGB", true)->value().c_str(),
+                                             request->getParam("stage14WW", true)->value().toInt(),
+                                             request->getParam("stage14CW", true)->value().toInt());
+        printerConfig.stage1Color = hex2rgb(request->getParam("stage1RGB", true)->value().c_str(),
+                                            request->getParam("stage1WW", true)->value().toInt(),
+                                            request->getParam("stage1CW", true)->value().toInt());
+        printerConfig.stage8Color = hex2rgb(request->getParam("stage8RGB", true)->value().c_str(),
+                                            request->getParam("stage8WW", true)->value().toInt(),
+                                            request->getParam("stage8CW", true)->value().toInt());
+        printerConfig.stage9Color = hex2rgb(request->getParam("stage9RGB", true)->value().c_str(),
+                                            request->getParam("stage9WW", true)->value().toInt(),
+                                            request->getParam("stage9CW", true)->value().toInt());
+        printerConfig.stage10Color = hex2rgb(request->getParam("stage10RGB", true)->value().c_str(),
+                                             request->getParam("stage10WW", true)->value().toInt(),
+                                             request->getParam("stage10CW", true)->value().toInt());
+        printerConfig.errordetection = (request->hasParam("errorDetection", true));
+        printerConfig.wifiRGB = hex2rgb(request->getParam("wifiRGB", true)->value().c_str(),
+                                        request->getParam("wifiWW", true)->value().toInt(),
+                                        request->getParam("wifiCW", true)->value().toInt());
+        printerConfig.pauseRGB = hex2rgb(request->getParam("pauseRGB", true)->value().c_str(),
+                                         request->getParam("pauseWW", true)->value().toInt(),
+                                         request->getParam("pauseCW", true)->value().toInt());
+        printerConfig.firstlayerRGB = hex2rgb(request->getParam("firstlayerRGB", true)->value().c_str(),
+                                              request->getParam("firstlayerWW", true)->value().toInt(),
+                                              request->getParam("firstlayerCW", true)->value().toInt());
+        printerConfig.nozzleclogRGB = hex2rgb(request->getParam("nozzleclogRGB", true)->value().c_str(),
+                                              request->getParam("nozzleclogWW", true)->value().toInt(),
+                                              request->getParam("nozzleclogCW", true)->value().toInt());
+        printerConfig.hmsSeriousRGB = hex2rgb(request->getParam("hmsSeriousRGB", true)->value().c_str(),
+                                              request->getParam("hmsSeriousWW", true)->value().toInt(),
+                                              request->getParam("hmsSeriousCW", true)->value().toInt());
+        printerConfig.hmsFatalRGB = hex2rgb(request->getParam("hmsFatalRGB", true)->value().c_str(),
+                                            request->getParam("hmsFatalWW", true)->value().toInt(),
+                                            request->getParam("hmsFatalCW", true)->value().toInt());
+        printerConfig.filamentRunoutRGB = hex2rgb(request->getParam("filamentRunoutRGB", true)->value().c_str(),
+                                                  request->getParam("filamentRunoutWW", true)->value().toInt(),
+                                                  request->getParam("filamentRunoutCW", true)->value().toInt());
+        printerConfig.frontCoverRGB = hex2rgb(request->getParam("frontCoverRGB", true)->value().c_str(),
+                                              request->getParam("frontCoverWW", true)->value().toInt(),
+                                              request->getParam("frontCoverCW", true)->value().toInt());
+        printerConfig.nozzleTempRGB = hex2rgb(request->getParam("nozzleTempRGB", true)->value().c_str(),
+                                              request->getParam("nozzleTempWW", true)->value().toInt(),
+                                              request->getParam("nozzleTempCW", true)->value().toInt());
+        printerConfig.bedTempRGB = hex2rgb(request->getParam("bedTempRGB", true)->value().c_str(),
+                                           request->getParam("bedTempWW", true)->value().toInt(),
+                                           request->getParam("bedTempCW", true)->value().toInt());
+
+        saveFileSystem();
+        Serial.println(F("Packet received from setuppage"));
+        printerConfig.inactivityStartms = millis();
+        printerConfig.isIdleOFFActive = false;
+        printerConfig.replicate_update = true;
+        printerConfig.maintMode_update = true;
+        printerConfig.discoMode_update = true;
+        printerConfig.testcolor_update = true;
+        updateleds();
+        request->redirect("/");
+
+        if (newBSSID)
+        {
+            Serial.println(F("New MAC address (BSSID) assigned. Restarting..."));
+            delay(1000);
+            ESP.restart();
+        }
+    }
+    else
+    {
+        request->send(400, "text/plain", "Invalid parameters");
+    }
+}
+
+void setupWebserver()
+{
+    if (!MDNS.begin(globalVariables.Host.c_str()))
+    {
+        Serial.println(F("Error setting up MDNS responder!"));
+        while (1)
+            delay(1000);
     }
 
     Serial.println(F("Setting up webserver"));
-    
-    webServer.on("/", handleSetup);
-    webServer.on("/fwupdate", handleUpdatePage);
-    webServer.on("/submitConfig",HTTP_POST,submitConfig);
-    webServer.on("/getConfig", handleGetConfig);
+
+    webServer.on("/", HTTP_GET, handleSetup);
+    webServer.on("/fwupdate", HTTP_GET, handleUpdatePage);
+    webServer.on("/getConfig", HTTP_GET, handleGetConfig);
     webServer.on("/blled.png", HTTP_GET, handleGetIcon);
     webServer.on("/favicon.ico", HTTP_GET, handleGetfavicon);
     webServer.on("/awesomeFont.css", HTTP_GET, handleGetCSS);
 
-    webServer.on("/update", HTTP_POST, []() {
-        webServer.sendHeader("Connection", "close");
-        webServer.send(200, "text/plain", (Update.hasError()) ? "FAIL" : "OK");
+    webServer.on("/update", HTTP_POST, [](AsyncWebServerRequest *request)
+                 {
+        request->send(200, "text/plain", "OK");
         Serial.println(F("Restarting Device"));
         delay(1000);
-        ESP.restart();
-    }, []() {
-        HTTPUpload& upload = webServer.upload();
-        if (upload.status == UPLOAD_FILE_START) {
-            Serial.printf("Update: %s\n", upload.filename.c_str());
+        ESP.restart(); });
+
+    webServer.onFileUpload([](AsyncWebServerRequest *request, const String &filename, size_t index, uint8_t *data, size_t len, bool final)
+                           {
+        if (!index) {
+            Serial.printf("Update: %s\n", filename.c_str());
             if (!Update.begin(UPDATE_SIZE_UNKNOWN)) {
                 Update.printError(Serial);
             }
-        } else if (upload.status == UPLOAD_FILE_WRITE) {
-        
-            if (Update.write(upload.buf, upload.currentSize) != upload.currentSize) {
-                Update.printError(Serial);
-            }
-        } else if (upload.status == UPLOAD_FILE_END) {
+        }
+        if (Update.write(data, len) != len) {
+            Update.printError(Serial);
+        }
+        if (final) {
             if (Update.end(true)) {
-                Serial.printf("Update Success: %u\nRebooting...\n", upload.totalSize);
+                Serial.printf("Update Success: %u\nRebooting...\n", index + len);
             } else {
                 Update.printError(Serial);
             }
-        }
-    });
+        } });
 
     webServer.begin();
-
     Serial.println(F("Webserver started"));
-    Serial.println();
-}
-
-void webserverloop(){
-    webServer.handleClient();
-    delay(10);
 }
 
 #endif

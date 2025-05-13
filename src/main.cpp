@@ -96,7 +96,7 @@ void loop(){
     serialLoop();
     if (globalVariables.started){
         mqttloop();
-        webserverloop();
+        //webserverloop();
         ledsloop();
         
         if (WiFi.status() != WL_CONNECTED){
