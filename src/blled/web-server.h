@@ -318,10 +318,12 @@ void websocketLoop() {
     if (millis() - lastWsPush > wsPushInterval) {
         lastWsPush = millis();
 
-        StaticJsonDocument<512> doc;
+        JsonDocument doc;
         doc["wifi_rssi"] = WiFi.RSSI();
         doc["ip"] = WiFi.localIP().toString();
         doc["uptime"] = millis() / 1000;
+        doc["doorOpen"] = printerVariables.doorOpen;
+        doc["printerConnection"] = mqttClient.state();
         doc["clients"] = ws.count();
 
         sendJsonToAll(doc);
