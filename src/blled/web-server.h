@@ -11,15 +11,18 @@
 #include "filesystem.h"
 
 AsyncWebServer webServer(80);
+AsyncWebSocket ws("/ws");
 
 #include "../www/www.h"
 #include "../www/blled_svg.h"
 #include "../www/favicon.h"
 #include "../www/awesomeFont.h"
 
-bool isAuthorized(AsyncWebServerRequest *request)
-{
-    return true;
+bool isAuthorized(AsyncWebServerRequest *request) {
+    if (strlen(securityVariables.HTTPUser) == 0 || strlen(securityVariables.HTTPPass) == 0) {
+        return true;
+    }
+    return request->authenticate(securityVariables.HTTPUser, securityVariables.HTTPPass);
 }
 
 void handleSetup(AsyncWebServerRequest *request)
@@ -301,13 +304,42 @@ void handleSubmitConfig(AsyncWebServerRequest *request)
     }
 }
 
+
+void sendJsonToAll(JsonDocument& doc) {
+    String jsonString;
+    serializeJson(doc, jsonString);
+    ws.textAll(jsonString);
+}
+
+
+void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type,
+               void *arg, uint8_t *data, size_t len) {
+    switch (type) {
+        case WS_EVT_CONNECT:
+            Serial.printf("[WS] Client connected: %u\n", client->id());
+            break;
+        case WS_EVT_DISCONNECT:
+            Serial.printf("[WS] Client disconnected: %u\n", client->id());
+            break;
+        case WS_EVT_DATA:
+            Serial.printf("[WS] Data received from client %u\n", client->id());
+            break;
+        case WS_EVT_PONG:
+            Serial.printf("[WS] Pong received from %u\n", client->id());
+            break;
+        case WS_EVT_ERROR:
+            Serial.printf("[WS] Error on connection %u\n", client->id());
+            break;
+    }
+}
+
 void setupWebserver()
 {
     if (!MDNS.begin(globalVariables.Host.c_str()))
     {
         Serial.println(F("Error setting up MDNS responder!"));
         while (1)
-            delay(1000);
+            delay(500);
     }
 
     Serial.println(F("Setting up webserver"));
@@ -345,7 +377,11 @@ void setupWebserver()
             }
         } });
 
+
+    ws.onEvent(onWsEvent);
+    webServer.addHandler(&ws);
     webServer.begin();
+
     Serial.println(F("Webserver started"));
 }
 

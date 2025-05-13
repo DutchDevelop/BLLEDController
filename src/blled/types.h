@@ -43,6 +43,13 @@ extern "C"
         unsigned long lastdoorOpenms = 0;       // Last time door was closed
     } PrinterVariables;
 
+    typedef struct SecurityVariables{
+                // Security
+        char HTTPUser[40] = "";             //http basic auth username
+        char HTTPPass[40] = "";              //http basic auth password
+    }SecurityVariables;
+    SecurityVariables securityVariables;
+
     PrinterVariables printerVariables;
 
     typedef struct GlobalVariablesStruct{
@@ -83,6 +90,7 @@ extern "C"
         bool finish_check = false;    //When updateleds() is run, should the TEST LEDS be set?
         unsigned long finishStartms = 0;    // Time the finish countdown is measured from
         int finishTimeOut = 600000;     //300000 = 5 mins
+
         //Inactivity Timout
         bool inactivityEnabled = true;
         bool isIdleOFFActive = false;       // Are the lights out due to inactivity Timeout?
