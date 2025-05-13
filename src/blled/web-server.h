@@ -311,6 +311,24 @@ void sendJsonToAll(JsonDocument& doc) {
     ws.textAll(jsonString);
 }
 
+unsigned long lastWsPush = 0;
+const unsigned long wsPushInterval = 1000; // alle 5000ms
+void websocketLoop() {
+    
+    if (millis() - lastWsPush > wsPushInterval) {
+        lastWsPush = millis();
+
+        StaticJsonDocument<512> doc;
+        doc["wifi_rssi"] = WiFi.RSSI();
+        doc["ip"] = WiFi.localIP().toString();
+        doc["uptime"] = millis() / 1000;
+        doc["clients"] = ws.count();
+
+        sendJsonToAll(doc);
+
+        Serial.println(F("[WS] JSON Status Push gesendet."));
+    }
+}
 
 void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type,
                void *arg, uint8_t *data, size_t len) {
@@ -320,6 +338,7 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventTyp
             break;
         case WS_EVT_DISCONNECT:
             Serial.printf("[WS] Client disconnected: %u\n", client->id());
+            ws.cleanupClients();
             break;
         case WS_EVT_DATA:
             Serial.printf("[WS] Data received from client %u\n", client->id());
@@ -329,6 +348,7 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventTyp
             break;
         case WS_EVT_ERROR:
             Serial.printf("[WS] Error on connection %u\n", client->id());
+            ws.cleanupClients();
             break;
     }
 }
