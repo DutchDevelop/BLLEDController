@@ -323,7 +323,7 @@ void websocketLoop() {
         doc["ip"] = WiFi.localIP().toString();
         doc["uptime"] = millis() / 1000;
         doc["doorOpen"] = printerVariables.doorOpen;
-        doc["printerConnection"] = mqttClient.state();
+        doc["printerConnection"] = printerVariables.online;
         doc["clients"] = ws.count();
 
         sendJsonToAll(doc);
@@ -369,6 +369,7 @@ void setupWebserver()
     webServer.on("/", HTTP_GET, handleSetup);
     webServer.on("/fwupdate", HTTP_GET, handleUpdatePage);
     webServer.on("/getConfig", HTTP_GET, handleGetConfig);
+    webServer.on("/submitConfig",HTTP_POST,handleSubmitConfig);
     webServer.on("/blled.png", HTTP_GET, handleGetIcon);
     webServer.on("/favicon.ico", HTTP_GET, handleGetfavicon);
     webServer.on("/awesomeFont.css", HTTP_GET, handleGetCSS);
