@@ -145,6 +145,7 @@ void ParseCallback(char *topic, byte *payload, unsigned int length){
         if (messageobject["print"]["home_flag"].is<signed long>()){
             //https://github.com/greghesp/ha-bambulab/blob/main/custom_components/bambu_lab/pybambu/const.py#L324
 
+
             bool doorState = false;
             long homeFlag = 0;
             homeFlag = messageobject["print"]["home_flag"];
