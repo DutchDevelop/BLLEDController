@@ -16,7 +16,7 @@ AsyncWebSocket ws("/ws");
 #include "../www/www.h"
 #include "../www/blled_svg.h"
 #include "../www/favicon.h"
-#include "../www/awesomeFont.h"
+//#include "../www/awesomeFont.h"
 
 bool isAuthorized(AsyncWebServerRequest *request) {
     if (strlen(securityVariables.HTTPUser) == 0 || strlen(securityVariables.HTTPPass) == 0) {
@@ -65,14 +65,14 @@ void handleGetfavicon(AsyncWebServerRequest *request)
     request->send(200, "image/x-icon", BBLED_favicon, BBLED_favicon_len);
 }
 
-void handleGetCSS(AsyncWebServerRequest *request)
+/* void handleGetCSS(AsyncWebServerRequest *request)
 {
     if (!isAuthorized(request))
     {
         return request->requestAuthentication();
     }
     request->send(200, "text/css", (const uint8_t*)awsomeFont_css, awsomeFont_css_len);
-}
+} */
 
 void handleGetPCC(AsyncWebServerRequest *request)
 {
@@ -383,7 +383,7 @@ void setupWebserver()
     webServer.on("/submitConfig",HTTP_POST,handleSubmitConfig);
     webServer.on("/blled.png", HTTP_GET, handleGetIcon);
     webServer.on("/favicon.ico", HTTP_GET, handleGetfavicon);
-    webServer.on("/awesomeFont.css", HTTP_GET, handleGetCSS);
+   // webServer.on("/awesomeFont.css", HTTP_GET, handleGetCSS);
     webServer.on("/particleCanvas.js", HTTP_GET, handleGetPCC);
 
     webServer.on("/update", HTTP_POST, [](AsyncWebServerRequest *request)
