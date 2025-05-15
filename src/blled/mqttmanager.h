@@ -145,11 +145,8 @@ void ParseCallback(char *topic, byte *payload, unsigned int length){
         if (messageobject["print"].containsKey("home_flag")){
             //https://github.com/greghesp/ha-bambulab/blob/main/custom_components/bambu_lab/pybambu/const.py#L324
 
-            bool doorState = false;
-            long homeFlag = 0;
-            homeFlag = messageobject["print"]["home_flag"];
-            doorState = homeFlag >> 23; //shift left 23 to the Door bit
-            doorState = doorState & 1;  // remove any bits above Door bit
+            long homeFlag = messageobject["print"]["home_flag"];
+            bool doorState = (((homeFlag >> 23) & 1) == 1);
 
             if (printerVariables.doorOpen != doorState){
                 printerVariables.doorOpen = doorState;
