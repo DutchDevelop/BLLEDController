@@ -74,6 +74,17 @@ void handleGetCSS(AsyncWebServerRequest *request)
     request->send(200, "text/css", (const uint8_t*)awsomeFont_css, awsomeFont_css_len);
 }
 
+void handleGetPCC(AsyncWebServerRequest *request)
+{
+    if (!isAuthorized(request))
+    {
+        return request->requestAuthentication();
+    }
+    AsyncWebServerResponse *response = request->beginResponse(200, "text/css", (const uint8_t*)particleCanvas_html_gz, particleCanvas_html_gz_len);
+    response->addHeader("Content-Encoding", "gzip");
+    request->send(response);
+}
+
 char *obfuscate(const char *charstring)
 {
     int length = strlen(charstring);
@@ -373,6 +384,7 @@ void setupWebserver()
     webServer.on("/blled.png", HTTP_GET, handleGetIcon);
     webServer.on("/favicon.ico", HTTP_GET, handleGetfavicon);
     webServer.on("/awesomeFont.css", HTTP_GET, handleGetCSS);
+    webServer.on("/particleCanvas.js", HTTP_GET, handleGetPCC);
 
     webServer.on("/update", HTTP_POST, [](AsyncWebServerRequest *request)
                  {

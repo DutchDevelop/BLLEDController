@@ -5,7 +5,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>BLLED Setup</title>
-    <link rel='stylesheet' href='/awesomeFont.css'/>
+    <!-- <link rel='stylesheet' href='/awesomeFont.css'/> -->
+    <!-- <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css' crossorigin='anonymous' referrerpolicy='no-referrer' /> -->
     <style>
         :root {
             --color-black: black;
@@ -176,8 +177,8 @@
         <div class='logo-container'>
              <img class='logo' src='/blled.png' alt='Logo'>
             <span class='logo-text'>BLLED Controller</span>
-            <svg class="wifi-symbol" viewBox="0 15 64 64" xmlns="http://www.w3.org/2000/svg" width="32" height="32"><title id="wifiTitle">WiFi-Signal</title><path id="level5" d="M8 32 A33 32 0 0 1 56 32" stroke="black" stroke-width="4" fill="none" /><path id="level4" d="M14 38 A26 26 0 0 1 50 38" stroke="black" stroke-width="4" fill="none" /><path id="level3" d="M20 44 A18 20 0 0 1 44 44" stroke="black" stroke-width="4" fill="none" /><path id="level2" d="M26 50 A10 14 0 0 1 38 50" stroke="black" stroke-width="4" fill="none"/><circle id="level1" cx="32" cy="56" r="3" fill="black"/></svg>
-            <canvas id="c" width="150" height="75"></canvas>
+            <svg class="wifi-symbol" viewBox="-5 15 64 64" xmlns="http://www.w3.org/2000/svg" width="32" height="32"><title id="wifiTitle">WiFi-Signal</title><path id="level5" d="M8 32 A33 32 0 0 1 56 32" stroke="black" stroke-width="4" fill="none" /><path id="level4" d="M14 38 A26 26 0 0 1 50 38" stroke="black" stroke-width="4" fill="none" /><path id="level3" d="M20 44 A18 20 0 0 1 44 44" stroke="black" stroke-width="4" fill="none" /><path id="level2" d="M26 50 A10 14 0 0 1 38 50" stroke="black" stroke-width="4" fill="none"/><circle id="level1" cx="32" cy="56" r="3" fill="black"/></svg>
+            <svg id="status" viewBox="10 5 180 65" width="150" height="75"></svg>
         </div>
         <div class='form-container'>
             <h1>BL LED Controller Settings Page</h1>
@@ -483,8 +484,8 @@
                         </TD>
                     </TR>
                 </table>
-                <input type='submit' value='Save Configuration'><BR>
-                    <input type='submit' value='Save Configuration'><BR>
+                <input type='submit' value='WiFi configuration'><BR>
+                    <input type='submit' value='OTA Update'><BR>
             </form>
             <input type='submit' value='Save Configuration'><BR>
         </div>
@@ -769,105 +770,11 @@
         }
     </script>
 
-    <script>
-        const canvas = document.getElementById('particleCanvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-
-        let particlesArray = [];
-        const numberOfParticles = 100;
-
-        class Particle {
-            constructor(x, y, directionX, directionY, size, color) {
-                this.x = x;
-                this.y = y;
-                this.directionX = directionX;
-                this.directionY = directionY;
-                this.size = size;
-                this.color = color;
-            }
-            draw() {
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, false);
-                ctx.fillStyle = this.color;
-                ctx.fill();
-            }
-
-
-            update() {
-                if (this.x + this.size > canvas.width || this.x - this.size < 0) {
-                    this.directionX = -this.directionX;
-                }
-
-                if (this.y + this.size > canvas.height || this.y - this.size < 0) {
-                    this.directionY = -this.directionY;
-                }
-
-                this.x += this.directionX;
-                this.y += this.directionY;
-
-                this.draw();
-            }
-        }
-
-        function init() {
-            particlesArray = [];
-            for (let i = 0; i < numberOfParticles; i++) {
-                let size = Math.random() * 5 + 1;
-                let x = Math.random() * (canvas.width - size * 2) + size;
-                let y = Math.random() * (canvas.height - size * 2) + size;
-                let directionX = (Math.random() * 0.5) - 0.25;
-                let directionY = (Math.random() * 0.5) - 0.25;
-                let color = 'rgba(255, 255, 255, 0.8)';
-
-                particlesArray.push(new Particle(x, y, directionX, directionY, size, color));
-            }
-        }
-
-        function connect() {
-            let opacityValue = 1;
-            for (let a = 0; a < particlesArray.length; a++) {
-                for (let b = a; b < particlesArray.length; b++) {
-                    let distance = ((particlesArray[a].x - particlesArray[b].x) * (particlesArray[a].x - particlesArray[b].x)) 
-                                 + ((particlesArray[a].y - particlesArray[b].y) * (particlesArray[a].y - particlesArray[b].y));
-
-                    if (distance < (canvas.width / 7) * (canvas.height / 7)) {
-                        opacityValue = 1 - (distance / 20000);
-                        ctx.strokeStyle = 'rgba(255, 255, 255,' + opacityValue + ')';
-                        ctx.lineWidth = 1;
-                        ctx.beginPath();
-                        ctx.moveTo(particlesArray[a].x, particlesArray[a].y);
-                        ctx.lineTo(particlesArray[b].x, particlesArray[b].y);
-                        ctx.stroke();
-                    }
-                }
-            }
-        }
-
-        function animate() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            for (let i = 0; i < particlesArray.length; i++) {
-                particlesArray[i].update();
-            }
-
-            connect();
-            requestAnimationFrame(animate);
-        }
-
-        window.addEventListener('resize', () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            init();
-        });
-
-        init();
-        animate();
-    </script>
+<script src="particleCanvas.js"></script>
 
 
     <script>
+    //wifi svg draw
     var wifiSvg = '<svg class="wifi-symbol" viewBox="0 15 64 64" xmlns="http://www.w3.org/2000/svg" width="32" height="32"><title id="wifiTitle">WiFi-Signal</title><path id="level5" d="M8 32 A33 32 0 0 1 56 32" stroke="black" stroke-width="4" fill="none" /><path id="level4" d="M14 38 A26 26 0 0 1 50 38" stroke="black" stroke-width="4" fill="none" /><path id="level3" d="M20 44 A18 20 0 0 1 44 44" stroke="black" stroke-width="4" fill="none" /><path id="level2" d="M26 50 A10 14 0 0 1 38 50" stroke="black" stroke-width="4" fill="none"/><circle id="level1" cx="32" cy="56" r="3" fill="black"/></svg>';
     const minRSSI = -85, maxRSSI = -60;
     function setWiFiSignal(rssi) {
@@ -876,13 +783,11 @@
           p = Math.max(0, Math.min(100, Math.round((rssi - minRSSI) * 100 / (maxRSSI - minRSSI)))),
           lvl = Math.floor(p / 25),
           col = c[Math.min(lvl, 4)];
-
     const svg = document.querySelector(".wifi-symbol");
     if (svg) {
       const title = svg.querySelector("title");
       if (title) title.textContent = p + "%% Strength";
     }
-
     lv.forEach((id, i) => {
       const e = document.getElementById(id);
       if (e) (e.tagName === "circle" ? e.setAttribute("fill", i <= lvl ? col : "#ccc")
@@ -890,119 +795,29 @@
     });
   }
 
-function drawStatus(ctx, status){
-  const s=ctx.canvas.width,sc=s/150,y=ctx.canvas.height/2,
-        mx=45*sc,px=s-45*sc,pShift=-8*sc,
-        lEnd=mx+20*sc+pShift,rStart=px-20*sc+pShift;
-
-  ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
-
-  // MQTT
-  ctx.save();ctx.translate(mx,y);ctx.lineWidth=1.5*sc;ctx.fillStyle=ctx.strokeStyle="#000";
-  ctx.beginPath();ctx.arc(0,0,5*sc,0,7);ctx.fill();
-  [10,14,18].forEach(r=>{
-    ctx.beginPath();ctx.arc(0,0,r*sc,Math.PI*1.35,Math.PI*1.65);ctx.stroke();
-  });
-  ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(0,15*sc);ctx.stroke();ctx.restore();
-
-  // Drucker
-  ctx.save();ctx.translate(px,y);ctx.beginPath();
-  ctx.rect(-20*sc,-12*sc,40*sc,24*sc);
-  ctx.moveTo(-12*sc,8*sc);ctx.lineTo(12*sc,8*sc);
-  ctx.rect(-4*sc,-12*sc,8*sc,6*sc);
-  ctx.moveTo(0,-6*sc);ctx.lineTo(0,8*sc);
-  ctx.stroke();ctx.restore();
-
-  // Verbindung (immer grün)
-  ctx.save();ctx.lineWidth=3*sc;ctx.strokeStyle="green";ctx.fillStyle="green";
-  ctx.beginPath();ctx.moveTo(lEnd,y);ctx.lineTo(rStart,y);ctx.stroke();
-  [[lEnd,y,10*sc],[rStart,y,-10*sc]].forEach(p=>{
-    ctx.beginPath();ctx.moveTo(p[0],p[1]);
-    ctx.lineTo(p[0]+p[2],p[1]-5*sc);
-    ctx.lineTo(p[0]+p[2],p[1]+5*sc);
-    ctx.closePath();ctx.fill();
-  });
-  ctx.restore();
-
-  // Fehler-X falls status false
-  if(!status){
-    ctx.save();ctx.strokeStyle="red";ctx.lineWidth=6*sc;
-    const cx=(lEnd+rStart)/2,cy=y;
-    ctx.beginPath();ctx.moveTo(cx-10*sc,cy-10*sc);ctx.lineTo(cx+10*sc,cy+10*sc);
-    ctx.moveTo(cx-10*sc,cy+10*sc);ctx.lineTo(cx+10*sc,cy-10*sc);ctx.stroke();
-    ctx.restore();
-  }
-}
-
-        const ws = new WebSocket(`ws://${window.location.host}/ws`);
-
-        ws.onopen = () => {
-        };
-
-        ws.onmessage = (event) => {
-            try {
-                const data = JSON.parse(event.data);
-                setWiFiSignal(data.wifi_rssi);
-
-                const ctx = c.getContext("2d");
-                drawStatus(ctx, data.printerConnection)
-            } catch (error) {
-                console.error('Ungültiges JSON empfangen:', event.data);
-            }
-        };
-
-        ws.onclose = () => {
-        };
-
-        ws.onerror = (error) => {
-            console.error('WebSocket Fehler:', error);
-        };
-    </script>
-
-</body>
-</html>
-
-
-
-
-drucker svg zeichen
-<!DOCTYPE html>
-<html>
-<head><meta charset="UTF-8"><title>MQTT Logo SVG korrekt verschoben</title><style>
-body{margin:0;background:#222;display:flex;justify-content:center;align-items:center;height:100vh;}
-#status{background:#fff;border-radius:8px;}
-</style></head>
-<body>
-<svg id="status" width="150" height="75"></svg>
-<script>
+//mqtt con draw
 function drawStatusSVG(containerId, status){
   const svg = document.getElementById(containerId);
   svg.innerHTML = '';
 
   const w = 150, h = 75, y = h/2;
-  const mx = 20, px = w - 45, pShift = -8; // MQTT jetzt bei 30
+  const mx = 20, px = w - 45, pShift = -8;
 
   function create(tag, attrs){
     const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
     for (let k in attrs) el.setAttribute(k, attrs[k]);
     return el;
   }
-
-  // MQTT Logo (Korrekt geöffnet nach oben rechts)
   [12,18,24].forEach(r=>{
     svg.appendChild(create('path', {
       d: describeArc(mx, y, r, 45, 135),
       stroke:'#800080', 'stroke-width':'4', 'fill':'none', 'stroke-linecap':'round'
     }));
   });
-
-  // Drucker
   svg.appendChild(create('rect', {x:px-20, y:y-12, width:40, height:24, fill:'none', stroke:'#000','stroke-width':'1.5'}));
   svg.appendChild(create('line', {x1:px-12,y1:y+8,x2:px+12,y2:y+8,stroke:'#000','stroke-width':'1.5'}));
   svg.appendChild(create('rect', {x:px-4,y:y-12,width:8,height:6,fill:'none',stroke:'#000','stroke-width':'1.5'}));
   svg.appendChild(create('line', {x1:px,y1:y-6,x2:px,y2:y+8,stroke:'#000','stroke-width':'1.5'}));
-
-  // Verbindung
   const linkEnd = mx+38+pShift, rightStart = px-20+pShift;
   svg.appendChild(create('line', {x1:linkEnd,y1:y,x2:rightStart,y2:y,stroke:'green','stroke-width':'2'}));
   [[linkEnd,y,10],[rightStart,y,-10]].forEach(p=>{
@@ -1010,7 +825,6 @@ function drawStatusSVG(containerId, status){
     svg.appendChild(create('polygon', {points:points, fill:'green'}));
   });
 
-  // Fehler-X falls status false
   if(!status){
     const cx = (linkEnd+rightStart)/2;
     svg.appendChild(create('line', {x1:cx-10,y1:y-10,x2:cx+10,y2:y+10,stroke:'red','stroke-width':'6'}));
@@ -1032,13 +846,24 @@ function polarToCartesian(cx, cy, r, angle){
   };
 }
 
-// Initial draw
-let status = true;
-drawStatusSVG('status', status);
-document.getElementById('status').addEventListener('click', ()=>{
-  status = !status;
-  drawStatusSVG('status', status);
-});
-</script>
+        const ws = new WebSocket(`ws://${window.location.host}/ws`);
+        ws.onopen = () => {
+        };
+        ws.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                setWiFiSignal(data.wifi_rssi);
+                drawStatusSVG('status', data.printerConnection);
+            } catch (error) {
+                console.error('json error:', event.data);
+            }
+        };
+        ws.onclose = () => {
+        };
+        ws.onerror = (error) => {
+            console.error('WebSocket error:', error);
+        };
+    </script>
+
 </body>
 </html>
