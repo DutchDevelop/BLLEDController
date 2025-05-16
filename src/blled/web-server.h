@@ -341,7 +341,7 @@ void websocketLoop() {
 
         sendJsonToAll(doc);
 
-        Serial.println(F("[WS] JSON Status Push gesendet."));
+        Serial.println(F("[WS] JSON Status Push send."));
     }
 }
 
