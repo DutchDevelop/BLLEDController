@@ -85,7 +85,7 @@ void handleGetPCC(AsyncWebServerRequest *request)
     request->send(response);
 }
 
-char *obfuscate(const char *charstring)
+/* char *obfuscate(const char *charstring)
 {
     int length = strlen(charstring);
     char *blurredstring = new char[length + 1];
@@ -99,7 +99,7 @@ char *obfuscate(const char *charstring)
     }
     blurredstring[length] = '\0';
     return blurredstring;
-}
+} */
 
 void handleGetConfig(AsyncWebServerRequest *request)
 {
@@ -113,8 +113,10 @@ void handleGetConfig(AsyncWebServerRequest *request)
     doc["firmwareversion"] = globalVariables.FWVersion.c_str();
     doc["wifiStrength"] = WiFi.RSSI();
     doc["ip"] = printerConfig.printerIP;
-    doc["code"] = obfuscate(printerConfig.accessCode);
-    doc["id"] = obfuscate(printerConfig.serialNumber);
+    //doc["code"] = obfuscate(printerConfig.accessCode);
+    //doc["id"] = obfuscate(printerConfig.serialNumber);
+    doc["code"] = printerConfig.accessCode;
+    doc["id"] = printerConfig.serialNumber;
     doc["apMAC"] = printerConfig.BSSID;
     doc["brightness"] = printerConfig.brightness;
     doc["maintMode"] = printerConfig.maintMode;
