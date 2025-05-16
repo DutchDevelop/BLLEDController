@@ -5,3 +5,5 @@ build/
 BLLEDController.code-workspace
 .python-version
 src/www/www.h
+.DS_Store
+**/.DS_Store
