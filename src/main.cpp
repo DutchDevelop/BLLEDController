@@ -50,13 +50,13 @@ void setup(){
     setupLeds();
     tweenToColor(100,100,100,100,100); //ALL LEDS ON
     Serial.println(F(""));
-    delay(1000);
+    //delay(1000);
 
     tweenToColor(255,0,0,0,0); //RED
     setupFileSystem();
     loadFileSystem();
     Serial.println(F(""));
-    delay(500);
+    //delay(500);
 
     tweenToColor(printerConfig.wifiRGB); //Customisable - Default is ORANGE
     setupSerial();
@@ -74,7 +74,7 @@ void setup(){
 
     tweenToColor(0,0,255,0,0); //BLUE
     setupWebserver();
-    delay(500);
+    //delay(500);
 
     start_ssdp();
     

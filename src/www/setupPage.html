@@ -80,6 +80,7 @@
             font-size: 16px;
             color: #333;
         }
+        input[type='password'],
         input[type='text'] {
             width: 100%;
             padding: 10px;
@@ -186,11 +187,11 @@
             <p>This page allows you to change the MQTT broker info and any additional settings.</p>
             <form method='POST' action='/submitConfig' onsubmit='return submitForm();'>
                 <label for='ip'>Printer IP:</label>
-                <input type='text' id='ip' name='ip' title='Enter the IP address of your Bambulab Printer' value=''><br>
-                <label for='code'>Printer Access Code:</label>
-                <input type='text' id='code' name='code' title='Enter the access code of your Bambulab Printer' value=''><br>
+                <input type='text' id='ip' name='ip' title='Enter the IP address of your Bambulab Printer' value=''></br>
                 <label for='id'>Printer Serial Number:</label>
-                <input type='text' id='id' name='id' title='Enter the serial Number for your Bambulab Printer' value=''><br>
+                <input type='text' id='id' name='id' title='Enter the serial Number for your Bambulab Printer' value=''></br>
+                <label for='code'>Printer Access Code:</label>
+                <input type='password' id='code' name='code' title='Enter the access code of your Bambulab Printer' value=''></br>
                 <label for='apMAC'>Wifi Access Point MAC Address:</label>
                 <table width='100%'>
                     <TR>
