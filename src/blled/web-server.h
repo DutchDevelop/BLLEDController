@@ -178,6 +178,10 @@ void handleGetConfig(AsyncWebServerRequest *request)
 
 void handlePrinterConfigJson(AsyncWebServerRequest *request)
 {
+        if (!isAuthorized(request))
+    {
+        return request->requestAuthentication();
+    }
     JsonDocument doc;
     doc["ssid"] = globalVariables.SSID;
     doc["pass"] = globalVariables.APPW;
@@ -394,9 +398,8 @@ void handleSubmitWiFi(AsyncWebServerRequest *request)
         strlcpy(printerConfig.serialNumber, printerSerial.c_str(), sizeof(printerConfig.serialNumber));
     if (accessCode.length() > 0)
         strlcpy(printerConfig.accessCode, accessCode.c_str(), sizeof(printerConfig.accessCode));
-    if (webUser.length() > 0)
+
         strlcpy(securityVariables.HTTPUser, webUser.c_str(), sizeof(securityVariables.HTTPUser));
-    if (webPass.length() > 0)
         strlcpy(securityVariables.HTTPPass, webPass.c_str(), sizeof(securityVariables.HTTPPass));
 
     saveFileSystem();

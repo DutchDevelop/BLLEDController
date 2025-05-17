@@ -30,6 +30,8 @@ void saveFileSystem(){
     JsonDocument json;
     json["ssid"] = globalVariables.SSID;
     json["appw"] = globalVariables.APPW;
+    json["HTTPUser"] = securityVariables.HTTPUser;
+    json["HTTPPass"] = securityVariables.HTTPPass;
     json["printerIp"] = printerConfig.printerIP;
     json["accessCode"] = printerConfig.accessCode;
     json["serialNumber"] = printerConfig.serialNumber;
@@ -160,6 +162,8 @@ void loadFileSystem(){
     if (!deserializeError) {
         strcpy(globalVariables.SSID, json["ssid"]);
         strcpy(globalVariables.APPW, json["appw"]);
+        strcpy(securityVariables.HTTPUser, json["HTTPUser"]);
+        strcpy(securityVariables.HTTPPass, json["HTTPPass"]);
         strcpy(printerConfig.printerIP, json["printerIp"]);
         strcpy(printerConfig.accessCode, json["accessCode"]);
         strcpy(printerConfig.serialNumber, json["serialNumber"]);
