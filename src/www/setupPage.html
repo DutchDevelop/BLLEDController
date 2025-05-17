@@ -370,7 +370,6 @@
                                 </TR>
                             </table>
 
-
                             <h3 style="text-align: center; color:white; background-color:rgb(76, 175, 80);">Options</h3>
                             <table style="border-spacing:0; padding:1px;">
                                 <TR valign="top">
@@ -623,11 +622,14 @@
                         </TD>
                     </TR>
                 </table>
-                <input type='submit' value='Save Configuration'>
+
+                <div style="display: flex; gap: 10px; justify-content: space-between;">
+                    <input type='submit' value='Save Configuration'>
+                    <button type="button" onclick="location.href='/fwupdate'">OTA Update</button>
+                    <button type="button" onclick="location.href='/wifi'">Settings</button>
+                </div>
 
             </form>
-            <!-- <button id='wificonf'href="/wifisetup">WiFi Configuration</button> make it later with the wifi config page-->
-            <button id="otafw" onclick="location.href='/fwupdate';">Firmware Update</button>
         </div>
     </div>
 
