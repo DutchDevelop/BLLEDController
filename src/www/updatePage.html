@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
@@ -23,7 +24,7 @@
             width: 100vw;
             height: 100vh;
             z-index: -1;
-            background: rgb(20,80,49);
+            background: rgb(20, 80, 49);
         }
 
         #container {
@@ -47,7 +48,8 @@
             display: inline-block;
         }
 
-        h1, h2 {
+        h1,
+        h2 {
             color: white;
             text-align: center;
         }
@@ -104,8 +106,38 @@
             margin-top: 10px;
             color: #4CAF50;
         }
+
+        #toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            background-color: #333;
+            color: white;
+            padding: 14px 24px;
+            border-radius: 6px;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.4s ease, transform 0.3s ease;
+            pointer-events: none;
+            box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
+        }
+
+        #toast.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        #toast-icon {
+            font-size: 18px;
+        }
     </style>
 </head>
+
 <body>
     <canvas id="particleCanvas"></canvas>
 
@@ -122,6 +154,10 @@
                 <input accept='.bin.ota' id="file1" name='firmware' type="file">
                 <progress id="progressBar" max="100" value="0"></progress>
                 <button id="button-send" type="submit" disabled>Update Firmware</button>
+
+                <div style="margin-top: 10px;">
+                    <button type="button" style="background-color: #6c757d;" onclick="location.href='/'">Back</button>
+                </div>
             </form>
             <p id="status">Status: Ready</p>
         </div>
@@ -129,6 +165,42 @@
 
     <script src="particleCanvas.js"></script>
     <script>
+
+        function alertToast(type, message) {
+            const toast = document.getElementById("toast");
+            const icon = document.getElementById("toast-icon");
+            const msg = document.getElementById("toast-msg");
+
+            let iconChar = "ℹ️";
+            let color = "#333";
+
+            switch (type.toLowerCase()) {
+                case "success":
+                    iconChar = "✅";
+                    color = "#28a745";
+                    break;
+                case "error":
+                    iconChar = "❌";
+                    color = "#dc3545";
+                    break;
+                case "warning":
+                    iconChar = "⚠️";
+                    color = "#ffc107";
+                    break;
+                case "info":
+                default:
+                    iconChar = "ℹ️";
+                    color = "#17a2b8";
+            }
+
+            toast.style.backgroundColor = color;
+            icon.textContent = iconChar;
+            msg.textContent = message;
+
+            toast.classList.add("show");
+            setTimeout(() => toast.classList.remove("show"), 3000);
+        }
+
         function _(el) { return document.getElementById(el); }
 
         function uploadFile() {
@@ -152,20 +224,21 @@
 
         function completeHandler(event) {
             _("progressBar").value = 0;
-            _("status").textContent = "Status: Update complete!";
+            alertToast("success", "Update complete!");
         }
 
         function startHandler(event) {
-            _("status").textContent = "Status: Uploading...";
+            alertToast("info", "Uploading...");
         }
 
         function errorHandler(event) {
-            _("status").textContent = "Status: Error during update.";
+            alertToast("error", "Error during update.");
         }
 
         function abortHandler(event) {
-            _("status").textContent = "Status: Update aborted.";
+            alertToast("warning", "Update aborted.");
         }
+
 
         _('upload_form').addEventListener('submit', (e) => {
             e.preventDefault();
@@ -179,4 +252,5 @@
         });
     </script>
 </body>
+
 </html>

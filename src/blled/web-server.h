@@ -178,7 +178,7 @@ void handleGetConfig(AsyncWebServerRequest *request)
 
 void handlePrinterConfigJson(AsyncWebServerRequest *request)
 {
-        if (!isAuthorized(request))
+    if (!isAuthorized(request))
     {
         return request->requestAuthentication();
     }
@@ -204,116 +204,116 @@ void handleSubmitConfig(AsyncWebServerRequest *request)
     }
 
     bool newBSSID = false;
-/*     if (request->hasParam("apMAC", true))
-    { */
-/*         if (strcmp(printerConfig.BSSID, request->getParam("apMAC", true)->value().c_str()) != 0)
-        {
-            newBSSID = true;
-        }
-        strcpy(printerConfig.printerIP, request->getParam("ip", true)->value().c_str());
-        strcpy(printerConfig.accessCode, request->getParam("code", true)->value().c_str());
+    /*     if (request->hasParam("apMAC", true))
+        { */
+    /*         if (strcmp(printerConfig.BSSID, request->getParam("apMAC", true)->value().c_str()) != 0)
+            {
+                newBSSID = true;
+            }
+            strcpy(printerConfig.printerIP, request->getParam("ip", true)->value().c_str());
+            strcpy(printerConfig.accessCode, request->getParam("code", true)->value().c_str());
 
-        char temperserial[20];
-        strcpy(temperserial, request->getParam("id", true)->value().c_str());
-        for (int x = 0; x < strlen(temperserial); x++)
-            temperserial[x] = toupper(temperserial[x]);
-        strcpy(printerConfig.serialNumber, temperserial);
+            char temperserial[20];
+            strcpy(temperserial, request->getParam("id", true)->value().c_str());
+            for (int x = 0; x < strlen(temperserial); x++)
+                temperserial[x] = toupper(temperserial[x]);
+            strcpy(printerConfig.serialNumber, temperserial);
 
-        strcpy(printerConfig.BSSID, request->getParam("apMAC", true)->value().c_str()); */
-        printerConfig.brightness = request->getParam("brightnessslider", true)->value().toInt();
-        printerConfig.rescanWiFiNetwork = (request->hasParam("rescanWiFiNetwork", true));
-        printerConfig.maintMode = (request->hasParam("maintMode", true));
-        printerConfig.discoMode = (request->hasParam("discoMode", true));
-        printerConfig.replicatestate = (request->hasParam("replicateLedState", true));
-        printerConfig.runningColor = hex2rgb(request->getParam("runningRGB", true)->value().c_str(),
-                                             request->getParam("runningWW", true)->value().toInt(),
-                                             request->getParam("runningCW", true)->value().toInt());
-        printerConfig.testcolorEnabled = (request->hasParam("showtestcolor", true));
-        printerConfig.testColor = hex2rgb(request->getParam("testRGB", true)->value().c_str(),
-                                          request->getParam("testWW", true)->value().toInt(),
-                                          request->getParam("testCW", true)->value().toInt());
-        printerConfig.debugwifi = (request->hasParam("debugwifi", true));
-        printerConfig.finishindication = (request->hasParam("finishIndication", true));
-        printerConfig.finishColor = hex2rgb(request->getParam("finishColor", true)->value().c_str(),
-                                            request->getParam("finishWW", true)->value().toInt(),
-                                            request->getParam("finishCW", true)->value().toInt());
-        printerConfig.finishExit = !(request->hasParam("finishEndTimer", true));
-        printerConfig.finishTimeOut = request->getParam("finishTimerMins", true)->value().toInt() * 60000;
-        printerConfig.inactivityEnabled = (request->hasParam("inactivityEnabled", true));
-        printerConfig.inactivityTimeOut = request->getParam("inactivityMins", true)->value().toInt() * 60000;
-        printerConfig.debuging = (request->hasParam("debuging", true));
-        printerConfig.debugingchange = (request->hasParam("debugingchange", true));
-        printerConfig.mqttdebug = (request->hasParam("mqttdebug", true));
-        printerVariables.isP1Printer = (request->hasParam("p1Printer", true));
-        printerVariables.useDoorSwtich = (request->hasParam("doorSwitch", true));
+            strcpy(printerConfig.BSSID, request->getParam("apMAC", true)->value().c_str()); */
+    printerConfig.brightness = request->getParam("brightnessslider", true)->value().toInt();
+    printerConfig.rescanWiFiNetwork = (request->hasParam("rescanWiFiNetwork", true));
+    printerConfig.maintMode = (request->hasParam("maintMode", true));
+    printerConfig.discoMode = (request->hasParam("discoMode", true));
+    printerConfig.replicatestate = (request->hasParam("replicateLedState", true));
+    printerConfig.runningColor = hex2rgb(request->getParam("runningRGB", true)->value().c_str(),
+                                         request->getParam("runningWW", true)->value().toInt(),
+                                         request->getParam("runningCW", true)->value().toInt());
+    printerConfig.testcolorEnabled = (request->hasParam("showtestcolor", true));
+    printerConfig.testColor = hex2rgb(request->getParam("testRGB", true)->value().c_str(),
+                                      request->getParam("testWW", true)->value().toInt(),
+                                      request->getParam("testCW", true)->value().toInt());
+    printerConfig.debugwifi = (request->hasParam("debugwifi", true));
+    printerConfig.finishindication = (request->hasParam("finishIndication", true));
+    printerConfig.finishColor = hex2rgb(request->getParam("finishColor", true)->value().c_str(),
+                                        request->getParam("finishWW", true)->value().toInt(),
+                                        request->getParam("finishCW", true)->value().toInt());
+    printerConfig.finishExit = !(request->hasParam("finishEndTimer", true));
+    printerConfig.finishTimeOut = request->getParam("finishTimerMins", true)->value().toInt() * 60000;
+    printerConfig.inactivityEnabled = (request->hasParam("inactivityEnabled", true));
+    printerConfig.inactivityTimeOut = request->getParam("inactivityMins", true)->value().toInt() * 60000;
+    printerConfig.debuging = (request->hasParam("debuging", true));
+    printerConfig.debugingchange = (request->hasParam("debugingchange", true));
+    printerConfig.mqttdebug = (request->hasParam("mqttdebug", true));
+    printerVariables.isP1Printer = (request->hasParam("p1Printer", true));
+    printerVariables.useDoorSwtich = (request->hasParam("doorSwitch", true));
 
-        printerConfig.stage14Color = hex2rgb(request->getParam("stage14RGB", true)->value().c_str(),
-                                             request->getParam("stage14WW", true)->value().toInt(),
-                                             request->getParam("stage14CW", true)->value().toInt());
-        printerConfig.stage1Color = hex2rgb(request->getParam("stage1RGB", true)->value().c_str(),
-                                            request->getParam("stage1WW", true)->value().toInt(),
-                                            request->getParam("stage1CW", true)->value().toInt());
-        printerConfig.stage8Color = hex2rgb(request->getParam("stage8RGB", true)->value().c_str(),
-                                            request->getParam("stage8WW", true)->value().toInt(),
-                                            request->getParam("stage8CW", true)->value().toInt());
-        printerConfig.stage9Color = hex2rgb(request->getParam("stage9RGB", true)->value().c_str(),
-                                            request->getParam("stage9WW", true)->value().toInt(),
-                                            request->getParam("stage9CW", true)->value().toInt());
-        printerConfig.stage10Color = hex2rgb(request->getParam("stage10RGB", true)->value().c_str(),
-                                             request->getParam("stage10WW", true)->value().toInt(),
-                                             request->getParam("stage10CW", true)->value().toInt());
-        printerConfig.errordetection = (request->hasParam("errorDetection", true));
-        printerConfig.wifiRGB = hex2rgb(request->getParam("wifiRGB", true)->value().c_str(),
-                                        request->getParam("wifiWW", true)->value().toInt(),
-                                        request->getParam("wifiCW", true)->value().toInt());
-        printerConfig.pauseRGB = hex2rgb(request->getParam("pauseRGB", true)->value().c_str(),
-                                         request->getParam("pauseWW", true)->value().toInt(),
-                                         request->getParam("pauseCW", true)->value().toInt());
-        printerConfig.firstlayerRGB = hex2rgb(request->getParam("firstlayerRGB", true)->value().c_str(),
-                                              request->getParam("firstlayerWW", true)->value().toInt(),
-                                              request->getParam("firstlayerCW", true)->value().toInt());
-        printerConfig.nozzleclogRGB = hex2rgb(request->getParam("nozzleclogRGB", true)->value().c_str(),
-                                              request->getParam("nozzleclogWW", true)->value().toInt(),
-                                              request->getParam("nozzleclogCW", true)->value().toInt());
-        printerConfig.hmsSeriousRGB = hex2rgb(request->getParam("hmsSeriousRGB", true)->value().c_str(),
-                                              request->getParam("hmsSeriousWW", true)->value().toInt(),
-                                              request->getParam("hmsSeriousCW", true)->value().toInt());
-        printerConfig.hmsFatalRGB = hex2rgb(request->getParam("hmsFatalRGB", true)->value().c_str(),
-                                            request->getParam("hmsFatalWW", true)->value().toInt(),
-                                            request->getParam("hmsFatalCW", true)->value().toInt());
-        printerConfig.filamentRunoutRGB = hex2rgb(request->getParam("filamentRunoutRGB", true)->value().c_str(),
-                                                  request->getParam("filamentRunoutWW", true)->value().toInt(),
-                                                  request->getParam("filamentRunoutCW", true)->value().toInt());
-        printerConfig.frontCoverRGB = hex2rgb(request->getParam("frontCoverRGB", true)->value().c_str(),
-                                              request->getParam("frontCoverWW", true)->value().toInt(),
-                                              request->getParam("frontCoverCW", true)->value().toInt());
-        printerConfig.nozzleTempRGB = hex2rgb(request->getParam("nozzleTempRGB", true)->value().c_str(),
-                                              request->getParam("nozzleTempWW", true)->value().toInt(),
-                                              request->getParam("nozzleTempCW", true)->value().toInt());
-        printerConfig.bedTempRGB = hex2rgb(request->getParam("bedTempRGB", true)->value().c_str(),
-                                           request->getParam("bedTempWW", true)->value().toInt(),
-                                           request->getParam("bedTempCW", true)->value().toInt());
+    printerConfig.stage14Color = hex2rgb(request->getParam("stage14RGB", true)->value().c_str(),
+                                         request->getParam("stage14WW", true)->value().toInt(),
+                                         request->getParam("stage14CW", true)->value().toInt());
+    printerConfig.stage1Color = hex2rgb(request->getParam("stage1RGB", true)->value().c_str(),
+                                        request->getParam("stage1WW", true)->value().toInt(),
+                                        request->getParam("stage1CW", true)->value().toInt());
+    printerConfig.stage8Color = hex2rgb(request->getParam("stage8RGB", true)->value().c_str(),
+                                        request->getParam("stage8WW", true)->value().toInt(),
+                                        request->getParam("stage8CW", true)->value().toInt());
+    printerConfig.stage9Color = hex2rgb(request->getParam("stage9RGB", true)->value().c_str(),
+                                        request->getParam("stage9WW", true)->value().toInt(),
+                                        request->getParam("stage9CW", true)->value().toInt());
+    printerConfig.stage10Color = hex2rgb(request->getParam("stage10RGB", true)->value().c_str(),
+                                         request->getParam("stage10WW", true)->value().toInt(),
+                                         request->getParam("stage10CW", true)->value().toInt());
+    printerConfig.errordetection = (request->hasParam("errorDetection", true));
+    printerConfig.wifiRGB = hex2rgb(request->getParam("wifiRGB", true)->value().c_str(),
+                                    request->getParam("wifiWW", true)->value().toInt(),
+                                    request->getParam("wifiCW", true)->value().toInt());
+    printerConfig.pauseRGB = hex2rgb(request->getParam("pauseRGB", true)->value().c_str(),
+                                     request->getParam("pauseWW", true)->value().toInt(),
+                                     request->getParam("pauseCW", true)->value().toInt());
+    printerConfig.firstlayerRGB = hex2rgb(request->getParam("firstlayerRGB", true)->value().c_str(),
+                                          request->getParam("firstlayerWW", true)->value().toInt(),
+                                          request->getParam("firstlayerCW", true)->value().toInt());
+    printerConfig.nozzleclogRGB = hex2rgb(request->getParam("nozzleclogRGB", true)->value().c_str(),
+                                          request->getParam("nozzleclogWW", true)->value().toInt(),
+                                          request->getParam("nozzleclogCW", true)->value().toInt());
+    printerConfig.hmsSeriousRGB = hex2rgb(request->getParam("hmsSeriousRGB", true)->value().c_str(),
+                                          request->getParam("hmsSeriousWW", true)->value().toInt(),
+                                          request->getParam("hmsSeriousCW", true)->value().toInt());
+    printerConfig.hmsFatalRGB = hex2rgb(request->getParam("hmsFatalRGB", true)->value().c_str(),
+                                        request->getParam("hmsFatalWW", true)->value().toInt(),
+                                        request->getParam("hmsFatalCW", true)->value().toInt());
+    printerConfig.filamentRunoutRGB = hex2rgb(request->getParam("filamentRunoutRGB", true)->value().c_str(),
+                                              request->getParam("filamentRunoutWW", true)->value().toInt(),
+                                              request->getParam("filamentRunoutCW", true)->value().toInt());
+    printerConfig.frontCoverRGB = hex2rgb(request->getParam("frontCoverRGB", true)->value().c_str(),
+                                          request->getParam("frontCoverWW", true)->value().toInt(),
+                                          request->getParam("frontCoverCW", true)->value().toInt());
+    printerConfig.nozzleTempRGB = hex2rgb(request->getParam("nozzleTempRGB", true)->value().c_str(),
+                                          request->getParam("nozzleTempWW", true)->value().toInt(),
+                                          request->getParam("nozzleTempCW", true)->value().toInt());
+    printerConfig.bedTempRGB = hex2rgb(request->getParam("bedTempRGB", true)->value().c_str(),
+                                       request->getParam("bedTempWW", true)->value().toInt(),
+                                       request->getParam("bedTempCW", true)->value().toInt());
 
-        saveFileSystem();
-        Serial.println(F("Packet received from setuppage"));
-        printerConfig.inactivityStartms = millis();
-        printerConfig.isIdleOFFActive = false;
-        printerConfig.replicate_update = true;
-        printerConfig.maintMode_update = true;
-        printerConfig.discoMode_update = true;
-        printerConfig.testcolor_update = true;
-        updateleds();
-        request->redirect("/");
+    saveFileSystem();
+    Serial.println(F("Packet received from setuppage"));
+    printerConfig.inactivityStartms = millis();
+    printerConfig.isIdleOFFActive = false;
+    printerConfig.replicate_update = true;
+    printerConfig.maintMode_update = true;
+    printerConfig.discoMode_update = true;
+    printerConfig.testcolor_update = true;
+    updateleds();
+    request->redirect("/");
 
-/*         if (newBSSID)
-        {
-            Serial.println(F("New MAC address (BSSID) assigned. Restarting..."));
-            delay(1000);
-            ESP.restart();
-        } */
-/*     }
-    else
-    { */
+    /*         if (newBSSID)
+            {
+                Serial.println(F("New MAC address (BSSID) assigned. Restarting..."));
+                delay(1000);
+                ESP.restart();
+            } */
+    /*     }
+        else
+        { */
     //    request->send(400, "text/plain", "Invalid parameters");
     //}
 }
@@ -399,14 +399,14 @@ void handleSubmitWiFi(AsyncWebServerRequest *request)
     if (accessCode.length() > 0)
         strlcpy(printerConfig.accessCode, accessCode.c_str(), sizeof(printerConfig.accessCode));
 
-        strlcpy(securityVariables.HTTPUser, webUser.c_str(), sizeof(securityVariables.HTTPUser));
-        strlcpy(securityVariables.HTTPPass, webPass.c_str(), sizeof(securityVariables.HTTPPass));
+    strlcpy(securityVariables.HTTPUser, webUser.c_str(), sizeof(securityVariables.HTTPUser));
+    strlcpy(securityVariables.HTTPPass, webPass.c_str(), sizeof(securityVariables.HTTPPass));
 
     saveFileSystem();
 
     request->send(200, "text/plain", "Settings saved, restarting...");
-    delay(1000);
-    ESP.restart();
+    shouldRestart = true;
+    restartRequestTime = millis();
 }
 
 unsigned long lastWsPush = 0;

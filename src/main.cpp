@@ -1,4 +1,6 @@
 #include <Arduino.h>
+bool shouldRestart = false;
+unsigned long restartRequestTime = 0;
 #include "./blled/web-server.h"
 #include "./blled/mqttmanager.h"
 #include "./blled/filesystem.h"
@@ -9,6 +11,7 @@
 #include "./blled/ssdp.h"
 
 int wifi_reconnect_count = 0;
+
 void defaultcolors()
 {
     Serial.println(F("Setting default customisable colors"));
@@ -50,13 +53,11 @@ void setup()
     setupLeds();
     tweenToColor(100, 100, 100, 100, 100); // ALL LEDS ON
     Serial.println(F(""));
-    // delay(1000);
 
     tweenToColor(255, 0, 0, 0, 0); // RED
     setupFileSystem();
     loadFileSystem();
     Serial.println(F(""));
-    // delay(500);
 
     tweenToColor(printerConfig.wifiRGB); // Customisable - Default is ORANGE
     setupSerial();
@@ -65,45 +66,39 @@ void setup()
     {
         Serial.println(F("SSID or password is missing. Please configure both by going to: https://dutchdevelop.com/blled-configuration-setup/"));
         tweenToColor(100, 0, 100, 0, 0); // PINK
-      startAPMode();
+        startAPMode();
         setupWebserver();
-        return; // WICHTIG! Setup hier abbrechen.
+        return;
     }
 
     if (!connectToWifi())
     {
-        Serial.println(F("[WiFiManager] Verbindung fehlgeschlagen → AP Mode"));
+        Serial.println(F("[WiFiManager] Not connected → AP Mode"));
         startAPMode();
         setupWebserver();
-        return; // WICHTIG! Setup hier abbrechen.
+        return;
     }
-    Serial.println(F("[WiFiManager] Verbunden. Starte Betriebsmodus Webserver."));
+    Serial.println(F("[WiFiManager] connected. Starting webUI."));
     setupWebserver();
-    scanNetwork();
-/* scanNetwork(); // Sets the MAC address for following connection attempt
-if (!connectToWifi())
-{
-    return;
-} */
+    //scanNetwork();
 
-tweenToColor(0, 0, 255, 0, 0); // BLUE
-setupWebserver();
-// delay(500);
+    tweenToColor(0, 0, 255, 0, 0); // BLUE
+    setupWebserver();
 
-start_ssdp();
+    start_ssdp();
 
-tweenToColor(34, 224, 238, 0, 0); // CYAN
-setupMqtt();
+    tweenToColor(34, 224, 238, 0, 0); // CYAN
+    setupMqtt();
 
-Serial.println();
-Serial.print(F("** BLLED Controller started "));
-Serial.print(F("using firmware version: "));
-Serial.print(globalVariables.FWVersion);
-Serial.println(F(" **"));
-Serial.println();
-globalVariables.started = true;
-Serial.println(F("Updating LEDs from Setup"));
-updateleds();
+    Serial.println();
+    Serial.print(F("** BLLED Controller started "));
+    Serial.print(F("using firmware version: "));
+    Serial.print(globalVariables.FWVersion);
+    Serial.println(F(" **"));
+    Serial.println();
+    globalVariables.started = true;
+    Serial.println(F("Updating LEDs from Setup"));
+    updateleds();
 }
 
 void loop()
@@ -138,9 +133,10 @@ void loop()
                 wifi_reconnect_count = 0;
             }
         }
-            if (WiFi.getMode() == WIFI_AP) {
-        dnsServer.processNextRequest();
-    }
+        if (WiFi.getMode() == WIFI_AP)
+        {
+            dnsServer.processNextRequest();
+        }
     }
     if (printerConfig.rescanWiFiNetwork)
     {
@@ -149,5 +145,10 @@ void loop()
         scanNetwork();                       // Sets the MAC address for following connection attempt
         printerConfig.rescanWiFiNetwork = false;
         updateleds();
+    }
+    if (shouldRestart && millis() - restartRequestTime > 1500)
+    {
+        Serial.println(F("[WiFiSetup] Restarting now..."));
+        ESP.restart();
     }
 }

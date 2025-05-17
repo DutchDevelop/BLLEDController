@@ -119,6 +119,35 @@
         button:hover {
             background-color: #0056b3;
         }
+
+        #toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            background-color: #333;
+            color: white;
+            padding: 14px 24px;
+            border-radius: 6px;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.4s ease, transform 0.3s ease;
+            pointer-events: none;
+            box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
+        }
+
+        #toast.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        #toast-icon {
+            font-size: 18px;
+        }
     </style>
 </head>
 
@@ -134,10 +163,10 @@
 
         <form id="wifiForm">
             <label for="ssid">SSID</label>
-            <input type="text" id="ssid" required>
+            <input type="text" id="ssid" autocomplete="off" required>
 
             <label for="password">Password</label>
-            <input type="password" id="password" required>
+            <input type="password" id="password" autocomplete="new-password" required>
 
             <label for="printerIP">Printer IP</label>
             <input type="text" id="printerIP" placeholder="e.g. 192.168.1.100">
@@ -149,17 +178,20 @@
             <input type="text" id="accessCode" placeholder="e.g. Access123">
 
             <label for="webUser">WebUI Security Username</label>
-            <input type="text" id="webUser" placeholder="e.g. admin">
+            <input type="text" id="webUser" placeholder="e.g. admin" autocomplete="new-username">
 
             <label for="webPass">WebUI Security Password</label>
-            <input type="password" id="webPass" placeholder="e.g. password">
+            <input type="password" id="webPass" placeholder="e.g. password" autocomplete="new-password">
 
-            <button type="submit">Save & Restart</button>
+            <div style="display: flex; gap: 10px; justify-content: space-between;">
+                <button type="submit">Save</button>
+                <button type="button" style="background-color: #6c757d;" onclick="location.href='/'">Back</button>
+            </div>
         </form>
     </div>
 
     <script src="particleCanvas.js"></script>
-
+    <div id="toast"><span id="toast-icon">ℹ️</span><span id="toast-msg">Placeholder</span></div>
     <script>
         function getSignalSVG(rssi) {
             let level = 0;
@@ -186,8 +218,44 @@
             return enc ? "🔒" : "🔓";
         }
 
+        function alertToast(type, message) {
+            const toast = document.getElementById("toast");
+            const icon = document.getElementById("toast-icon");
+            const msg = document.getElementById("toast-msg");
+
+            let iconChar = "ℹ️";
+            let color = "#333";
+
+            switch (type.toLowerCase()) {
+                case "success":
+                    iconChar = "✅";
+                    color = "#28a745";
+                    break;
+                case "error":
+                    iconChar = "❌";
+                    color = "#dc3545";
+                    break;
+                case "warning":
+                    iconChar = "⚠️";
+                    color = "#ffc107";
+                    break;
+                case "info":
+                default:
+                    iconChar = "ℹ️";
+                    color = "#17a2b8";
+            }
+
+            toast.style.backgroundColor = color;
+            icon.textContent = iconChar;
+            msg.textContent = message;
+
+            toast.classList.add("show");
+            setTimeout(() => toast.classList.remove("show"), 3000);
+        }
+
         async function loadNetworks() {
             try {
+                alertToast("info", "Retrieving network scan, please wait...");
                 const res = await fetch("/wifiScan");
                 const data = await res.json();
                 const container = document.getElementById("networks");
@@ -206,6 +274,7 @@
             } catch (err) {
                 document.getElementById("networks").innerText = "Failed to load networks.";
                 console.error(err);
+                alertToast("error", "Failed getting Network Scan: " + err);
             }
         }
 
@@ -219,13 +288,23 @@
             const webUser = document.getElementById("webUser").value;
             const webPass = document.getElementById("webPass").value;
 
-            await fetch("/submitWiFi", {
-                method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: `ssid=${encodeURIComponent(ssid)}&pass=${encodeURIComponent(pass)}&printerIP=${encodeURIComponent(printerIP)}&printerSerial=${encodeURIComponent(printerSerial)}&accessCode=${encodeURIComponent(accessCode)}&webUser=${encodeURIComponent(webUser)}&webPass=${encodeURIComponent(webPass)}`
-            });
-            alert("WiFi & Printer settings saved. Restarting...");
+            try {
+                const res = await fetch("/submitWiFi", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: `ssid=${encodeURIComponent(ssid)}&pass=${encodeURIComponent(pass)}&printerIP=${encodeURIComponent(printerIP)}&printerSerial=${encodeURIComponent(printerSerial)}&accessCode=${encodeURIComponent(accessCode)}&webUser=${encodeURIComponent(webUser)}&webPass=${encodeURIComponent(webPass)}`
+                });
+
+                if (res.ok) {
+                    alertToast("success", "Settings saved. Restarting...");
+                } else {
+                    alertToast("error", "Save failed: " + res.status);
+                }
+            } catch (err) {
+                alertToast("info", "Device is likely restarting.");
+            }
         });
+
         async function loadPrinterConfig() {
             try {
                 const res = await fetch("/config.json");
@@ -244,6 +323,7 @@
         loadPrinterConfig();
         loadNetworks();
     </script>
+
 </body>
 
 </html>
