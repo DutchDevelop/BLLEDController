@@ -176,11 +176,16 @@ void handleGetConfig(AsyncWebServerRequest *request)
     request->send(200, "application/json", jsonString);
 }
 
-void handlePrinterConfigJson(AsyncWebServerRequest *request) {
+void handlePrinterConfigJson(AsyncWebServerRequest *request)
+{
     JsonDocument doc;
+    doc["ssid"] = globalVariables.SSID;
+    doc["pass"] = globalVariables.APPW;
     doc["printerIP"] = printerConfig.printerIP;
     doc["printerSerial"] = printerConfig.serialNumber;
     doc["accessCode"] = printerConfig.accessCode;
+    doc["webUser"] = securityVariables.HTTPUser;
+    doc["webPass"] = securityVariables.HTTPPass;
 
     String json;
     serializeJson(doc, json);
@@ -342,39 +347,57 @@ void handleWiFiSetupPage(AsyncWebServerRequest *request)
     request->send(response);
 }
 
-void handleSubmitWiFi(AsyncWebServerRequest *request) {
-    if (!request->hasParam("ssid", true) || !request->hasParam("pass", true)) {
-        request->send(400, "text/plain", "Missing SSID or Password");
-        return;
+void handleSubmitWiFi(AsyncWebServerRequest *request)
+{
+    // Check for SSID + PASS optional handling
+    bool hasSSID = request->hasParam("ssid", true);
+    bool hasPASS = request->hasParam("pass", true);
+
+    if (hasSSID && hasPASS)
+    {
+        String ssid = request->getParam("ssid", true)->value();
+        String pass = request->getParam("pass", true)->value();
+        ssid.trim();
+        pass.trim();
+
+        if (ssid.length() > 0 && pass.length() > 0)
+        {
+            Serial.println(F("[WiFiSetup] Updating WiFi credentials:"));
+            Serial.print(F("SSID: "));
+            Serial.println(ssid);
+            Serial.print(F("Password: "));
+            Serial.println(pass);
+
+            strlcpy(globalVariables.SSID, ssid.c_str(), sizeof(globalVariables.SSID));
+            strlcpy(globalVariables.APPW, pass.c_str(), sizeof(globalVariables.APPW));
+        }
+        else
+        {
+            Serial.println(F("[WiFiSetup] Empty SSID or PASS received → ignoring WiFi update."));
+        }
+    }
+    else
+    {
+        Serial.println(F("[WiFiSetup] No SSID or PASS provided → keeping existing WiFi credentials."));
     }
 
-    String ssid = request->getParam("ssid", true)->value();
-    String pass = request->getParam("pass", true)->value();
+    // Optional other fields (printerIP, printerSerial, etc.)
     String printerIP = request->hasParam("printerIP", true) ? request->getParam("printerIP", true)->value() : "";
     String printerSerial = request->hasParam("printerSerial", true) ? request->getParam("printerSerial", true)->value() : "";
     String accessCode = request->hasParam("accessCode", true) ? request->getParam("accessCode", true)->value() : "";
+    String webUser = request->hasParam("webUser", true) ? request->getParam("webUser", true)->value() : "";
+    String webPass = request->hasParam("webPass", true) ? request->getParam("webPass", true)->value() : "";
 
-    ssid.trim();
-    pass.trim();
-    printerIP.trim();
-    printerSerial.trim();
-    accessCode.trim();
-
-    Serial.println(F("[WiFiSetup] Received configuration:"));
-    Serial.print(F("SSID: ")); Serial.println(ssid);
-    Serial.print(F("Password: ")); Serial.println(pass);
-    if (printerIP.length() > 0) Serial.print(F("Printer IP: ")), Serial.println(printerIP);
-    if (printerSerial.length() > 0) Serial.print(F("Printer Serial: ")), Serial.println(printerSerial);
-    if (accessCode.length() > 0) Serial.print(F("Access Code: ")), Serial.println(accessCode);
-
-    // Immer speichern SSID + Passwort
-    strlcpy(globalVariables.SSID, ssid.c_str(), sizeof(globalVariables.SSID));
-    strlcpy(globalVariables.APPW, pass.c_str(), sizeof(globalVariables.APPW));
-
-    // Optional speichern falls vorhanden
-    if (printerIP.length() > 0) strlcpy(printerConfig.printerIP, printerIP.c_str(), sizeof(printerConfig.printerIP));
-    if (printerSerial.length() > 0) strlcpy(printerConfig.serialNumber, printerSerial.c_str(), sizeof(printerConfig.serialNumber));
-    if (accessCode.length() > 0) strlcpy(printerConfig.accessCode, accessCode.c_str(), sizeof(printerConfig.accessCode));
+    if (printerIP.length() > 0)
+        strlcpy(printerConfig.printerIP, printerIP.c_str(), sizeof(printerConfig.printerIP));
+    if (printerSerial.length() > 0)
+        strlcpy(printerConfig.serialNumber, printerSerial.c_str(), sizeof(printerConfig.serialNumber));
+    if (accessCode.length() > 0)
+        strlcpy(printerConfig.accessCode, accessCode.c_str(), sizeof(printerConfig.accessCode));
+    if (webUser.length() > 0)
+        strlcpy(securityVariables.HTTPUser, webUser.c_str(), sizeof(securityVariables.HTTPUser));
+    if (webPass.length() > 0)
+        strlcpy(securityVariables.HTTPPass, webPass.c_str(), sizeof(securityVariables.HTTPPass));
 
     saveFileSystem();
 
@@ -383,13 +406,12 @@ void handleSubmitWiFi(AsyncWebServerRequest *request) {
     ESP.restart();
 }
 
-
-
 unsigned long lastWsPush = 0;
 const unsigned long wsPushInterval = 1000; // alle 5000ms
 void websocketLoop()
 {
-    if (ws.count() == 0) return;
+    if (ws.count() == 0)
+        return;
     if (millis() - lastWsPush > wsPushInterval)
     {
         lastWsPush = millis();
@@ -495,7 +517,6 @@ void setupWebserver()
     webServer.begin();
 
     Serial.println(F("Webserver started"));
-
 }
 
 #endif

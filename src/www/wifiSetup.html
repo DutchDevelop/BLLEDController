@@ -147,6 +147,12 @@
             <label for="accessCode">Printer Access Code</label>
             <input type="text" id="accessCode" placeholder="e.g. Access123">
 
+            <label for="webUser">WebUI Security Username</label>
+            <input type="text" id="webUser" placeholder="e.g. admin">
+
+            <label for="webPass">WebUI Security Password</label>
+            <input type="password" id="webPass" placeholder="e.g. password">
+
             <button type="submit">Save & Restart</button>
         </form>
     </div>
@@ -209,11 +215,13 @@
             const printerIP = document.getElementById("printerIP").value;
             const printerSerial = document.getElementById("printerSerial").value;
             const accessCode = document.getElementById("accessCode").value;
+            const webUser = document.getElementById("webUser").value;
+            const webPass = document.getElementById("webPass").value;
 
             await fetch("/submitWiFi", {
                 method: "POST",
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: `ssid=${encodeURIComponent(ssid)}&pass=${encodeURIComponent(pass)}&printerIP=${encodeURIComponent(printerIP)}&printerSerial=${encodeURIComponent(printerSerial)}&accessCode=${encodeURIComponent(accessCode)}`
+                body: `ssid=${encodeURIComponent(ssid)}&pass=${encodeURIComponent(pass)}&printerIP=${encodeURIComponent(printerIP)}&printerSerial=${encodeURIComponent(printerSerial)}&accessCode=${encodeURIComponent(accessCode)}&webUser=${encodeURIComponent(webUser)}&webPass=${encodeURIComponent(webPass)}`
             });
             alert("WiFi & Printer settings saved. Restarting...");
         });
@@ -221,9 +229,13 @@
             try {
                 const res = await fetch("/config.json");
                 const config = await res.json();
+                document.getElementById("ssid").value = config.ssid || "";
+                document.getElementById("password").value = config.pass || "";
                 document.getElementById("printerIP").value = config.printerIP || "";
                 document.getElementById("printerSerial").value = config.printerSerial || "";
                 document.getElementById("accessCode").value = config.accessCode || "";
+                document.getElementById("webUser").value = config.webUser || "";
+                document.getElementById("webPass").value = config.webPass || "";
             } catch (err) {
                 console.warn("No existing config found or failed to load.");
             }
