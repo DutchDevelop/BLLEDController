@@ -80,7 +80,6 @@ void setup()
     }
     Serial.println(F("[WiFiManager] connected. Starting webUI."));
     setupWebserver();
-    //scanNetwork();
 
     tweenToColor(0, 0, 255, 0, 0); // BLUE
     setupWebserver();
@@ -107,7 +106,6 @@ void loop()
     if (globalVariables.started)
     {
         mqttloop();
-        // webserverloop();
         websocketLoop();
         ledsloop();
 

@@ -16,7 +16,9 @@ AsyncWebSocket ws("/ws");
 #include "../www/www.h"
 #include "../www/blled_svg.h"
 #include "../www/favicon.h"
-// #include "../www/awesomeFont.h"
+
+unsigned long lastWsPush = 0;
+const unsigned long wsPushInterval = 1000; // alle 1000ms
 
 bool isAuthorized(AsyncWebServerRequest *request)
 {
@@ -94,8 +96,6 @@ void handleGetConfig(AsyncWebServerRequest *request)
     doc["firmwareversion"] = globalVariables.FWVersion.c_str();
     doc["wifiStrength"] = WiFi.RSSI();
     doc["ip"] = printerConfig.printerIP;
-    // doc["code"] = obfuscate(printerConfig.accessCode);
-    // doc["id"] = obfuscate(printerConfig.serialNumber);
     doc["code"] = printerConfig.accessCode;
     doc["id"] = printerConfig.serialNumber;
     doc["apMAC"] = printerConfig.BSSID;
@@ -204,22 +204,6 @@ void handleSubmitConfig(AsyncWebServerRequest *request)
     }
 
     bool newBSSID = false;
-    /*     if (request->hasParam("apMAC", true))
-        { */
-    /*         if (strcmp(printerConfig.BSSID, request->getParam("apMAC", true)->value().c_str()) != 0)
-            {
-                newBSSID = true;
-            }
-            strcpy(printerConfig.printerIP, request->getParam("ip", true)->value().c_str());
-            strcpy(printerConfig.accessCode, request->getParam("code", true)->value().c_str());
-
-            char temperserial[20];
-            strcpy(temperserial, request->getParam("id", true)->value().c_str());
-            for (int x = 0; x < strlen(temperserial); x++)
-                temperserial[x] = toupper(temperserial[x]);
-            strcpy(printerConfig.serialNumber, temperserial);
-
-            strcpy(printerConfig.BSSID, request->getParam("apMAC", true)->value().c_str()); */
     printerConfig.brightness = request->getParam("brightnessslider", true)->value().toInt();
     printerConfig.rescanWiFiNetwork = (request->hasParam("rescanWiFiNetwork", true));
     printerConfig.maintMode = (request->hasParam("maintMode", true));
@@ -304,18 +288,6 @@ void handleSubmitConfig(AsyncWebServerRequest *request)
     printerConfig.testcolor_update = true;
     updateleds();
     request->redirect("/");
-
-    /*         if (newBSSID)
-            {
-                Serial.println(F("New MAC address (BSSID) assigned. Restarting..."));
-                delay(1000);
-                ESP.restart();
-            } */
-    /*     }
-        else
-        { */
-    //    request->send(400, "text/plain", "Invalid parameters");
-    //}
 }
 
 void sendJsonToAll(JsonDocument &doc)
@@ -409,8 +381,6 @@ void handleSubmitWiFi(AsyncWebServerRequest *request)
     restartRequestTime = millis();
 }
 
-unsigned long lastWsPush = 0;
-const unsigned long wsPushInterval = 1000; // alle 5000ms
 void websocketLoop()
 {
     if (ws.count() == 0)
