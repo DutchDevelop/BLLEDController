@@ -16,10 +16,12 @@ AsyncWebSocket ws("/ws");
 #include "../www/www.h"
 #include "../www/blled_svg.h"
 #include "../www/favicon.h"
-//#include "../www/awesomeFont.h"
+// #include "../www/awesomeFont.h"
 
-bool isAuthorized(AsyncWebServerRequest *request) {
-    if (strlen(securityVariables.HTTPUser) == 0 || strlen(securityVariables.HTTPPass) == 0) {
+bool isAuthorized(AsyncWebServerRequest *request)
+{
+    if (strlen(securityVariables.HTTPUser) == 0 || strlen(securityVariables.HTTPPass) == 0)
+    {
         return true;
     }
     return request->authenticate(securityVariables.HTTPUser, securityVariables.HTTPPass);
@@ -31,7 +33,7 @@ void handleSetup(AsyncWebServerRequest *request)
     {
         return request->requestAuthentication();
     }
-    AsyncWebServerResponse *response = request->beginResponse(200, "text/html", setupPage_html_gz, setupPage_html_gz_len);
+    AsyncWebServerResponse *response = request->beginResponse(200, setupPage_html_gz_mime, setupPage_html_gz, setupPage_html_gz_len);
     response->addHeader("Content-Encoding", "gzip");
     request->send(response);
 }
@@ -42,7 +44,7 @@ void handleUpdatePage(AsyncWebServerRequest *request)
     {
         return request->requestAuthentication();
     }
-    AsyncWebServerResponse *response = request->beginResponse(200, "text/html", updatePage_html_gz, updatePage_html_gz_len);
+    AsyncWebServerResponse *response = request->beginResponse(200, updatePage_html_gz_mime, updatePage_html_gz, updatePage_html_gz_len);
     response->addHeader("Content-Encoding", "gzip");
     request->send(response);
 }
@@ -53,7 +55,9 @@ void handleGetIcon(AsyncWebServerRequest *request)
     {
         return request->requestAuthentication();
     }
-    request->send(200, "image/svg+xml", BBLED_svg, BBLED_svg_len);
+    AsyncWebServerResponse *response = request->beginResponse(200, blled_svg_gz_mime, blled_svg_gz, blled_svg_gz_len);
+    response->addHeader("Content-Encoding", "gzip");
+    request->send(response);
 }
 
 void handleGetfavicon(AsyncWebServerRequest *request)
@@ -62,17 +66,10 @@ void handleGetfavicon(AsyncWebServerRequest *request)
     {
         return request->requestAuthentication();
     }
-    request->send(200, "image/x-icon", BBLED_favicon, BBLED_favicon_len);
+    AsyncWebServerResponse *response = request->beginResponse(200, favicon_png_gz_mime, favicon_png_gz, favicon_png_gz_len);
+    response->addHeader("Content-Encoding", "gzip");
+    request->send(response);
 }
-
-/* void handleGetCSS(AsyncWebServerRequest *request)
-{
-    if (!isAuthorized(request))
-    {
-        return request->requestAuthentication();
-    }
-    request->send(200, "text/css", (const uint8_t*)awsomeFont_css, awsomeFont_css_len);
-} */
 
 void handleGetPCC(AsyncWebServerRequest *request)
 {
@@ -80,26 +77,10 @@ void handleGetPCC(AsyncWebServerRequest *request)
     {
         return request->requestAuthentication();
     }
-    AsyncWebServerResponse *response = request->beginResponse(200, "text/css", (const uint8_t*)particleCanvas_html_gz, particleCanvas_html_gz_len);
+    AsyncWebServerResponse *response = request->beginResponse(200, particleCanvas_js_gz_mime, (const uint8_t *)particleCanvas_js_gz, particleCanvas_js_gz_len);
     response->addHeader("Content-Encoding", "gzip");
     request->send(response);
 }
-
-/* char *obfuscate(const char *charstring)
-{
-    int length = strlen(charstring);
-    char *blurredstring = new char[length + 1];
-    strcpy(blurredstring, charstring);
-    if (length > 3)
-    {
-        for (int i = 0; i < length - 3; i++)
-        {
-            blurredstring[i] = '*';
-        }
-    }
-    blurredstring[length] = '\0';
-    return blurredstring;
-} */
 
 void handleGetConfig(AsyncWebServerRequest *request)
 {
@@ -113,8 +94,8 @@ void handleGetConfig(AsyncWebServerRequest *request)
     doc["firmwareversion"] = globalVariables.FWVersion.c_str();
     doc["wifiStrength"] = WiFi.RSSI();
     doc["ip"] = printerConfig.printerIP;
-    //doc["code"] = obfuscate(printerConfig.accessCode);
-    //doc["id"] = obfuscate(printerConfig.serialNumber);
+    // doc["code"] = obfuscate(printerConfig.accessCode);
+    // doc["id"] = obfuscate(printerConfig.serialNumber);
     doc["code"] = printerConfig.accessCode;
     doc["id"] = printerConfig.serialNumber;
     doc["apMAC"] = printerConfig.BSSID;
@@ -193,6 +174,17 @@ void handleGetConfig(AsyncWebServerRequest *request)
     String jsonString;
     serializeJson(doc, jsonString);
     request->send(200, "application/json", jsonString);
+}
+
+void handlePrinterConfigJson(AsyncWebServerRequest *request) {
+    JsonDocument doc;
+    doc["printerIP"] = printerConfig.printerIP;
+    doc["printerSerial"] = printerConfig.serialNumber;
+    doc["accessCode"] = printerConfig.accessCode;
+
+    String json;
+    serializeJson(doc, json);
+    request->send(200, "application/json", json);
 }
 
 void handleSubmitConfig(AsyncWebServerRequest *request)
@@ -317,18 +309,89 @@ void handleSubmitConfig(AsyncWebServerRequest *request)
     }
 }
 
-
-void sendJsonToAll(JsonDocument& doc) {
+void sendJsonToAll(JsonDocument &doc)
+{
     String jsonString;
     serializeJson(doc, jsonString);
     ws.textAll(jsonString);
 }
 
+void handleWiFiScan(AsyncWebServerRequest *request)
+{
+    JsonDocument doc;
+    JsonArray networks = doc["networks"].to<JsonArray>();
+
+    int n = WiFi.scanNetworks();
+    for (int i = 0; i < n; ++i)
+    {
+        JsonObject net = networks.add<JsonObject>();
+        net["ssid"] = WiFi.SSID(i);
+        net["rssi"] = WiFi.RSSI(i);
+        net["enc"] = (WiFi.encryptionType(i) == WIFI_AUTH_OPEN) ? false : true;
+    }
+
+    String json;
+    serializeJson(doc, json);
+    request->send(200, "application/json", json);
+}
+
+void handleWiFiSetupPage(AsyncWebServerRequest *request)
+{
+    AsyncWebServerResponse *response = request->beginResponse(200, wifiSetup_html_gz_mime, wifiSetup_html_gz, wifiSetup_html_gz_len);
+    response->addHeader("Content-Encoding", "gzip");
+    request->send(response);
+}
+
+void handleSubmitWiFi(AsyncWebServerRequest *request) {
+    if (!request->hasParam("ssid", true) || !request->hasParam("pass", true)) {
+        request->send(400, "text/plain", "Missing SSID or Password");
+        return;
+    }
+
+    String ssid = request->getParam("ssid", true)->value();
+    String pass = request->getParam("pass", true)->value();
+    String printerIP = request->hasParam("printerIP", true) ? request->getParam("printerIP", true)->value() : "";
+    String printerSerial = request->hasParam("printerSerial", true) ? request->getParam("printerSerial", true)->value() : "";
+    String accessCode = request->hasParam("accessCode", true) ? request->getParam("accessCode", true)->value() : "";
+
+    ssid.trim();
+    pass.trim();
+    printerIP.trim();
+    printerSerial.trim();
+    accessCode.trim();
+
+    Serial.println(F("[WiFiSetup] Received configuration:"));
+    Serial.print(F("SSID: ")); Serial.println(ssid);
+    Serial.print(F("Password: ")); Serial.println(pass);
+    if (printerIP.length() > 0) Serial.print(F("Printer IP: ")), Serial.println(printerIP);
+    if (printerSerial.length() > 0) Serial.print(F("Printer Serial: ")), Serial.println(printerSerial);
+    if (accessCode.length() > 0) Serial.print(F("Access Code: ")), Serial.println(accessCode);
+
+    // Immer speichern SSID + Passwort
+    strlcpy(globalVariables.SSID, ssid.c_str(), sizeof(globalVariables.SSID));
+    strlcpy(globalVariables.APPW, pass.c_str(), sizeof(globalVariables.APPW));
+
+    // Optional speichern falls vorhanden
+    if (printerIP.length() > 0) strlcpy(printerConfig.printerIP, printerIP.c_str(), sizeof(printerConfig.printerIP));
+    if (printerSerial.length() > 0) strlcpy(printerConfig.serialNumber, printerSerial.c_str(), sizeof(printerConfig.serialNumber));
+    if (accessCode.length() > 0) strlcpy(printerConfig.accessCode, accessCode.c_str(), sizeof(printerConfig.accessCode));
+
+    saveFileSystem();
+
+    request->send(200, "text/plain", "Settings saved, restarting...");
+    delay(1000);
+    ESP.restart();
+}
+
+
+
 unsigned long lastWsPush = 0;
 const unsigned long wsPushInterval = 1000; // alle 5000ms
-void websocketLoop() {
-    
-    if (millis() - lastWsPush > wsPushInterval) {
+void websocketLoop()
+{
+    if (ws.count() == 0) return;
+    if (millis() - lastWsPush > wsPushInterval)
+    {
         lastWsPush = millis();
 
         JsonDocument doc;
@@ -346,25 +409,27 @@ void websocketLoop() {
 }
 
 void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type,
-               void *arg, uint8_t *data, size_t len) {
-    switch (type) {
-        case WS_EVT_CONNECT:
-            Serial.printf("[WS] Client connected: %u\n", client->id());
-            break;
-        case WS_EVT_DISCONNECT:
-            Serial.printf("[WS] Client disconnected: %u\n", client->id());
-            ws.cleanupClients();
-            break;
-        case WS_EVT_DATA:
-            Serial.printf("[WS] Data received from client %u\n", client->id());
-            break;
-        case WS_EVT_PONG:
-            Serial.printf("[WS] Pong received from %u\n", client->id());
-            break;
-        case WS_EVT_ERROR:
-            Serial.printf("[WS] Error on connection %u\n", client->id());
-            ws.cleanupClients();
-            break;
+               void *arg, uint8_t *data, size_t len)
+{
+    switch (type)
+    {
+    case WS_EVT_CONNECT:
+        Serial.printf("[WS] Client connected: %u\n", client->id());
+        break;
+    case WS_EVT_DISCONNECT:
+        Serial.printf("[WS] Client disconnected: %u\n", client->id());
+        ws.cleanupClients();
+        break;
+    case WS_EVT_DATA:
+        Serial.printf("[WS] Data received from client %u\n", client->id());
+        break;
+    case WS_EVT_PONG:
+        Serial.printf("[WS] Pong received from %u\n", client->id());
+        break;
+    case WS_EVT_ERROR:
+        Serial.printf("[WS] Error on connection %u\n", client->id());
+        ws.cleanupClients();
+        break;
     }
 }
 
@@ -379,14 +444,25 @@ void setupWebserver()
 
     Serial.println(F("Setting up webserver"));
 
-    webServer.on("/", HTTP_GET, handleSetup);
+    webServer.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
+                 {
+    if (WiFi.getMode() == WIFI_AP) {
+        Serial.println(F("[WebServer] Captive Portal aktiv – redirect auf /wifi"));
+        request->redirect("/wifi");
+    } else {
+        handleSetup(request);
+    } });
+
     webServer.on("/fwupdate", HTTP_GET, handleUpdatePage);
     webServer.on("/getConfig", HTTP_GET, handleGetConfig);
-    webServer.on("/submitConfig",HTTP_POST,handleSubmitConfig);
+    webServer.on("/submitConfig", HTTP_POST, handleSubmitConfig);
     webServer.on("/blled.png", HTTP_GET, handleGetIcon);
     webServer.on("/favicon.ico", HTTP_GET, handleGetfavicon);
-   // webServer.on("/awesomeFont.css", HTTP_GET, handleGetCSS);
     webServer.on("/particleCanvas.js", HTTP_GET, handleGetPCC);
+    webServer.on("/config.json", HTTP_GET, handlePrinterConfigJson);
+    webServer.on("/wifi", HTTP_GET, handleWiFiSetupPage);
+    webServer.on("/wifiScan", HTTP_GET, handleWiFiScan);
+    webServer.on("/submitWiFi", HTTP_POST, handleSubmitWiFi);
 
     webServer.on("/update", HTTP_POST, [](AsyncWebServerRequest *request)
                  {
@@ -414,12 +490,12 @@ void setupWebserver()
             }
         } });
 
-
     ws.onEvent(onWsEvent);
     webServer.addHandler(&ws);
     webServer.begin();
 
     Serial.println(F("Webserver started"));
+
 }
 
 #endif

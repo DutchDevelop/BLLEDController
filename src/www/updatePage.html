@@ -2,203 +2,180 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>BLLED Setup</title>
-    <!-- <link rel='stylesheet' href='/awesomeFont.css'/> dont make a effect, remove at the moment-->
+    <title>BLLED OTA Update</title>
     <style>
-        :root {
-            --color-black: black;
-            --color-cod-gray: #101010;
-            --color-white: white;
-            --color-error: rgb(191, 95, 95);
-            --color-primary: #484;
-        }
-
-        * {
+        body {
+            font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            height: 100vh;
+            color: white;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
-            background-color: var(--color-black);
-            overflow: hidden;
-            font-family: Arial, sans-serif;
+            min-height: 100vh;
         }
 
         canvas {
-            position: absolute;
+            position: fixed;
             top: 0;
             left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            background: rgb(20,80,49);
+        }
+
+        #container {
+            max-width: 450px;
             width: 100%;
-            height: 100%;
+            padding: 20px;
             z-index: 1;
         }
-        .container {
+
+        #header {
             display: flex;
-            flex-direction: column;
+            align-items: center;
             justify-content: center;
-            align-items: center;
-            height: calc(100% - 100px);
-            z-index: 2;
+            gap: 8px;
+            margin-bottom: 20px;
         }
-        .logo-container {
-            display: flex;
-            align-items: center;
+
+        #logo {
+            height: 1.5em;
+            width: auto;
+            display: inline-block;
         }
-        .logo {
-            width: 100px;
-            height: 100px;
-            margin-right: 20px;
-        }
-        .logo-text {
-            font-size: 36px;
-            font-weight: bold;
+
+        h1, h2 {
             color: white;
-            stroke: black;
+            text-align: center;
         }
+
         .form-container {
-            background-color: white;
-            padding: 20px;
-            border-radius: 10px;
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 5px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-            width: 100%;
-            margin-top: 20px;
+            color: #333;
         }
 
         label {
             display: block;
             font-weight: bold;
-            font-size: 16px;
-            color: #333;
             margin-bottom: 5px;
         }
 
         input[type='file'] {
             width: 100%;
-            padding: 10px;
-            font-size: 16px;
+            padding: 6px;
+            margin-bottom: 15px;
             border: 1px solid #ccc;
-            border-radius: 5px;
-            margin-bottom: 20px;
+            border-radius: 3px;
         }
 
-        input[type='submit'] {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px;
-            font-size: 16px;
-            font-weight: bold;
+        button {
+            background-color: #007bff;
             border: none;
-            border-radius: 5px;
+            color: white;
+            padding: 8px 16px;
+            font-size: 14px;
+            border-radius: 3px;
             cursor: pointer;
-            margin-top: 20px;
+            width: 100%;
+        }
+
+        button:disabled {
+            background-color: #999;
+            cursor: not-allowed;
         }
 
         progress {
             width: 100%;
             height: 15px;
-            border: none;
-            border-radius: 5px;
             margin-bottom: 10px;
+            border-radius: 5px;
+            overflow: hidden;
         }
 
-        .status-text {
+        #status {
             font-weight: bold;
-            color: #4CAF50;
+            text-align: center;
             margin-top: 10px;
+            color: #4CAF50;
         }
     </style>
 </head>
 <body>
-    <canvas id="particleCanvas" style="background: rgb(20,80,49);"></canvas>
+    <canvas id="particleCanvas"></canvas>
 
-    <div class='container'>
-        <div class='logo-container'>
-            <img class='logo' src='/blled.png' alt='Logo'>
-            <span class='logo-text'>BLLED Controller</span>
+    <div id="container">
+        <div id="header">
+            <img id="logo" src="/blled.png" alt="BLLED Logo">
+            <h1>BLLED OTA Update</h1>
         </div>
-        <div class='form-container'>
-            <h1>BLLED OTA</h1>
-            <p>
-                This page allows you to update your device over the air.
-            </p>
+
+        <div class="form-container">
+            <p>This page allows you to update your device firmware over the air.</p>
             <form enctype="multipart/form-data" id="upload_form" method="post">
-                <label>.bin.ota file:</label>
-                <input accept='.bin.ota' class="input-file" id="file1" name='firmware' type="file"><br>
-                <progress id="progressBar" max="100" value="0"></progress><br>
-                <button id="button-send" class="button-send" type="submit" disabled>Update</button>
+                <label for="file1">Select .bin.ota File</label>
+                <input accept='.bin.ota' id="file1" name='firmware' type="file">
+                <progress id="progressBar" max="100" value="0"></progress>
+                <button id="button-send" type="submit" disabled>Update Firmware</button>
             </form>
-            <p class="status-text" id="status">Status: Ready</p>
-            <script type="application/javascript">
-                function _(el) {
-                    return document.getElementById(el);
-                }
-
-                function uploadFile() {
-                    var file = _("file1").files[0];
-                    var formdata = new FormData();
-                    formdata.append(_("file1").name, file, file.name);
-                    var ajax = new XMLHttpRequest();
-                    ajax.upload.addEventListener("progress", progressHandler, false);
-                    ajax.addEventListener("load", completeHandler, false);
-                    ajax.addEventListener("loadstart", startHandler, false);
-                    ajax.addEventListener("error", errorHandler, false);
-                    ajax.addEventListener("abort", abortHandler, false);
-                    ajax.open("POST", "/update"); 
-                    ajax.setRequestHeader('Access-Control-Allow-Headers', '*');
-                    ajax.setRequestHeader('Access-Control-Allow-Origin', '*');
-
-                    ajax.send(formdata);
-                }
-                function progressHandler(event) {
-                    var percent = Math.round((event.loaded / event.total) * 100);
-                    _("progressBar").value = percent;
-                }
-
-                function completeHandler(event) {
-                    _("progressBar").value = 0; 
-                    _("status").textContent = "Status: Update complete!";
-                }
-
-                function startHandler(event) {
-                    _("status").textContent = "Status: Uploading...";
-                }
-
-                function errorHandler(event) {
-                    _("status").textContent = "Status: Error during update.";
-                }
-
-                function abortHandler(event) {
-                    _("status").textContent = "Status: Update aborted.";
-                }
-
-                _('upload_form').addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    uploadFile();
-                });
-
-                _('file1').addEventListener('change', function(e){
-                    var file = _("file1").files[0];
-                    if (file && file.name){
-                        _('button-send').disabled = false;
-                        _("progressBar").value = 0;
-                    }else{
-                        _('button-send').disabled = true;
-                    }
-                    _('status').innerHTML = "Firmware Upload!";
-                    _("loaded_n_total").innerHTML = "";
-                });
-            </script>
+            <p id="status">Status: Ready</p>
         </div>
     </div>
 
+    <script src="particleCanvas.js"></script>
+    <script>
+        function _(el) { return document.getElementById(el); }
 
-  <script src="particleCanvas.js"></script>
+        function uploadFile() {
+            var file = _("file1").files[0];
+            var formdata = new FormData();
+            formdata.append("firmware", file, file.name);
+            var ajax = new XMLHttpRequest();
+            ajax.upload.addEventListener("progress", progressHandler, false);
+            ajax.addEventListener("load", completeHandler, false);
+            ajax.addEventListener("loadstart", startHandler, false);
+            ajax.addEventListener("error", errorHandler, false);
+            ajax.addEventListener("abort", abortHandler, false);
+            ajax.open("POST", "/update");
+            ajax.send(formdata);
+        }
+
+        function progressHandler(event) {
+            var percent = Math.round((event.loaded / event.total) * 100);
+            _("progressBar").value = percent;
+        }
+
+        function completeHandler(event) {
+            _("progressBar").value = 0;
+            _("status").textContent = "Status: Update complete!";
+        }
+
+        function startHandler(event) {
+            _("status").textContent = "Status: Uploading...";
+        }
+
+        function errorHandler(event) {
+            _("status").textContent = "Status: Error during update.";
+        }
+
+        function abortHandler(event) {
+            _("status").textContent = "Status: Update aborted.";
+        }
+
+        _('upload_form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            uploadFile();
+        });
+
+        _('file1').addEventListener('change', function (e) {
+            _('button-send').disabled = !_("file1").files.length;
+            _('progressBar').value = 0;
+            _('status').textContent = "Firmware Upload!";
+        });
+    </script>
 </body>
 </html>

@@ -1,224 +1,236 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <link rel='stylesheet' href='/awesomeFont.css' />
-        <style>
-            body {
-                background-color: #f1f1f1;
-                font-family: Arial, sans-serif;
-            }
-            .BLLEDlogo-container {
-                display: flex;
-                align-items: center;
-            }
-            .BLLEDlogo {
-                width: 100px;
-                height: 100px;
-                margin-right: 20px;
-            }
-            .BLLEDlogo-text {
-                font-size: 36px;
-                font-weight: bold;
-            }
-            .BLLEDform-container {
-                background-color: white;
-                padding: 20px;
-                border-radius: 10px;
-                box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-                width: 70%;
-                margin-top: 20px;
-            }
-            .center-container {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                height: calc(100% - 100px);
-            }
 
-            label {
-                display: block;
-                width: 100%;
-                margin-bottom: 5px;
-                font-weight: bold;
-                font-size: 16px;
-                color: #333;
-            }
-            input[type='text'] {
-                width: 97%;
-                padding: 10px;
-                border-radius: 5px;
-                border: 1px solid #ccc;
-                margin-bottom: 20px;
-                font-size: 16px;
-            }
-            input[type='password'] {
-                width: 97%;
-                padding: 10px;
-                border-radius: 5px;
-                border: 1px solid #ccc;
-                margin-bottom: 20px;
-                font-size: 16px;
-            }
-            button{
-                background-color: #4CAF50;
-                color: white;
-                padding: 10px;
-                border-radius: 5px;
-                border: none;
-                cursor: pointer;
-                margin-top: 20px;
-                font-size: 16px;
-                font-weight: bold;
-            }
-            input:checked + .slider {
-                background-color: #2196F3;
-            }
-            input:focus + .slider {
-                box-shadow: 0 0 1px #2196F3;
-            }
-            input:checked + .slider:before {
-                -webkit-transform: translateX(26px);
-                -ms-transform: translateX(26px);
-                transform: translateX(26px);
-            }
-            .hidden { display: none; }
-        </style>
-    </head>
-  <body>
-    <div class="center-container">
-        <div class='BLLEDlogo-container'>
-            <img class='BLLEDlogo' src='/blled.png' alt='Logo'>
-            <span class='BLLEDlogo-text'>BLLEDController</span>
+<head>
+    <meta charset="UTF-8">
+    <title>BLLED WiFi Setup</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f9f9f9;
+            margin: 0;
+            padding: 15px;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        #container {
+            max-width: 450px;
+            width: 100%;
+            z-index: 1;
+        }
+
+        #header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        h1,
+        h2 {
+            color: white;
+        }
+
+        #logo {
+            height: 1.5em;
+            width: auto;
+            display: inline-block;
+        }
+
+        #networks {
+            margin: 10px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .network {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 4px 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .network:hover {
+            background: #eee;
+        }
+
+        .network svg {
+            width: 16px;
+            height: 12px;
+            display: inline-block;
+            vertical-align: middle;
+            flex-shrink: 0;
+        }
+
+        form {
+            margin-top: 15px;
+            background: #fff;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        form label {
+            display: block;
+            margin-top: 8px;
+            margin-bottom: 4px;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 6px;
+            margin-bottom: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        button {
+            background-color: #007bff;
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            font-size: 14px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="particleCanvas" style="background: rgb(20,80,49);"></canvas>
+    <div id="container">
+        <div id="header">
+            <img id="logo" src="/blled.png" alt="BLLED Logo">
+            <h1>BLLED WiFi Setup</h1>
         </div>
-        <button id="connectButton"> Select BLLed Controller</button>
-        <div id = "BLLEDForm" class='BLLEDform-container hidden'>
-            <h1>BLLEDController WIFI Setup Page</h1>
-            <p>
-                This page allows you to set up your BLLEDController's WIFI By entering your WIFI details.
-            </p>   
-            <label for="ssid">SSID:</label>
-            <input type="text" id="ssid" placeholder="Enter SSID"><br>
-        
-            <label for="password">Password:</label>
-            <input type="password" id="password" placeholder="Enter Password"><br>
 
-            <label for='ip'>Printer IP:</label>
-            <input type='text' id='ip' title='Enter the IP address of your MQTT broker' placeholder="Enter Printer IP"><br>
+        <div id="networks">Loading...</div>
 
-            <label for='code'>Printer Access Code:</label>
-            <input type='text' id='code' title='Enter the access code for your MQTT broker' placeholder="Enter Printer Access Code"><br>
+        <form id="wifiForm">
+            <label for="ssid">SSID</label>
+            <input type="text" id="ssid" required>
 
-            <label for='id'>Printer Serial ID:</label>
-            <input type='text' id='id' title='Enter the serial ID for your device' placeholder="Enter Printer Serial ID"><br>
-        
-            <button id="sendButton">Send Configuration</button><br /><br />
-            <div id="status"></div>
-            <div id="logContainer" style="margin-top: 20px; border: 1px solid #ccc; padding: 10px; max-height: 200px; overflow-y: auto;"></div>
-        </div>
+            <label for="password">Password</label>
+            <input type="password" id="password" required>
+
+            <label for="printerIP">Printer IP</label>
+            <input type="text" id="printerIP" placeholder="e.g. 192.168.1.100">
+
+            <label for="printerSerial">Printer Serial Number</label>
+            <input type="text" id="printerSerial" placeholder="e.g. BL123456789">
+
+            <label for="accessCode">Printer Access Code</label>
+            <input type="text" id="accessCode" placeholder="e.g. Access123">
+
+            <button type="submit">Save & Restart</button>
+        </form>
     </div>
 
+    <script src="particleCanvas.js"></script>
 
     <script>
-        document.addEventListener("DOMContentLoaded", async () => {
-          let port;
-  
-          async function connect() {
-                port = await navigator.serial.requestPort();
-                await port.open({ baudRate: 115200 });
-                
-                const logContainer = document.getElementById("logContainer");
-                logContainer.innerHTML += `<p>Connected</p>`;
-                logContainer.scrollTop = logContainer.scrollHeight;
+        function getSignalSVG(rssi) {
+            let level = 0;
+            if (rssi >= -50) level = 4;
+            else if (rssi >= -60) level = 3;
+            else if (rssi >= -70) level = 2;
+            else level = 1;
 
-                document.getElementById("connectButton").classList.add("hidden");
-                document.getElementById("BLLEDForm").classList.remove("hidden");
+            return `
+                <svg width="16" height="12" viewBox="0 0 20 16" preserveAspectRatio="xMidYMid meet">
+                    <rect x="0" y="12" width="3" height="4" ${level >= 1 ? 'fill="#444"' : 'fill="#ccc"'}/>
+                    <rect x="5" y="8" width="3" height="8" ${level >= 2 ? 'fill="#444"' : 'fill="#ccc"'}/>
+                    <rect x="10" y="4" width="3" height="12" ${level >= 3 ? 'fill="#444"' : 'fill="#ccc"'}/>
+                    <rect x="15" y="0" width="3" height="16" ${level >= 4 ? 'fill="#444"' : 'fill="#ccc"'}/>
+                </svg>`;
+        }
 
-                const decoder = new TextDecoderStream();
+        function getSignalPercent(rssi) {
+            let percent = Math.max(0, Math.min(100, 2 * (rssi + 100)));
+            return `${percent}%`;
+        }
 
-                port.readable.pipeTo(decoder.writable);
+        function getLockIcon(enc) {
+            return enc ? "🔒" : "🔓";
+        }
 
-                const inputStream = decoder.readable;
-                const reader = inputStream.getReader();
-                let accumulatedData = '';
+        async function loadNetworks() {
+            try {
+                const res = await fetch("/wifiScan");
+                const data = await res.json();
+                const container = document.getElementById("networks");
+                container.innerHTML = "";
+                data.networks.forEach(net => {
+                    const div = document.createElement("div");
+                    div.className = "network";
+                    div.innerHTML = `
+                        ${getSignalSVG(net.rssi)} ${getSignalPercent(net.rssi)} ${net.ssid} ${getLockIcon(net.enc)}
+                    `;
+                    div.addEventListener("click", () => {
+                        document.getElementById("ssid").value = net.ssid;
+                    });
+                    container.appendChild(div);
+                });
+            } catch (err) {
+                document.getElementById("networks").innerText = "Failed to load networks.";
+                console.error(err);
+            }
+        }
 
-                while (true) {
-                    const { value, done } = await reader.read();
-                    if (done) {
-                        console.log("[readLoop] DONE", done);
-                        reader.releaseLock();
-                        break;
-                    }
-                    if (value) {
-                        accumulatedData += value;
-                        if (value.includes('\n')|| value.includes('\r')|| value.includes('\f')) {
-                            if (accumulatedData.includes("IP_ADDRESS:")) {
-                                const startIndex = accumulatedData.indexOf("IP_ADDRESS:") + "IP_ADDRESS:".length;
-                                const ipAddress = accumulatedData.substring(startIndex).trim();
-                                document.getElementById("status").innerHTML = `Successfully connected to wifi. <span style="color:MediumSeaGreen;"><B>Head over to the <A HREF="http://${ipAddress}/">BLLED Conntroller Setup Page</A> to customise your settings</B></span><BR>`;
-                                document.getElementById("status").innerHTML += `BLLED Controller Setup page address: <A HREF="http://${ipAddress}/">http://${ipAddress}/</A>`;
-                                accumulatedData = '';
-                                break;
-                            }else{
-                                const logContainer = document.getElementById("logContainer");
-                                
-                                logContainer.innerHTML += `${accumulatedData.substring(0, accumulatedData.indexOf("\n"))}<BR>`;
-                                    logContainer.innerHTML += `${accumulatedData.substring(accumulatedData.indexOf("\n"),accumulatedData.length)}`;
-                                logContainer.scrollTop = logContainer.scrollHeight;
-                                accumulatedData = '';
-                            }
-                            
-                        }
-                    }
-                }
-          }
-  
-          async function sendCredentials() {
+        document.getElementById("wifiForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
             const ssid = document.getElementById("ssid").value;
             const pass = document.getElementById("password").value;
+            const printerIP = document.getElementById("printerIP").value;
+            const printerSerial = document.getElementById("printerSerial").value;
+            const accessCode = document.getElementById("accessCode").value;
 
-            const printerip = document.getElementById("ip").value;
-            const printercode = document.getElementById("code").value;
-            const printerserial = document.getElementById("id").value;
-  
-            const data = {
-              ssid,
-              pass,
-              printerip,
-              printercode,
-              printerserial
-            };
-  
-            const textEncoder = new TextEncoderStream();
-            const writableStreamClosed = textEncoder.readable.pipeTo(
-              port.writable
-            );
-  
-            const writer = textEncoder.writable.getWriter();
-  
-            await writer.write(JSON.stringify(data) + "\n");
-  
-            writer.releaseLock();
-  
-            document.getElementById("status").innerText = "Credentials sent to Controller";
-          }
-  
-          function writeToSerial(data) {
-            if (!port) {
-              console.error("Serial port is not open");
-              return;
-            }
-            port.write(new TextEncoder().encode(data));
-          }
-  
-          document
-            .getElementById("connectButton")
-            .addEventListener("click", connect);
-          document
-            .getElementById("sendButton")
-            .addEventListener("click", sendCredentials);
+            await fetch("/submitWiFi", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: `ssid=${encodeURIComponent(ssid)}&pass=${encodeURIComponent(pass)}&printerIP=${encodeURIComponent(printerIP)}&printerSerial=${encodeURIComponent(printerSerial)}&accessCode=${encodeURIComponent(accessCode)}`
+            });
+            alert("WiFi & Printer settings saved. Restarting...");
         });
-      </script>
+        async function loadPrinterConfig() {
+            try {
+                const res = await fetch("/config.json");
+                const config = await res.json();
+                document.getElementById("printerIP").value = config.printerIP || "";
+                document.getElementById("printerSerial").value = config.printerSerial || "";
+                document.getElementById("accessCode").value = config.accessCode || "";
+            } catch (err) {
+                console.warn("No existing config found or failed to load.");
+            }
+        }
+        loadPrinterConfig();
+        loadNetworks();
+    </script>
+</body>
 
-  </body>
 </html>

@@ -8,6 +8,10 @@
 #include "filesystem.h"
 #include "types.h"
 
+#include <DNSServer.h>
+DNSServer dnsServer;
+IPAddress apIP(192, 168, 4, 1);
+
 bool shouldSaveConfig = true;
 int connectionAttempts = 1;
 int wifimode = 0;
@@ -158,6 +162,18 @@ bool connectToWifi(){
     Serial.println();
     return true;
 };
+
+void startAPMode() {
+    WiFi.disconnect(true, true);
+    WiFi.mode(WIFI_AP);
+    delay(500);
+    WiFi.softAP("BLLED_AP");
+    WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
+    dnsServer.start(53, "*", apIP);
+
+    Serial.println(F("[WiFiManager] AP gestartet auf IP: "));
+    Serial.println(WiFi.softAPIP());
+}
 
 void scanNetwork()
 {
