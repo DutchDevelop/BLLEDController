@@ -204,9 +204,9 @@ void handleSubmitConfig(AsyncWebServerRequest *request)
     }
 
     bool newBSSID = false;
-    if (request->hasParam("apMAC", true))
-    {
-        if (strcmp(printerConfig.BSSID, request->getParam("apMAC", true)->value().c_str()) != 0)
+/*     if (request->hasParam("apMAC", true))
+    { */
+/*         if (strcmp(printerConfig.BSSID, request->getParam("apMAC", true)->value().c_str()) != 0)
         {
             newBSSID = true;
         }
@@ -219,7 +219,7 @@ void handleSubmitConfig(AsyncWebServerRequest *request)
             temperserial[x] = toupper(temperserial[x]);
         strcpy(printerConfig.serialNumber, temperserial);
 
-        strcpy(printerConfig.BSSID, request->getParam("apMAC", true)->value().c_str());
+        strcpy(printerConfig.BSSID, request->getParam("apMAC", true)->value().c_str()); */
         printerConfig.brightness = request->getParam("brightnessslider", true)->value().toInt();
         printerConfig.rescanWiFiNetwork = (request->hasParam("rescanWiFiNetwork", true));
         printerConfig.maintMode = (request->hasParam("maintMode", true));
@@ -305,17 +305,17 @@ void handleSubmitConfig(AsyncWebServerRequest *request)
         updateleds();
         request->redirect("/");
 
-        if (newBSSID)
+/*         if (newBSSID)
         {
             Serial.println(F("New MAC address (BSSID) assigned. Restarting..."));
             delay(1000);
             ESP.restart();
-        }
-    }
+        } */
+/*     }
     else
-    {
-        request->send(400, "text/plain", "Invalid parameters");
-    }
+    { */
+    //    request->send(400, "text/plain", "Invalid parameters");
+    //}
 }
 
 void sendJsonToAll(JsonDocument &doc)
@@ -472,7 +472,7 @@ void setupWebserver()
     webServer.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
                  {
     if (WiFi.getMode() == WIFI_AP) {
-        Serial.println(F("[WebServer] Captive Portal aktiv – redirect auf /wifi"));
+        Serial.println(F("[WebServer] Captive Portal activ – redirect to /wifi"));
         request->redirect("/wifi");
     } else {
         handleSetup(request);

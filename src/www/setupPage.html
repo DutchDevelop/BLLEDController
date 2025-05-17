@@ -255,43 +255,10 @@
             <svg id="status" viewBox="10 5 180 65" width="150" height="75"></svg>
         </div>
         <div class='form-container'>
-            <h1>BL LED Controller Settings Page</h1>
+            <h1>BLLED LED Settings</h1>
             <h2 id="firmwareversion">Firmware version: ??.??.??</h2>
-            <p>This page allows you to change the MQTT broker info and any additional settings.</p>
+            <p>This page allows you to change the LED behavior.</p>
             <form method='POST' action='/submitConfig' onsubmit='return submitForm();'>
-                <label for='ip'>Printer IP:</label>
-                <input type='text' id='ip' name='ip' title='Enter the IP address of your Bambulab Printer'
-                    value=''></br>
-                <label for='id'>Printer Serial Number:</label>
-                <input type='text' id='id' name='id' title='Enter the serial Number for your Bambulab Printer'
-                    value=''></br>
-                <label for='code'>Printer Access Code:</label>
-                <input type='password' id='code' name='code' title='Enter the access code of your Bambulab Printer'
-                    value=''></br>
-                <label for='apMAC'>Wifi Access Point MAC Address:</label>
-                <table width='100%'>
-                    <TR>
-                        <td width="20%">
-                            <input type='text' id='apMAC' name='apMAC'
-                                title='Enter the MAC address of your specific Access Point' value='' maxlength='17'
-                                size='17' style="width: 200px">
-                        </td>
-                        <td width='240px'>
-                            <p id="wifiStrength"></p>
-                        </td>
-                        <td>
-                            <div class='toggle-container'>
-                                <label class='toggle-switch'>
-                                    <input type='checkbox' id='rescanWiFiNetwork' name='rescanWiFiNetwork'>
-                                    <span class='slider'></span>
-                                </label>
-                                &nbsp;&nbsp;&nbsp;<span class='toggle-label'>Perform new Wifi network scan<BR>(Resets to
-                                    strongest BSSID)</span>
-                            </div>
-                        </td>
-                    </TR>
-                </table>
-                <input type='submit' value='Save Configuration'><BR>
                 <BR>
                 <label for='brightnessslider' id="brightnesssliderDisplay">Brightness: 100%</label>
                 <input type="range" id="brightnessslider" name="brightnessslider" min="0" max="100" value="100">
