@@ -1,48 +1,39 @@
 const fs = require('fs');
-const fetch = require('node-fetch');
+const path = require('path');
 
-const baseURL = "https://raw.githubusercontent.com/all-solutions/Flash2MQTT/main/firmware";
-const firmwareListURL = `${baseURL}/firmware_list.json`;
+const firmwareDir = path.resolve(__dirname, 'firmware'); // z. B. ./docs/firmware
 
-async function fetchJSON(url) {
-    const response = await fetch(url);
-    if (!response.ok) {
-        throw new Error(`Fehler beim Laden der URL: ${url}`);
-    }
-    return response.json();
+const binFiles = fs.readdirSync(firmwareDir).filter(file => file.endsWith('.bin'));
+
+if (binFiles.length === 0) {
+  console.log('Keine .bin Dateien gefunden.');
+  process.exit(1);
 }
 
-async function createReleaseJSON() {
-    const releaseData = { release: [] };
+for (const file of binFiles) {
+  const binPath = path.join(firmwareDir, file);
+  const baseName = path.basename(file, '.bin');
+  const manifestPath = path.join(firmwareDir, `${baseName}.json`);
 
-    try {
-        const firmwareList = await fetchJSON(firmwareListURL);
+  const manifest = {
+    name: baseName,
+    version: extractVersion(file),
+    build: Date.now().toString(),
+    files: [
+      {
+        url: file,
+        type: 'application/octet-stream',
+        platform: 'esp32'
+      }
+    ]
+  };
 
-        for (const firmware of firmwareList) {
-            const { name, version } = firmware;
-            const variantsURL = `${baseURL}/${name}/variants.json`;
-
-            try {
-                const variants = await fetchJSON(variantsURL);
-
-                for (const variant of variants) {
-                    const { displayName, file } = variant;
-                    releaseData.release.push({
-                        binary: `${name}${displayName}${version}`,
-                        otaurl: file
-                    });
-                }
-            } catch (error) {
-                console.error(`Fehler beim Laden der Variants für ${name}:`, error);
-            }
-        }
-
-        fs.writeFileSync('release.json', JSON.stringify(releaseData, null, 2));
-        console.log("release.json wurde erfolgreich erstellt!");
-
-    } catch (error) {
-        console.error(`Fehler beim Erstellen der release.json: ${error.message}`);
-    }
+  fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+  console.log(`Manifest erstellt: ${manifestPath}`);
 }
 
-createReleaseJSON();
+function extractVersion(filename) {
+  // Beispiel: BLLEDController_V1.0.2.bin → 1.0.2
+  const match = filename.match(/_V?(\d+\.\d+\.\w*)\.bin$/i);
+  return match ? match[1] : 'unknown';
+}
