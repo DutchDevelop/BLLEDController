@@ -95,7 +95,7 @@ jobs:
           git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/softwarecrash/BLLEDController-NG.git
           git fetch origin main
           git checkout main
-          git add docs/firmware
+          git add -f docs/firmware
 
           if git diff --cached --quiet; then
             echo "✅ Keine Änderungen – kein Push."
