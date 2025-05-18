@@ -1,0 +1,12 @@
+{
+  "name": "BLLEDController_V0.0.1.nightly170525",
+  "version": "0.0.1.nightly170525.bin",
+  "build": "1747565733891",
+  "files": [
+    {
+      "url": "BLLEDController_V0.0.1.nightly170525.bin",
+      "type": "application/octet-stream",
+      "platform": "esp32"
+    }
+  ]
+}
