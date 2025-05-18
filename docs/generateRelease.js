@@ -23,16 +23,19 @@ for (const file of binFiles) {
     file
   });
 
-  // 👇 Create ESP Web Tools Manifest
+  // 👇 Create ESP Web Tools Manifest (merged .bin format)
   const manifest = {
     name: file.replace(/\.bin$/, ''),
     version,
-    build: Date.now().toString(),
-    files: [
+    builds: [
       {
-        url: file,
-        type: 'application/octet-stream',
-        platform: 'esp32'
+        chipFamily: "ESP32",
+        parts: [
+          {
+            path: file,
+            offset: 0
+          }
+        ]
       }
     ]
   };
@@ -42,7 +45,7 @@ for (const file of binFiles) {
   console.log(`✅ Created manifest: ${manifestPath}`);
 }
 
-// 👇 Write firmware.json (for dropdown)
+// 👇 Write firmware.json (for dropdown use in UI)
 const firmwareJsonPath = path.join(firmwareDir, 'firmware.json');
 fs.writeFileSync(firmwareJsonPath, JSON.stringify(firmwareList, null, 2));
 console.log(`✅ Created firmware list: ${firmwareJsonPath}`);
