@@ -2,7 +2,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     const firmwareSelect = document.getElementById("firmwareSelect");
     const flashButton = document.getElementById("flashButton");
     //const manifestBase = window.location.origin + "/docs/firmware/";
-    const manifestBase = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, '') + "/docs/firmware/";
+const basePath = window.location.pathname.replace(/\/[^/]*$/, '');
+const manifestBase = window.location.origin + basePath + "/docs/firmware/";
 
 
     try {
