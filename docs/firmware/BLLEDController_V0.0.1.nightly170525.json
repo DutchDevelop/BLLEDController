@@ -1,12 +1,15 @@
 {
   "name": "BLLEDController_V0.0.1.nightly170525",
   "version": "0.0.1.nightly170525",
-  "build": "1747578158854",
-  "files": [
+  "builds": [
     {
-      "url": "BLLEDController_V0.0.1.nightly170525.bin",
-      "type": "application/octet-stream",
-      "platform": "esp32"
+      "chipFamily": "ESP32",
+      "parts": [
+        {
+          "path": "BLLEDController_V0.0.1.nightly170525.bin",
+          "offset": 0
+        }
+      ]
     }
   ]
 }
