@@ -84,4 +84,5 @@ jobs:
         run: |
           git add docs/firmware
           git commit -m "Update firmware and manifests" || git commit --allow-empty -m "No changes"
+          git pull --rebase
           git push
