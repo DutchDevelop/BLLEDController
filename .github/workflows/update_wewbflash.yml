@@ -1,4 +1,4 @@
-name: Update Firmware Files
+name: Update Firmware Files and Manifests
 
 on:
   release:
@@ -60,26 +60,28 @@ jobs:
                   prerelease: isPre,
                   file: asset.name
                 });
-                console.log(`Downloaded ${asset.name}`);
+                console.log(`Downloaded: ${asset.name}`);
               }
             }
 
             fs.writeFileSync('firmware_meta.json', JSON.stringify(firmwareList, null, 2));
 
-      - name: Clear old firmware files and move new ones
+      - name: Clear and Prepare /docs/firmware
         run: |
           mkdir -p docs/firmware
           rm -f docs/firmware/*.bin
+          rm -f docs/firmware/*.json
           cp *.bin docs/firmware/
           echo "Updated at $(date -u)" > docs/firmware/last_update.txt
-
-      - name: Create firmware.json
-        run: |
           cp firmware_meta.json docs/firmware/firmware.json
+
+      - name: Generate Manifest Files for ESP Web Tools
+        run: |
+          node generateRelease.js
+        working-directory: ./docs
 
       - name: Commit and Push Changes
         run: |
           git add docs/firmware
-          git commit -m "Update firmware files (latest 3 releases + 3 pre-releases)" || \
-            git commit --allow-empty -m "No changes"
+          git commit -m "Update firmware and manifests" || git commit --allow-empty -m "No changes"
           git push
