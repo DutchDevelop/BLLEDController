@@ -456,9 +456,11 @@ void setupWebserver()
         Serial.println(F("[WebServer] Captive Portal activ – redirect to /wifi"));
         request->redirect("/wifi");
     } else {
-        handleSetup(request);
+        //handleOldSetup(request);
+        handleOldSetup(request);
     } });
-    webServer.on("/old", HTTP_GET, handleOldSetup);
+    //webServer.on("/old", HTTP_GET, handleOldSetup);
+    webServer.on("/old", HTTP_GET, handleSetup);
     webServer.on("/fwupdate", HTTP_GET, handleUpdatePage);
     webServer.on("/getConfig", HTTP_GET, handleGetConfig);
     webServer.on("/submitConfig", HTTP_POST, handleSubmitConfig);

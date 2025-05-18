@@ -777,13 +777,13 @@
                         try {
                             var configData = JSON.parse(xhr.responseText);
                             document.getElementById("firmwareversion").textContent = "Firmware Version: " + (configData.firmwareversion || "Unknown version");
-                            if (configData.wifiStrength != "") {
+/*                             if (configData.wifiStrength != "") {
                                 document.getElementById("wifiStrength").textContent = "Connection Strength: " + (configData.wifiStrength || "") + "dBm";
-                            }
-                            document.getElementById('ip').value = configData.ip || '';
-                            document.getElementById('code').value = configData.code || '';
-                            document.getElementById('id').value = configData.id || '';
-                            document.getElementById('apMAC').value = configData.apMAC || '';
+                            } */
+                            //document.getElementById('ip').value = configData.ip || '';
+                            //document.getElementById('code').value = configData.code || '';
+                            //document.getElementById('id').value = configData.id || '';
+                            //document.getElementById('apMAC').value = configData.apMAC || '';
                             document.getElementById('brightnessslider').value = configData.brightness || 100;
                             document.getElementById("brightnesssliderDisplay").textContent = "Brightness: " + (configData.brightness || 100) + "%";
                             document.getElementById('maintMode').checked = configData.maintMode || false;
@@ -870,7 +870,8 @@
                             setFinishChoice();
                             showMessage("Success", "Configuration loaded successfully!");
                         } catch (e) {
-                            showMessage("Error", "Invalid server response!");
+                            console.log(e);
+                            showMessage("Error", "Invalid server response! (" + e + ").");
                         }
                     } else if (xhr.status >= 400 && xhr.status < 500) {
                         showMessage("Error", "Client Error (" + xhr.status + "): " + (xhr.responseText || "Request failed."));
