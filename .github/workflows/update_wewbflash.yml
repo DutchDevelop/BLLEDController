@@ -11,6 +11,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Abort if running in upstream repo
+        if: github.repository != 'softwarecrash/BLLEDController-NG'
+        run: |
+          echo "❌ Running in upstream repo: ${{ github.repository }}"
+          exit 1
+
       - name: Checkout Repository
         uses: actions/checkout@v3
 
@@ -80,12 +86,7 @@ jobs:
         run: node generateRelease.js
         working-directory: ./docs
 
-      - name: Trigger GitHub Pages Rebuild
-        run: |
-          date > docs/.nojekyll
-          git add docs/.nojekyll
-
-      - name: Commit and Push Changes (fork-safe)
+      - name: Commit and Push Changes (only if needed)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -95,6 +96,11 @@ jobs:
           git fetch origin main
           git checkout main
           git add docs/firmware
-          git commit -m "Update firmware and manifests" || git commit --allow-empty -m "No changes"
-          git pull --rebase origin main
-          git push origin main
+
+          if git diff --cached --quiet; then
+            echo "✅ Keine Änderungen – kein Push."
+          else
+            git commit -m "Update firmware and manifests"
+            git pull --rebase origin main
+            git push origin main
+          fi
