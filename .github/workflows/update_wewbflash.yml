@@ -7,6 +7,7 @@ on:
 
 jobs:
   update-firmware:
+    if: github.repository == 'softwarecrash/BLLEDController-NG'
     runs-on: ubuntu-latest
 
     steps:
@@ -76,29 +77,24 @@ jobs:
           cp firmware_meta.json docs/firmware/firmware.json
 
       - name: Generate Manifest Files for ESP Web Tools
-        run: |
-          node generateRelease.js
+        run: node generateRelease.js
         working-directory: ./docs
 
-      - name: Commit and Push Changes (direct to fork)
+      - name: Trigger GitHub Pages Rebuild
+        run: |
+          date > docs/.nojekyll
+          git add docs/.nojekyll
+
+      - name: Commit and Push Changes (fork-safe)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
-          git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
+          git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/softwarecrash/BLLEDController-NG.git
           git fetch origin main
           git checkout main
           git add docs/firmware
           git commit -m "Update firmware and manifests" || git commit --allow-empty -m "No changes"
           git pull --rebase origin main
           git push origin main
-
-      - name: Trigger Pages rebuild (touch .nojekyll)
-        run: |
-          date > docs/.nojekyll  # aktualisiert Timestamp
-          git add docs/.nojekyll
-          git commit -m "Trigger GitHub Pages rebuild" || echo "No changes"
-          git push
-
-
