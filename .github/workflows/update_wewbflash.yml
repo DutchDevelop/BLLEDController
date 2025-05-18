@@ -94,4 +94,11 @@ jobs:
           git pull --rebase origin main
           git push origin main
 
+      - name: Trigger Pages rebuild (touch .nojekyll)
+        run: |
+          date > docs/.nojekyll  # aktualisiert Timestamp
+          git add docs/.nojekyll
+          git commit -m "Trigger GitHub Pages rebuild" || echo "No changes"
+          git push
+
 
