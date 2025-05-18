@@ -414,6 +414,52 @@ void websocketLoop()
     }
 }
 
+void handleConfigPage(AsyncWebServerRequest *request)
+{
+    if (!isAuthorized(request))
+        return request->requestAuthentication();
+    AsyncWebServerResponse *response = request->beginResponse(200, backupRestore_html_gz_mime, backupRestore_html_gz, backupRestore_html_gz_len);
+    response->addHeader("Content-Encoding", "gzip");
+    request->send(response);
+}
+
+void handleDownloadConfigFile(AsyncWebServerRequest *request)
+{
+    if (!isAuthorized(request))
+    {
+        return request->requestAuthentication();
+    }
+    if (!LittleFS.exists(configPath))
+    {
+        request->send(404, "text/plain", "Config file not found");
+        return;
+    }
+    request->send(LittleFS, configPath, "application/json", true, nullptr);
+}
+
+void handleUploadConfigFileData(AsyncWebServerRequest *request, const String &filename,
+                                size_t index, uint8_t *data, size_t len, bool final)
+{
+    static File uploadFile;
+
+    if (!index)
+    {
+        Serial.println(F("[ConfigUpload] Start"));
+        uploadFile = LittleFS.open(configPath, "w");
+    }
+    if (uploadFile)
+    {
+        uploadFile.write(data, len);
+    }
+    if (final)
+    {
+        uploadFile.close();
+        Serial.println(F("[ConfigUpload] Finished"));
+    }
+    shouldRestart = true;
+    restartRequestTime = millis();
+}
+
 void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type,
                void *arg, uint8_t *data, size_t len)
 {
@@ -459,7 +505,7 @@ void setupWebserver()
         //handleOldSetup(request);
         handleOldSetup(request);
     } });
-    //webServer.on("/old", HTTP_GET, handleOldSetup);
+    // webServer.on("/old", HTTP_GET, handleOldSetup);
     webServer.on("/old", HTTP_GET, handleSetup);
     webServer.on("/fwupdate", HTTP_GET, handleUpdatePage);
     webServer.on("/getConfig", HTTP_GET, handleGetConfig);
@@ -472,12 +518,37 @@ void setupWebserver()
     webServer.on("/wifiScan", HTTP_GET, handleWiFiScan);
     webServer.on("/submitWiFi", HTTP_POST, handleSubmitWiFi);
 
+    webServer.on("/backuprestore", HTTP_GET, handleConfigPage);
+    webServer.on("/configfile.json", HTTP_GET, handleDownloadConfigFile);
+    webServer.on("/confirestore", HTTP_POST, [](AsyncWebServerRequest *request)
+                 {
+        if (!isAuthorized(request)) {
+            return request->requestAuthentication();
+        }
+        request->send(200, "text/plain", "Config uploaded. Restarting...");
+        shouldRestart = true;
+        restartRequestTime = millis(); }, [](AsyncWebServerRequest *request, const String &filename, size_t index, uint8_t *data, size_t len, bool final)
+                 {
+        static File uploadFile;
+
+        if (!index) {
+            Serial.printf("[ConfigUpload] Start: %s\n", filename.c_str());
+            uploadFile = LittleFS.open(configPath, "w");
+        }
+        if (uploadFile) {
+            uploadFile.write(data, len);
+        }
+        if (final) {
+            uploadFile.close();
+            Serial.println(F("[ConfigUpload] Finished"));
+        } });
+
     webServer.on("/update", HTTP_POST, [](AsyncWebServerRequest *request)
                  {
         request->send(200, "text/plain", "OK");
         Serial.println(F("Restarting Device"));
-        delay(1000);
-        ESP.restart(); });
+        shouldRestart = true;
+        restartRequestTime = millis(); });
 
     webServer.onFileUpload([](AsyncWebServerRequest *request, const String &filename, size_t index, uint8_t *data, size_t len, bool final)
                            {

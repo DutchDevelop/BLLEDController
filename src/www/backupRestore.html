@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>BLLED Config Backup</title>
+  <style>
+    #header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0;
+      padding: 15px;
+    }
+
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -1;
+      background: rgb(20, 80, 49);
+    }
+
+    #container {
+      max-width: 450px;
+      width: 100%;
+    }
+
+    #logo {
+      height: 5em;
+      width: auto;
+      display: inline-block;
+    }
+
+    h1,
+    h2 {
+      color: white;
+      text-align: center;
+    }
+
+    .form-container {
+      background: #fff;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+
+    button,
+    input[type='file'] {
+      width: 100%;
+      margin-top: 10px;
+      padding: 10px;
+      border: none;
+      border-radius: 4px;
+    }
+
+    button {
+      background: #484;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #4CAF50;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="particleCanvas"></canvas>
+  <div id="container">
+    <div id="header">
+      <img id="logo" src="/blled.png" alt="BLLED Logo">
+      <h1>Backup & Restore</h1>
+    </div>
+    <div class="form-container">
+      <p>Download current config:</p>
+      <button onclick="location.href='/configfile.json'">Download Config</button>
+
+      <hr>
+
+      <form id="uploadForm">
+        <label for="configUpload">Upload config file:</label>
+        <input type="file" id="configUpload" accept=".json" />
+        <button type="submit">Upload Config</button>
+      </form>
+
+      <p id="status"></p>
+    </div>
+  </div>
+  <script src="particleCanvas.js"></script>
+  <script>
+    const uploadForm = document.getElementById('uploadForm');
+    const configUpload = document.getElementById('configUpload');
+    const status = document.getElementById('status');
+
+    uploadForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      const file = configUpload.files[0];
+      if (!file) {
+        status.textContent = "Please select a file.";
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("config", file);
+
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", "/configrestore", true);
+
+      xhr.onload = function () {
+        if (xhr.status === 200) {
+          status.textContent = "Upload successful, restarting...";
+        } else {
+          status.textContent = "Upload failed.";
+        }
+      };
+
+      xhr.send(formData);
+    });
+  </script>
+</body>
+
+</html>
