@@ -80,9 +80,12 @@ jobs:
           node generateRelease.js
         working-directory: ./docs
 
-      - name: Commit and Push Changes
+      - name: Commit and Push Changes (safe pull & rebase)
         run: |
+          git fetch origin main
+          git checkout main
           git add docs/firmware
           git commit -m "Update firmware and manifests" || git commit --allow-empty -m "No changes"
-          git pull --rebase
-          git push
+          git pull --rebase origin main
+          git push origin main
+
