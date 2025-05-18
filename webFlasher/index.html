@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Install *2MQTT Firmware</title>
+    <!-- Favicon einbinden -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <!-- Einbindung des ESP Web Tools -->
+    <script type="module" src="https://unpkg.com/esp-web-tools@latest/dist/web/install-button.js?module"></script>
+    <style>
+        /* Zentriere den Inhalt */
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            text-align: center;
+        }
+        label, select, button, esp-web-install-button {
+            display: block;
+            margin: 15px auto;
+            text-align: center;
+        }
+        /* Abstand zwischen Dropdowns und Connect-Button */
+        .spacer {
+            height: 60px;
+        }
+        /* Stil für den Connect-Button im deaktivierten Zustand */
+        esp-web-install-button::part(button) {
+            background-color: grey;
+            pointer-events: none;
+            opacity: 0.6;
+            width: auto;
+        }
+        /* Stil für den Connect-Button im aktivierten Zustand */
+        esp-web-install-button[enabled]::part(button) {
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            pointer-events: auto;
+            opacity: 1;
+        }
+        /* Stil für die Anweisungen */
+        .instructions {
+            text-align: left;
+            display: inline-block;
+            margin-bottom: 30px;
+        }
+        /* Stil für die Trennlinie */
+        .divider {
+            border-top: 1px solid grey;
+            width: 60%;
+            margin: 30px auto;
+        }
+        /* Stil für den Footer-Text */
+        .footer-text {
+            color: grey;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+        /* Überschreibe veraltete Media Features */
+        @media (-ms-high-contrast: none), (-ms-high-contrast: active) {
+            /* Leerer Block, um das veraltete Feature zu neutralisieren */
+        }
+        /* Verwende standardisiertes forced-colors Media Feature */
+        @media (forced-colors: active) {
+            /* Anpassungen für Benutzer mit aktiviertem Forced Colors Mode */
+            body {
+                background: Window;
+                color: WindowText;
+            }
+            /* Weitere notwendige Anpassungen */
+        }
+    </style>
+</head>
+<body>
+    <h1>Install *2MQTT Firmware</h1>
+
+    <div class="instructions">
+        <ol>
+            <li>Connect the ESP device to your computer using USB or serial-to-USB adapter</li>
+            <li>Select the firmware variant suitable for your device</li>
+            <li>Hit "Connect" and select the correct port</li>
+        </ol>
+    </div>
+
+    <!-- Firmware-Auswahl -->
+    <label for="firmwareSelect">Select Firmware:</label>
+    <select id="firmwareSelect">
+        <option value="">Please select</option>
+    </select>
+
+    <!-- Varianten-Auswahl -->
+    <label for="variantSelect" style="display: none;">Select Variant:</label>
+    <select id="variantSelect" style="display: none;">
+        <option value="">Please select a variant</option>
+    </select>
+
+    <!-- Abstandshalter -->
+    <div class="spacer"></div>
+
+    <!-- Installations-Button von ESP Web Tools -->
+    <esp-web-install-button id="flashButton" manifest="" disabled></esp-web-install-button>
+
+    <!-- Trennlinie -->
+    <div class="divider"></div>
+
+    <!-- Footer-Text -->
+    <p class="footer-text">
+        *2MQTT Firmware Installer inspired by ESP Web Tools<br>
+        &copy; 2024-<span id="currentYear"></span> by all-solutions
+    </p>
+
+    <div id="status"></div>
+
+    <script src="script.js"></script>
+    <script>
+        // Setze das aktuelle Jahr im Footer
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+    </script>
+</body>
+</html>
+

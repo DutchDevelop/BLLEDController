@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Flash2MQTT Release JSON</title>
+</head>
+<body>
+    <script>
+        async function fetchJSON(url) {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`Fehler beim Laden der URL: ${url}`);
+            }
+            return response.json();
+        }
+
+        async function loadReleaseData() {
+            const baseURL = "https://raw.githubusercontent.com/all-solutions/Flash2MQTT/main/firmware";
+            const firmwareListURL = `${baseURL}/firmware_list.json`;
+            const releaseData = { release: [] };
+
+            try {
+                // Lade firmware_list.json
+                const firmwareList = await fetchJSON(firmwareListURL);
+
+                // Gehe jede Firmware im firmware_list.json durch
+                for (const firmware of firmwareList) {
+                    const { name, version } = firmware;
+                    const variantsURL = `${baseURL}/${name}/variants.json`;
+
+                    try {
+                        // Lade variants.json für jede Firmware
+                        const variants = await fetchJSON(variantsURL);
+
+                        // Verarbeite jede Variante und füge zur Release-Datenstruktur hinzu
+                        for (const variant of variants) {
+                            const { displayName, file } = variant;
+                            releaseData.release.push({
+                                binary: `${name}${displayName}${version}`,
+                                otaurl: file
+                            });
+                        }
+                    } catch (error) {
+                        console.error(`Fehler beim Laden der Variants für ${name}:`, error);
+                    }
+                }
+
+                // JSON-Ausgabe
+                document.body.innerText = JSON.stringify(releaseData, null, 2);
+            } catch (error) {
+                document.body.innerText = JSON.stringify({ error: error.message }, null, 2);
+            }
+        }
+
+        loadReleaseData();
+    </script>
+</body>
+</html>
