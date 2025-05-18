@@ -1,118 +1,154 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Install *2MQTT Firmware</title>
-    <!-- Favicon einbinden -->
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <!-- Einbindung des ESP Web Tools -->
-    <script type="module" src="https://unpkg.com/esp-web-tools@latest/dist/web/install-button.js?module"></script>
-    <style>
-        /* Zentriere den Inhalt */
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-            text-align: center;
-        }
-        label, select, button, esp-web-install-button {
-            display: block;
-            margin: 15px auto;
-            text-align: center;
-        }
-        /* Abstand zwischen Dropdowns und Connect-Button */
-        .spacer {
-            height: 60px;
-        }
-        /* Stil für den Connect-Button im deaktivierten Zustand */
-        esp-web-install-button::part(button) {
-            background-color: grey;
-            pointer-events: none;
-            opacity: 0.6;
-            width: auto;
-        }
-        /* Stil für den Connect-Button im aktivierten Zustand */
-        esp-web-install-button[enabled]::part(button) {
-            background-color: #007bff;
-            color: white;
-            cursor: pointer;
-            pointer-events: auto;
-            opacity: 1;
-        }
-        /* Stil für die Anweisungen */
-        .instructions {
-            text-align: left;
-            display: inline-block;
-            margin-bottom: 30px;
-        }
-        /* Stil für die Trennlinie */
-        .divider {
-            border-top: 1px solid grey;
-            width: 60%;
-            margin: 30px auto;
-        }
-        /* Stil für den Footer-Text */
-        .footer-text {
-            color: grey;
-            font-size: 0.9em;
-            margin-top: 10px;
-        }
-        /* Überschreibe veraltete Media Features */
-        @media (-ms-high-contrast: none), (-ms-high-contrast: active) {
-            /* Leerer Block, um das veraltete Feature zu neutralisieren */
-        }
-        /* Verwende standardisiertes forced-colors Media Feature */
-        @media (forced-colors: active) {
-            /* Anpassungen für Benutzer mit aktiviertem Forced Colors Mode */
-            body {
-                background: Window;
-                color: WindowText;
-            }
-            /* Weitere notwendige Anpassungen */
-        }
-    </style>
-</head>
-<body>
-    <h1>Install BLLEDController-NG Firmware</h1>
 
-    <div class="instructions">
-        <ol>
-            <li>Connect the ESP device to your computer using USB or serial-to-USB adapter</li>
-            <li>Select the firmware variant suitable for your device</li>
-            <li>Hit "Connect" and select the correct port</li>
-        </ol>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>BLLEDController-NG WebFlasher</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -1;
+      background: rgb(20, 80, 49);
+    }
+
+    #container {
+      max-width: 450px;
+      width: 100%;
+      padding: 20px;
+      z-index: 1;
+    }
+
+    #header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    #logo {
+      height: 5em;
+      width: auto;
+      display: inline-block;
+    }
+
+    h1,
+    h2 {
+      color: white;
+      text-align: center;
+    }
+
+    .form-container {
+      background-color: #fff;
+      padding: 15px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      color: #333;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-top: 15px;
+      margin-bottom: 5px;
+    }
+
+    select {
+      width: 100%;
+      padding: 6px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+    }
+
+    esp-web-install-button {
+      display: block;
+      margin: 20px auto;
+      text-align: center;
+    }
+
+    esp-web-install-button::part(button) {
+      background-color: grey;
+      pointer-events: none;
+      opacity: 0.6;
+      width: 100%;
+      font-size: 15px;
+      padding: 10px;
+    }
+
+    esp-web-install-button[enabled]::part(button) {
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+      pointer-events: auto;
+      opacity: 1;
+    }
+
+    #status {
+      font-weight: bold;
+      text-align: center;
+      margin-top: 10px;
+      color: #4CAF50;
+    }
+
+    .footer-text {
+      color: grey;
+      font-size: 0.85em;
+      text-align: center;
+      margin-top: 20px;
+    }
+  </style>
+  <script type="module" src="https://unpkg.com/esp-web-tools@latest/dist/web/install-button.js?module"></script>
+</head>
+
+<body>
+  <canvas id="particleCanvas"></canvas>
+
+  <div id="container">
+    <div id="header">
+      <img id="logo" src="/blled.svg" alt="BLLED Logo">
+      <h1>BLLED WebFlasher</h1>
     </div>
 
-    <!-- Firmware-Auswahl -->
-    <label for="firmwareSelect">Select Firmware:</label>
-    <select id="firmwareSelect">
+    <div class="form-container">
+      <p>Select a firmware version below and click Connect to flash your device.</p>
+
+      <label for="firmwareSelect">Firmware Version</label>
+      <select id="firmwareSelect">
         <option value="">Please select</option>
-    </select>
+      </select>
 
-    <!-- Varianten-Auswahl -->
-    <label for="variantSelect" style="display: none;">Select Variant:</label>
-    <select id="variantSelect" style="display: none;">
-        <option value="">Please select a variant</option>
-    </select>
+      <esp-web-install-button id="flashButton" manifest="" disabled></esp-web-install-button>
 
-    <!-- Abstandshalter -->
-    <div class="spacer"></div>
+      <p id="status"></p>
+    </div>
 
-    <!-- Installations-Button von ESP Web Tools -->
-    <esp-web-install-button id="flashButton" manifest="" disabled></esp-web-install-button>
+    <div class="footer-text">
+      BLLEDController-NG &copy; <span id="currentYear"></span>
+    </div>
+  </div>
 
-    <!-- Trennlinie -->
-    <div class="divider"></div>
-
-    <!-- Footer-Text -->
-    <p class="footer-text">
-        BLLEDController-NG Webflasher</p>
-    <div id="status"></div>
-
-    <script src="script.js"></script>
-    <script>
-        // Setze das aktuelle Jahr im Footer
-        document.getElementById('currentYear').textContent = new Date().getFullYear();
-    </script>
+  <script src="script.js"></script>
+  <script>
+    document.getElementById('currentYear').textContent = new Date().getFullYear();
+  </script>
+  <script src="particleCanvas.js"></script>
 </body>
-</html>
 
+</html>
