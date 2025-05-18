@@ -1,9 +1,8 @@
 document.addEventListener("DOMContentLoaded", async () => {
     const firmwareSelect = document.getElementById("firmwareSelect");
     const flashButton = document.getElementById("flashButton");
-    //const manifestBase = window.location.origin + "/docs/firmware/";
-const basePath = window.location.pathname.replace(/\/[^/]*$/, '');
-const manifestBase = window.location.origin + basePath + "/firmware/";
+    const basePath = window.location.pathname.replace(/\/[^/]*$/, '');
+    const manifestBase = window.location.origin + basePath + "/firmware/";
 
     try {
         const response = await fetch("firmware/firmware.json");
