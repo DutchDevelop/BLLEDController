@@ -1,7 +1,7 @@
 [
   {
-    "version": "0.0.1.nightly170525",
+    "version": "1.0.0.nightly.170525",
     "prerelease": true,
-    "file": "BLLEDController_V0.0.1.nightly170525.bin"
+    "file": "BLLEDController_V1.0.0.nightly.170525.bin"
   }
 ]
