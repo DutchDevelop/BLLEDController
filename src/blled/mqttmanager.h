@@ -75,9 +75,9 @@ void connectMqtt()
             ParseMQTTState(mqttClient.state());
             if (mqttClient.state() == 5)
             {
-                delay(500);
+                //delay(500);
                 tweenToColor(127, 0, 0, 0, 0); // light red, indicating not authorized
-                delay(500);
+                //delay(500);
                 mqttattempt = (millis() - 3000);
                 //                Serial.println(F("Restarting Device"));
                 //                delay(1000);
@@ -428,7 +428,7 @@ void setupMqtt()
 
 void mqttloop()
 {
-    if (WiFi.status() != WL_CONNECTED)
+    if (WiFi.status() != WL_CONNECTED || WiFi.getMode() != WIFI_MODE_STA)
     {
         // Abort MQTT connection attempt when no Wifi
         return;
@@ -444,7 +444,7 @@ void mqttloop()
             Serial.println(F("MQTT dropped during mqttloop"));
             ParseMQTTState(mqttClient.state());
         }
-        delay(500);
+        //delay(500);
         connectMqtt();
         delay(32);
         return;

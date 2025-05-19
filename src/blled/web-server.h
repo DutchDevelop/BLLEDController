@@ -506,7 +506,7 @@ void setupWebserver()
         handleOldSetup(request);
     } });
     // webServer.on("/old", HTTP_GET, handleOldSetup);
-    webServer.on("/old", HTTP_GET, handleSetup);
+    webServer.on("/new", HTTP_GET, handleSetup);
     webServer.on("/fwupdate", HTTP_GET, handleUpdatePage);
     webServer.on("/getConfig", HTTP_GET, handleGetConfig);
     webServer.on("/submitConfig", HTTP_POST, handleSubmitConfig);
@@ -546,24 +546,24 @@ void setupWebserver()
     webServer.on("/update", HTTP_POST, [](AsyncWebServerRequest *request)
                  {
         request->send(200, "text/plain", "OK");
-        Serial.println(F("Restarting Device"));
+        Serial.println(F("OTA Upload done. Marking for restart."));
         shouldRestart = true;
-        restartRequestTime = millis(); });
-
-    webServer.onFileUpload([](AsyncWebServerRequest *request, const String &filename, size_t index, uint8_t *data, size_t len, bool final)
-                           {
+        restartRequestTime = millis(); }, [](AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final)
+                 {
         if (!index) {
-            Serial.printf("Update: %s\n", filename.c_str());
+            Serial.printf("[OTA] Start: %s\n", filename.c_str());
             if (!Update.begin(UPDATE_SIZE_UNKNOWN)) {
                 Update.printError(Serial);
             }
         }
+
         if (Update.write(data, len) != len) {
             Update.printError(Serial);
         }
+
         if (final) {
             if (Update.end(true)) {
-                Serial.printf("Update Success: %u\nRebooting...\n", index + len);
+                Serial.printf("[OTA] Success (%u bytes). Awaiting reboot...\n", index + len);
             } else {
                 Update.printError(Serial);
             }

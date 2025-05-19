@@ -131,6 +131,26 @@
             box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
         }
 
+        #toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            background-color: #333;
+            color: white;
+            padding: 14px 24px;
+            border-radius: 6px;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.4s ease, transform 0.3s ease;
+            pointer-events: none;
+            box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
+        }
+
         #toast.show {
             opacity: 1;
             transform: translate(-50%, -50%) scale(1);
@@ -228,19 +248,43 @@
 
         function completeHandler(event) {
             _("progressBar").value = 0;
-            alertToast("success", "Update complete!");
+            _('status').textContent = "Upload complete. Rebooting...";
+            alertToast("success", "Firmware uploaded successfully!");
+
+            let attempts = 0;
+            let maxAttempts = 30;
+            const interval = setInterval(() => {
+                fetch("/")
+                    .then(response => {
+                        if (response.ok) {
+                            clearInterval(interval);
+                            alertToast("success", "Device is back online!");
+                            location.href = "/";
+                        }
+                    })
+                    .catch(() => {
+                        attempts++;
+                        if (attempts >= maxAttempts) {
+                            clearInterval(interval);
+                            alertToast("error", "Device did not come back online.");
+                        }
+                    });
+            }, 2000);
         }
 
         function startHandler(event) {
-            alertToast("info", "Uploading...");
+            _('status').textContent = "Uploading...";
+            alertToast("info", "Uploading firmware...");
         }
 
         function errorHandler(event) {
-            alertToast("error", "Error during update.");
+            _('status').textContent = "Upload failed.";
+            alertToast("error", "Firmware upload failed!");
         }
 
         function abortHandler(event) {
-            alertToast("warning", "Update aborted.");
+            _('status').textContent = "Upload aborted.";
+            alertToast("warning", "Firmware upload aborted.");
         }
 
 
@@ -255,6 +299,7 @@
             _('status').textContent = "Firmware Upload!";
         });
     </script>
+<div id="toast"><span id="toast-icon">ℹ️</span><span id="toast-msg">Placeholder</span></div>
 </body>
 
 </html>
