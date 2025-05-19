@@ -520,7 +520,7 @@ void setupWebserver()
 
     webServer.on("/backuprestore", HTTP_GET, handleConfigPage);
     webServer.on("/configfile.json", HTTP_GET, handleDownloadConfigFile);
-    webServer.on("/confirestore", HTTP_POST, [](AsyncWebServerRequest *request)
+    webServer.on("/configrestore", HTTP_POST, [](AsyncWebServerRequest *request)
                  {
         if (!isAuthorized(request)) {
             return request->requestAuthentication();
