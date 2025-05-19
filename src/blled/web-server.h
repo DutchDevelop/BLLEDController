@@ -407,10 +407,7 @@ void websocketLoop()
         doc["doorOpen"] = printerVariables.doorOpen;
         doc["printerConnection"] = printerVariables.online;
         doc["clients"] = ws.count();
-
         sendJsonToAll(doc);
-
-        Serial.println(F("[WS] JSON Status Push send."));
     }
 }
 
