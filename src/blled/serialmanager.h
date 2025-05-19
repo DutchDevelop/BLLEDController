@@ -16,7 +16,7 @@ void serialLoop(){
         String input = Serial.readStringUntil('\n');
         JsonDocument doc;
         deserializeJson(doc, input);
-        if (doc.containsKey("ssid") && doc.containsKey("pass")) {
+        if (doc["ssid"].is<const char*>() && doc["pass"].is<const char*>()) {
             Serial.print(F("SSID "));
             Serial.println(doc["ssid"].as<String>());
             Serial.print(F("PASS "));

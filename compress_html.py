@@ -1,66 +1,81 @@
-import sys
 import gzip
-import subprocess
 import os
+import glob
 
-def should_compress(html_file, header_file):
-    if not os.path.exists(header_file):
-        return True
-    
-    html_modified_time = os.path.getmtime(html_file)
-    header_modified_time = os.path.getmtime(header_file)
-    
-    return html_modified_time > header_modified_time
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+HTML_DIR = os.path.join(SCRIPT_DIR, "src", "www")
 
-def compress_html(html_file):
-    # Check if compression is necessary
-    header_file = os.path.splitext(html_file)[0] + ".h"
-    if not should_compress(html_file, header_file):
-        print("No need to compress:", html_file)
-        return
-    
-    # Compress HTML file
-    compressed_file = html_file + ".gz"
-    with open(html_file, "rb") as input_file:
-        with gzip.open(compressed_file, "wb", compresslevel=6) as output_file:
-            output_file.write(input_file.read())
+OUTPUT_HEADER_NAME = "www.h"
+OUTPUT_HEADER = os.path.join(HTML_DIR, OUTPUT_HEADER_NAME)
 
-    # Check if .h file exists and if HTML file is newer
-    if os.path.exists(header_file):
-        header_modified_time = os.path.getmtime(header_file)
-        html_modified_time = os.path.getmtime(html_file)
-        if html_modified_time < header_modified_time:
-            print("No need to generate header file. HTML file is not modified.")
-            os.remove(compressed_file)
-            return
+SUPPORTED_EXTENSIONS = ["*.html", "*.js", "*.css","*.svg","*.png"]
 
-    # Generate header file
-    print("Header file path:", header_file)  # Debug print
-    result = subprocess.run(["xxd", "-i", compressed_file], stdout=open(header_file, "w"))
-    if result.returncode != 0:
-        print("Error: xxd failed to generate the header file")
-        return
+MIME_TYPES = {
+    ".html": "text/html",
+    ".htm": "text/html",
+    ".js": "application/javascript",
+    ".css": "text/css",
+    ".json": "application/json",
+    ".png": "image/png",
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+    ".svg": "image/svg+xml",
+    ".ico": "image/x-icon",
+}
 
-    # Modify the generated header file to include PROGMEM attribute
-    with open(header_file, "r") as file:
-        content = file.read()
-    
-    with open(header_file, "w") as file:
-        # Add PROGMEM attribute after the array declaration
-        content = content.replace("unsigned char ", "const uint8_t ")
-        # Remove "__" prefix from the length variable
-        content = content.replace("unsigned int ", "unsigned int ")
-        # Add PROGMEM attribute after the variable name
-        content = content.replace("const uint8_t ", "const uint8_t ", 1).replace("{", "PROGMEM {")
-        file.write(content)
+def generate_header_start(f):
+    f.write("#ifndef WWW_H\n#define WWW_H\n\n")
+    f.write("#include <pgmspace.h>\n\n")
 
-    # Clean up
+def generate_header_end(f):
+    f.write("\n#endif // WWW_H\n")
+
+def guess_mime_type(filename):
+    _, ext = os.path.splitext(filename.lower())
+    return MIME_TYPES.get(ext, "application/octet-stream")
+
+def compress_and_append_file(input_file, f):
+    compressed_file = input_file + ".gz"
+
+    with open(input_file, "rb") as infile:
+        with gzip.open(compressed_file, "wb", compresslevel=6) as outfile:
+            outfile.write(infile.read())
+
+    with open(compressed_file, "rb") as cf:
+        data = cf.read()
+
+    array_name = os.path.basename(input_file).replace(".", "_")
+
+    f.write(f"const uint8_t {array_name}_gz[] PROGMEM = {{\n")
+    for i in range(0, len(data), 16):
+        line = ', '.join(f'0x{b:02x}' for b in data[i:i+16])
+        f.write(f"  {line},\n")
+    f.write("};\n\n")
+    f.write(f"const unsigned int {array_name}_gz_len = {len(data)};\n")
+    f.write(f"const char * {array_name}_gz_mime = \"{guess_mime_type(input_file)}\";\n\n")
+
     os.remove(compressed_file)
+    print(f"Appended: {array_name}_gz to {OUTPUT_HEADER_NAME} with MIME {guess_mime_type(input_file)}")
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: python compress_html.py <html_file>")
-        sys.exit(1)
-    
-    html_file = sys.argv[1]
-    compress_html(html_file)
+    if not os.path.isdir(HTML_DIR):
+        print(f"Error: {HTML_DIR} is not a valid directory")
+        exit(1)
+
+    files_to_process = []
+    for pattern in SUPPORTED_EXTENSIONS:
+        files_to_process.extend(glob.glob(os.path.join(HTML_DIR, pattern)))
+
+    if not files_to_process:
+        print(f"No matching files found in {HTML_DIR}")
+        exit(0)
+
+    with open(OUTPUT_HEADER, "w") as f:
+        generate_header_start(f)
+
+        for file in files_to_process:
+            compress_and_append_file(file, f)
+
+        generate_header_end(f)
+
+    print(f"\n✅ All files combined into: {OUTPUT_HEADER}")

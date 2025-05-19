@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <title>BLLED OTA Update</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            background: rgb(20, 80, 49);
+        }
+
+        #container {
+            max-width: 450px;
+            width: 100%;
+            padding: 20px;
+            z-index: 1;
+        }
+
+        #header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        #logo {
+            height: 5em;
+            width: auto;
+            display: inline-block;
+        }
+
+        h1,
+        h2 {
+            color: white;
+            text-align: center;
+        }
+
+        .form-container {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            color: #333;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        input[type='file'] {
+            width: 100%;
+            padding: 6px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        button {
+            background-color: #484;
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            font-size: 14px;
+            border-radius: 3px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #4CAF50;
+        }
+
+        button:disabled {
+            background-color: #999;
+            cursor: not-allowed;
+        }
+
+        progress {
+            width: 100%;
+            height: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        #status {
+            font-weight: bold;
+            text-align: center;
+            margin-top: 10px;
+            color: #4CAF50;
+        }
+
+        #toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            background-color: #333;
+            color: white;
+            padding: 14px 24px;
+            border-radius: 6px;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.4s ease, transform 0.3s ease;
+            pointer-events: none;
+            box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
+        }
+
+        #toast.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        #toast-icon {
+            font-size: 18px;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="particleCanvas"></canvas>
+
+    <div id="container">
+        <div id="header">
+            <img id="logo" src="/blled.png" alt="BLLED Logo">
+            <h1>BLLED OTA Update</h1>
+        </div>
+
+        <div class="form-container">
+            <p>This page allows you to update your device firmware over the air.</p>
+            <form enctype="multipart/form-data" id="upload_form" method="post">
+                <label for="file1">Select .bin.ota File</label>
+                <input accept='.bin.ota' id="file1" name='firmware' type="file">
+                <progress id="progressBar" max="100" value="0"></progress>
+                <button id="button-send" type="submit" disabled>Update Firmware</button>
+
+                <div style="margin-top: 10px;">
+                    <button type="button" style="background-color: #6c757d;" onclick="location.href='/'">Back</button>
+                </div>
+            </form>
+            <p id="status">Status: Ready</p>
+        </div>
+    </div>
+
+    <script src="particleCanvas.js"></script>
+    <script>
+
+        function alertToast(type, message) {
+            const toast = document.getElementById("toast");
+            const icon = document.getElementById("toast-icon");
+            const msg = document.getElementById("toast-msg");
+
+            let iconChar = "ℹ️";
+            let color = "#333";
+
+            switch (type.toLowerCase()) {
+                case "success":
+                    iconChar = "✅";
+                    color = "#28a745";
+                    break;
+                case "error":
+                    iconChar = "❌";
+                    color = "#dc3545";
+                    break;
+                case "warning":
+                    iconChar = "⚠️";
+                    color = "#ffc107";
+                    break;
+                case "info":
+                default:
+                    iconChar = "ℹ️";
+                    color = "#17a2b8";
+            }
+
+            toast.style.backgroundColor = color;
+            icon.textContent = iconChar;
+            msg.textContent = message;
+
+            toast.classList.add("show");
+            setTimeout(() => toast.classList.remove("show"), 3000);
+        }
+
+        function _(el) { return document.getElementById(el); }
+
+        function uploadFile() {
+            var file = _("file1").files[0];
+            var formdata = new FormData();
+            formdata.append("firmware", file, file.name);
+            var ajax = new XMLHttpRequest();
+            ajax.upload.addEventListener("progress", progressHandler, false);
+            ajax.addEventListener("load", completeHandler, false);
+            ajax.addEventListener("loadstart", startHandler, false);
+            ajax.addEventListener("error", errorHandler, false);
+            ajax.addEventListener("abort", abortHandler, false);
+            ajax.open("POST", "/update");
+            ajax.send(formdata);
+        }
+
+        function progressHandler(event) {
+            var percent = Math.round((event.loaded / event.total) * 100);
+            _("progressBar").value = percent;
+        }
+
+        function completeHandler(event) {
+            _("progressBar").value = 0;
+            alertToast("success", "Update complete!");
+        }
+
+        function startHandler(event) {
+            alertToast("info", "Uploading...");
+        }
+
+        function errorHandler(event) {
+            alertToast("error", "Error during update.");
+        }
+
+        function abortHandler(event) {
+            alertToast("warning", "Update aborted.");
+        }
+
+
+        _('upload_form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            uploadFile();
+        });
+
+        _('file1').addEventListener('change', function (e) {
+            _('button-send').disabled = !_("file1").files.length;
+            _('progressBar').value = 0;
+            _('status').textContent = "Firmware Upload!";
+        });
+    </script>
+</body>
+
+</html>

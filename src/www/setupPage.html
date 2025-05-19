@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <title>BLLED Setup</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f9f9f9;
+            margin: 0;
+            padding: 15px;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: rgb(20, 80, 49);
+        }
+
+        #container {
+            max-width: 450px;
+            width: 100%;
+            z-index: 1;
+        }
+
+        #header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        h1,
+        h2 {
+            color: white;
+            text-align: center;
+        }
+
+        #logo {
+            height: 5em;
+            width: auto;
+            display: inline-block;
+        }
+
+        .form-container {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            color: #333;
+        }
+
+        .collapse {
+            margin-bottom: 10px;
+        }
+
+        .collapse summary {
+            font-weight: bold;
+            cursor: pointer;
+            background-color: #e0e0e0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        .collapse[open] summary {
+            background-color: #ccc;
+        }
+
+        .collapse div {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-top: none;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        input[type="color"],
+        select {
+            width: 100%;
+            padding: 6px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            margin-bottom: 10px;
+        }
+
+        button {
+            background-color: #484;
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            font-size: 14px;
+            border-radius: 3px;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        button:hover {
+            background-color: #4CAF50;
+        }
+
+        .toggle-switch {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked+.slider {
+            background-color: #28a745;
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(26px);
+        }
+
+        input[type="color"] {
+            border: 1px solid #ccc;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            background: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        input[type="color"]::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+
+        input[type="color"]::-webkit-color-swatch {
+            border: none;
+            border-radius: 3px;
+        }
+
+
+        #toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            background-color: #333;
+            color: white;
+            padding: 14px 24px;
+            border-radius: 6px;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.4s ease, transform 0.3s ease;
+            pointer-events: none;
+            box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
+        }
+
+        #toast.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        #toast-icon {
+            font-size: 18px;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="particleCanvas"></canvas>
+    <div id="container">
+        <div id="header">
+            <img id="logo" src="/blled.png" alt="BLLED Logo">
+            <h1>BLLED Controller Setup</h1>
+        </div>
+
+        <div class="form-container">
+            <h2>Configuration</h2>
+            <p>Use the options below to configure your BLLED Controller.</p>
+
+            <label for="brightnessslider" id="brightnesssliderDisplay">Brightness: 100%</label>
+            <input type="range" id="brightnessslider" name="brightnessslider" min="0" max="100" value="100">
+
+            <details class="collapse" open>
+                <summary>LED Behaviour</summary>
+                <div>
+                    <div class="toggle-switch">
+                        <label class="switch">
+                            <input type="checkbox" id="maintMode" name='maintMode' class="LEDBehavior">
+                            <span class="slider"></span>
+                        </label>
+                        <span>Maintenance Mode (Always On)</span>
+                    </div>
+                    <!--                             <div class='toggle-container'>
+                                <label class='toggle-switch'>
+                                    <input type='checkbox' id='maintMode' name='maintMode' class="LEDBehavior"
+                                        onchange='selectOnlyOne(this);showhideOptions();'>
+                                    <span class='slider'></span>
+                                </label>
+                                &nbsp;&nbsp;&nbsp;<span class='toggle-label'>Maintenance Mode (Always On)</span>
+                            </div> -->
+                    <div class="toggle-switch">
+                        <label class="switch">
+                            <input type="checkbox" id='discoMode' name='discoMode' class="LEDBehavior">
+                            <span class="slider"></span>
+                        </label>
+                        <span>RGB Color Cycle Mode (Always On)</span>
+                    </div>
+                    <!--                             <div class='toggle-container'>
+                                <label class='toggle-switch'>
+                                    <input type='checkbox' id='discoMode' name='discoMode' class="LEDBehavior"
+                                        onchange='selectOnlyOne(this);showhideOptions();'>
+                                    <span class='slider'></span>
+                                </label>
+                                &nbsp;&nbsp;&nbsp;<span class='toggle-label'>RGB Color Cycle Mode (Always On)</span>
+                            </div> -->
+                    <div class="toggle-switch">
+                        <label class="switch">
+                            <input type="checkbox" id='replicateLedState' name='replicateLedState' class="LEDBehavior">
+                            <span class="slider"></span>
+                        </label>
+                        <span>Replicate LED State</span>
+
+
+                        <div id="runningcolorchoice">
+                            <input type="color" id='runningRGB' name='runningRGB' value='#000000'>
+                            WW<input style="text-align:center; height:20px; width: 43px" type="number"
+                                step=1 max=255 min=0 id='runningWW' name='runningWW' value='255'>
+                            CW<input style="text-align:center; height:20px; width: 43px" type="number"
+                                step=1 max=255 min=0 id='runningCW' name='runningCW' value='255'>
+                        </div>
+
+
+                    </div>
+
+                    <!--                           <div class='toggle-container'>
+                                <label class='toggle-switch'>
+                                    <input type='checkbox' id='replicateLedState' name='replicateLedState'
+                                        class="LEDBehavior" onchange='selectOnlyOne(this);showhideOptions();'>
+                                    <span class='slider'></span>
+                                </label>
+                                &nbsp;&nbsp;&nbsp;<span class='toggle-label'>Replicate LED State</span>
+                                <div id="runningcolorchoice">
+                                    <input type="color" id='runningRGB' name='runningRGB' value='#000000'>
+                                    &nbsp;WW&nbsp;<input style="text-align:center; height:20px; width: 43px"
+                                        type="number" step=1 max=255 min=0 id='runningWW' name='runningWW' value='255'>
+                                    &nbsp;CW&nbsp;<input style="text-align:center; height:20px; width: 43px"
+                                        type="number" step=1 max=255 min=0 id='runningCW' name='runningCW' value='255'>
+                                </div>
+                            </div> -->
+
+
+                    <div class="toggle-switch">
+                        <label class="switch">
+                            <input type="checkbox" id="mode-replicate">
+                            <span class="slider"></span>
+                        </label>
+                        <span>Replicate LED State</span>
+                    </div>
+                </div>
+            </details>
+
+
+
+            <!--   
+
+                            <div class='toggle-container'>
+                                <label class='toggle-switch'>
+                                    <input type='checkbox' id='showtestcolor' name='showtestcolor' class="LEDBehavior"
+                                        onchange='selectOnlyOne(this);showhideOptions();'>
+                                    <span class='slider'></span>
+                                </label>
+
+                                &nbsp;&nbsp;&nbsp;<span class='toggle-label'>Test LED Colors (Always On)</span>
+                                <div id="testcolorchoice">
+                                    <input type="color" id='testRGB' name='testRGB' value='#3F3CFB'>
+                                    &nbsp;WW&nbsp;<input style="text-align:center; height:20px; width: 43px"
+                                        type="number" step=1 max=255 min=0 id='testWW' name='testWW' value='100'>
+                                    &nbsp;CW&nbsp;<input style="text-align:center; height:20px; width: 43px"
+                                        type="number" step=1 max=255 min=0 id='testCW' name='testCW' value='100'>
+                                </div>
+                            </div> -->
+
+            <!--  <table style="border-spacing:0" width="100%">
+                                <TR>
+                                    <TD valign="middle">
+                                        <div class='toggle-container'>
+                                            <label class='toggle-switch'>
+                                                <input type='checkbox' id='debugwifi' name='debugwifi'
+                                                    class="LEDBehavior"
+                                                    onchange='selectOnlyOne(this);showhideOptions();'>
+                                                <span class='slider'></span>
+                                            </label>
+                                            &nbsp;&nbsp;&nbsp;<span class='toggle-label'>Show Wifi Strength via
+                                                LEDs</span>
+                                        </div>
+                                    </TD>
+                                    <TD valign="top" id='displayWifiStrength' style='display:none'>
+                                        <table style="border-spacing:0">
+                                            <TR style="color:white;background-color: #303030;text-align: center;">
+                                                <TD width="70px"><B>RSSI</B></TD>
+                                                <TD> &nbsp; </TD>
+                                                <TD><B>Signal Strength</B></TD>
+                                            </TR>
+                                            <TR style="background-color: #00ff00;">
+                                                <TD style="text-align: center;">-30 to -50</TD>
+                                                <TD width='20px'> &nbsp; </TD>
+                                                <TD>Excellent</TD>
+                                            </TR>
+                                            <TR style="background-color: #aaffaa;">
+                                                <TD style="text-align: center;">-51 to -60</TD>
+                                                <TD> &nbsp; </TD>
+                                                <TD>Good</TD>
+                                            </TR>
+                                            <TR style="background-color: #ffff00;">
+                                                <TD style="text-align: center;">-61 to -70</TD>
+                                                <TD> &nbsp; </TD>
+                                                <TD>Fair</TD>
+                                            </TR>
+                                            <TR style="background-color: #ff8800;">
+                                                <TD style="text-align: center;">-71 to -80</TD>
+                                                <TD> &nbsp; </TD>
+                                                <TD>Poor</TD>
+                                            </TR>
+                                            <TR style="background-color: #ff0000;">
+                                                <TD style="text-align: center;">&lt; -80</TD>
+                                                <TD> &nbsp; </TD>
+                                                <TD>Unreliable</TD>
+                                            </TR>
+                                        </table>
+                                    </TD>
+                                </TR>
+                            </table> -->
+
+
+
+
+
+            <details class="collapse">
+                <summary>LED Color</summary>
+                <div>
+                    <label for="ledColor">LED Color</label>
+                    <input type="color" id="ledColor" name="ledColor" value="#00ff00">
+                </div>
+            </details>
+
+            <details class="collapse">
+                <summary>MQTT Settings</summary>
+                <div>
+                    <label for="mqtt">Enable MQTT</label>
+                    <select id="mqtt" name="mqtt">
+                        <option value="true">Yes</option>
+                        <option value="false">No</option>
+                    </select>
+                </div>
+            </details>
+
+            <details class="collapse">
+                <summary>Navigation</summary>
+                <div>
+                    <button onclick="location.href='/wifi'">WiFi Setup</button>
+                    <button onclick="location.href='/fwupdate'">Firmware Update</button>
+                    <button onclick="location.href='/backuprestore'">backup & Restore</button>
+                </div>
+            </details>
+
+            <button onclick="saveConfig()">Save Configuration</button>
+        </div>
+    </div>
+
+    <div id="toast"><span id="toast-icon">ℹ️</span><span id="toast-msg">Placeholder</span></div>
+
+    <script src="particleCanvas.js"></script>
+    <script>
+
+        document.querySelectorAll('.LEDBehavior').forEach((toggle) => {
+            toggle.addEventListener('change', function () {
+                if (this.checked) {
+                    document.querySelectorAll('.LEDBehavior').forEach((el) => {
+                        if (el !== this) el.checked = false;
+                    });
+                }
+            });
+        });
+
+        function alertToast(type, message) {
+            const toast = document.getElementById("toast");
+            const icon = document.getElementById("toast-icon");
+            const msg = document.getElementById("toast-msg");
+
+            let iconChar = "ℹ️";
+            let color = "#333";
+
+            switch (type.toLowerCase()) {
+                case "success": iconChar = "✅"; color = "#28a745"; break;
+                case "error": iconChar = "❌"; color = "#dc3545"; break;
+                case "warning": iconChar = "⚠️"; color = "#ffc107"; break;
+                case "info": default: iconChar = "ℹ️"; color = "#17a2b8";
+            }
+
+            toast.style.backgroundColor = color;
+            icon.textContent = iconChar;
+            msg.textContent = message;
+
+            toast.classList.add("show");
+            setTimeout(() => toast.classList.remove("show"), 3000);
+        }
+
+        function saveConfig() {
+            alertToast("success", "Settings saved.");
+        }
+
+        document.querySelectorAll("details.collapse").forEach((detail) => {
+            detail.addEventListener("toggle", function () {
+                if (detail.open) {
+                    document.querySelectorAll("details.collapse").forEach((other) => {
+                        if (other !== detail) other.removeAttribute("open");
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

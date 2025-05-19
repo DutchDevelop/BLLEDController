@@ -6,7 +6,7 @@ def compress_html_files():
     os.chdir("src/www")
 
     # List of HTML files to compress
-    html_files = ["setuppage.html","updatepage.html"]
+    html_files = ["setuppage.html, updatepage.html"]
     for html_file in html_files:
         print("Compressing file:", html_file)
         subprocess.run(["python", "../../compress_html.py", html_file])
