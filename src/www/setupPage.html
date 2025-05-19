@@ -288,6 +288,34 @@
 
                     </div>
 
+
+
+
+
+<div class="toggle-switch" style="display: flex; flex-direction: column; gap: 6px;">
+    <!-- Erste Zeile: Toggle & Text -->
+    <div style="display: flex; align-items: center; gap: 8px;">
+        <label class="switch">
+            <input type="checkbox" id="replicateLedState" name="replicateLedState" class="LEDBehavior">
+            <span class="slider"></span>
+        </label>
+        <span>Replicate LED State</span>
+    </div>
+
+    <!-- Zweite Zeile: Color + WW + CW -->
+    <div style="display: flex; align-items: center; gap: 8px;">
+        <input type="color" id="runningRGB" name="runningRGB" value="#000000">
+        <label for="runningWW">WW</label>
+        <input type="number" id="runningWW" name="runningWW" value="255" min="0" max="255" step="1"
+               style="text-align:center; height:24px; width:50px">
+        <label for="runningCW">CW</label>
+        <input type="number" id="runningCW" name="runningCW" value="255" min="0" max="255" step="1"
+               style="text-align:center; height:24px; width:50px">
+    </div>
+</div>
+
+
+
                     <!--                           <div class='toggle-container'>
                                 <label class='toggle-switch'>
                                     <input type='checkbox' id='replicateLedState' name='replicateLedState'

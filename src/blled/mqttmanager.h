@@ -428,7 +428,7 @@ void setupMqtt()
 
 void mqttloop()
 {
-    if (WiFi.status() != WL_CONNECTED)
+    if (WiFi.status() != WL_CONNECTED || WiFi.getMode() != WIFI_MODE_STA)
     {
         // Abort MQTT connection attempt when no Wifi
         return;
