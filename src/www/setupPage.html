@@ -62,6 +62,7 @@
 
         .collapse {
             margin-bottom: 10px;
+            margin-top: 10px;
         }
 
         .collapse summary {
@@ -77,8 +78,8 @@
         }
 
         .collapse div {
-            padding: 10px;
-            border: 1px solid #ccc;
+            padding: 0px;
+            border: 0px solid #ccc;
             border-top: none;
         }
 
@@ -100,6 +101,47 @@
             border: 1px solid #ccc;
             border-radius: 3px;
             margin-bottom: 10px;
+        }
+
+        /* Farb- und Zahleneingaben nebeneinander gruppieren */
+        .input-inline-group {
+            display: flex;
+            align-items: center;
+            gap: 0px;
+            border: 0px;
+            padding: 2px 2px;
+
+            padding-left: 0px;
+            padding-right: 0px;
+
+            flex-wrap: wrap;
+        }
+
+        /* Eingaben direkt neben Label ohne Lücke */
+        .input-inline-group label {
+            margin: 0;
+            font-weight: normal;
+            border: 0px;
+        }
+
+        /* Einheitliches Styling für Zahleneingabefelder */
+        .input-inline-group input[type="number"] {
+            text-align: center;
+            height: 20px;
+            width: 40px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        /* Farbwähler kompakt und einheitlich */
+        .input-inline-group input[type="color"] {
+            width: 30px;
+            height: 30px;
+            padding: 0;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            background: none;
+            cursor: pointer;
         }
 
         button {
@@ -170,7 +212,8 @@
             transform: translateX(26px);
         }
 
-        input[type="color"] {
+        input[type="color"],
+        input[type="text"] {
             border: 1px solid #ccc;
             padding: 0;
             width: 30px;
@@ -180,11 +223,13 @@
             cursor: pointer;
         }
 
-        input[type="color"]::-webkit-color-swatch-wrapper {
+        input[type="color"],
+        input[type="text"]::-webkit-color-swatch-wrapper {
             padding: 0;
         }
 
-        input[type="color"]::-webkit-color-swatch {
+        input[type="color"],
+        input[type="text"]::-webkit-color-swatch {
             border: none;
             border-radius: 3px;
         }
@@ -235,10 +280,11 @@
 
             <label for="brightnessslider" id="brightnesssliderDisplay">Brightness: 100%</label>
             <input type="range" id="brightnessslider" name="brightnessslider" min="0" max="100" value="100">
-
+            <!-- LED behavour Page -->
             <details class="collapse" open>
                 <summary>LED Behaviour</summary>
                 <div>
+                    <!-- maintaince Mode -->
                     <div class="toggle-switch">
                         <label class="switch">
                             <input type="checkbox" id="maintMode" name='maintMode' class="LEDBehavior">
@@ -246,14 +292,7 @@
                         </label>
                         <span>Maintenance Mode (Always On)</span>
                     </div>
-                    <!--                             <div class='toggle-container'>
-                                <label class='toggle-switch'>
-                                    <input type='checkbox' id='maintMode' name='maintMode' class="LEDBehavior"
-                                        onchange='selectOnlyOne(this);showhideOptions();'>
-                                    <span class='slider'></span>
-                                </label>
-                                &nbsp;&nbsp;&nbsp;<span class='toggle-label'>Maintenance Mode (Always On)</span>
-                            </div> -->
+                    <!-- RGB Cycle -->
                     <div class="toggle-switch">
                         <label class="switch">
                             <input type="checkbox" id='discoMode' name='discoMode' class="LEDBehavior">
@@ -261,88 +300,112 @@
                         </label>
                         <span>RGB Color Cycle Mode (Always On)</span>
                     </div>
-                    <!--                             <div class='toggle-container'>
-                                <label class='toggle-switch'>
-                                    <input type='checkbox' id='discoMode' name='discoMode' class="LEDBehavior"
-                                        onchange='selectOnlyOne(this);showhideOptions();'>
-                                    <span class='slider'></span>
-                                </label>
-                                &nbsp;&nbsp;&nbsp;<span class='toggle-label'>RGB Color Cycle Mode (Always On)</span>
-                            </div> -->
+                    <!-- Replicate State -->
                     <div class="toggle-switch">
                         <label class="switch">
-                            <input type="checkbox" id='replicateLedState' name='replicateLedState' class="LEDBehavior">
+                            <input type="checkbox" id="replicateLedState" name="replicateLedState" class="LEDBehavior">
                             <span class="slider"></span>
                         </label>
-                        <span>Replicate LED State</span>
+                        <span>Replicate State</span>
+                        <div class="input-inline-group">
+                            <input type="color" id="runningRGB" name="runningRGB" value="#000000">
 
+                            <label for="runningWW">WW</label>
+                            <input type="number" id="runningWW" name="runningWW" value="255" min="0" max="255" step="1">
 
-                        <!-- <div id="runningcolorchoice"> -->
-                            <input type="color" id='runningRGB' name='runningRGB' value='#000000'>
-                            WW<input style="text-align:center; height:20px; width: 40px" type="number"
-                                step=1 max=255 min=0 id='runningWW' name='runningWW' value='255'>
-                            CW<input style="text-align:center; height:20px; width: 40px" type="number"
-                                step=1 max=255 min=0 id='runningCW' name='runningCW' value='255'>
-                       <!--  </div> -->
-
-
+                            <label for="runningCW">CW</label>
+                            <input type="number" id="runningCW" name="runningCW" value="255" min="0" max="255" step="1">
+                        </div>
                     </div>
-
-
-
-
-
-<div class="toggle-switch" style="display: flex; flex-direction: column; gap: 6px;">
-    <!-- Erste Zeile: Toggle & Text -->
-    <div style="display: flex; align-items: center; gap: 8px;">
-        <label class="switch">
-            <input type="checkbox" id="replicateLedState" name="replicateLedState" class="LEDBehavior">
-            <span class="slider"></span>
-        </label>
-        <span>Replicate LED State</span>
-    </div>
-
-    <!-- Zweite Zeile: Color + WW + CW -->
-    <div style="display: flex; align-items: center; gap: 8px;">
-        <input type="color" id="runningRGB" name="runningRGB" value="#000000">
-        <label for="runningWW">WW</label>
-        <input type="number" id="runningWW" name="runningWW" value="255" min="0" max="255" step="1"
-               style="text-align:center; height:24px; width:50px">
-        <label for="runningCW">CW</label>
-        <input type="number" id="runningCW" name="runningCW" value="255" min="0" max="255" step="1"
-               style="text-align:center; height:24px; width:50px">
-    </div>
-</div>
-
-
-
-                    <!--                           <div class='toggle-container'>
-                                <label class='toggle-switch'>
-                                    <input type='checkbox' id='replicateLedState' name='replicateLedState'
-                                        class="LEDBehavior" onchange='selectOnlyOne(this);showhideOptions();'>
-                                    <span class='slider'></span>
-                                </label>
-                                &nbsp;&nbsp;&nbsp;<span class='toggle-label'>Replicate LED State</span>
-                                <div id="runningcolorchoice">
-                                    <input type="color" id='runningRGB' name='runningRGB' value='#000000'>
-                                    &nbsp;WW&nbsp;<input style="text-align:center; height:20px; width: 43px"
-                                        type="number" step=1 max=255 min=0 id='runningWW' name='runningWW' value='255'>
-                                    &nbsp;CW&nbsp;<input style="text-align:center; height:20px; width: 43px"
-                                        type="number" step=1 max=255 min=0 id='runningCW' name='runningCW' value='255'>
-                                </div>
-                            </div> -->
-
-
+                    <!-- Colortest -->
                     <div class="toggle-switch">
                         <label class="switch">
-                            <input type="checkbox" id="mode-replicate">
+                            <input type="checkbox" id="showtestcolor" name="showtestcolor" class="LEDBehavior">
                             <span class="slider"></span>
                         </label>
-                        <span>Replicate LED State</span>
+                        <span>Colortest (Always On)</span>
+                        <div class="input-inline-group">
+                            <input type="color" id="testRGB" name="testRGB" value="#3F3CFB">
+
+                            <label for="testWW">WW</label>
+                            <input type="number" id="testWW" name="testWW" value="255" min="0" max="255" step="1">
+
+                            <label for="testCW">CW</label>
+                            <input type="number" id="testCW" name="testCW" value="255" min="0" max="255" step="1">
+                        </div>
+                    </div>
+                    <!-- Wifi Strength -->
+                    <div class="toggle-switch">
+                        <label class="switch">
+                            <input type="checkbox" id='debugwifi' name='debugwifi' class="LEDBehavior">
+                            <span class="slider"></span>
+                        </label>
+                        <span>Show Wifi Strength via LEDs</span>
                     </div>
                 </div>
             </details>
+            <!-- LED Options page -->
+            <details class="collapse">
+                <summary>LED Options</summary>
+                <div>
+                    <!-- Finish Indicator -->
+                    <div class="toggle-switch">
+                        <label class="switch">
+                            <input type="checkbox" id='finishIndication' name='finishIndication' class="LEDOptions">
+                            <span class="slider"></span>
+                        </label>
+                        <span>Finish Indication</span>
+                        <div class="input-inline-group">
+                            <input type="color" id="finishColor" name="finishColor" value="#00FF00">
+                            <label for="finishWW">WW</label>
+                            <input type="number" id="finishWW" name="finishWW" value="255" min="0" max="255" step="1">
+                            <label for="finishCW">CW</label>
+                            <input type="number" id="finishCW" name="finishCW" value="255" min="0" max="255" step="1">
+                        </div>
+                    </div>
 
+
+
+                    <!-- Inactivity Timeout -->
+                    <div class="toggle-switch">
+                        <label class="switch">
+                            <input type="checkbox" id='inactivityEnabled' name='inactivityEnabled' class="LEDOptions">
+                            <span class="slider"></span>
+                        </label>
+                        <span>Inactivity Timeout (Minutes)</span>
+                        <div class="input-inline-group">
+                            <label for="inactivityMins">Min.</label>
+                            <input type="text" id="inactivityMins" name="inactivityMins"
+                                title='Number of idle minutes before BLLED LEDs are turned off ' value='1' maxlength='3'
+                                size='3'>
+                        </div>
+                    </div>
+                    <!-- Debugging -->
+                    <div class="toggle-switch">
+                        <label class="switch">
+                            <input type="checkbox" id='debuging' name='debuging' class="LEDOptions">
+                            <span class="slider"></span>
+                        </label>
+                        <span>Debugging</span>
+                    </div>
+                    <!-- Debugging OnChange Events -->
+                    <div class="toggle-switch">
+                        <label class="switch">
+                            <input type="checkbox" id='debugingchange' name='debugingchange' class="LEDOptions">
+                            <span class="slider"></span>
+                        </label>
+                        <span>Debugging OnChange Events</span>
+                    </div>
+                    <!-- MQTT Loging -->
+                    <div class="toggle-switch">
+                        <label class="switch">
+                            <input type="checkbox" id='mqttdebug' name='mqttdebug' class="LEDOptions">
+                            <span class="slider"></span>
+                        </label>
+                        <span>MQTT Logging</span>
+                    </div>
+                </div>
+            </details>
 
 
             <!--   
@@ -503,6 +566,354 @@
             });
         });
     </script>
+
+
+    <!-- old script -->
+    <script>
+        /*         function updateIdle() {
+                    var x = document.getElementById("inactivityMins");
+                    if (document.getElementById('inactivityEnabled').checked) {
+                        x.style.display = 'block';
+                    } else {
+                        x.style.display = 'none';
+                    }
+                } */
+
+        function setFinishColor() {
+            if (document.getElementById('finishIndication').checked) {
+                document.getElementById("finishcolorchoice").style.display = 'block';
+                document.getElementById("finishendchoice").style.display = 'block';
+                document.getElementById("finishendchoicetitle").style.display = 'block';
+
+            } else {
+                document.getElementById("finishcolorchoice").style.display = 'none';
+                document.getElementById("finishendchoice").style.display = 'none';
+                document.getElementById("finishendchoicetitle").style.display = 'none';
+            }
+        }
+        function setFinishExit(id) {
+            var myCheckbox = document.getElementsByClassName("finishOption");
+            if (id.checked) {
+                Array.prototype.forEach.call(myCheckbox, function (el) {
+                    el.checked = false;
+                });
+                id.checked = true;
+            } else {
+                Array.prototype.forEach.call(myCheckbox, function (el) {
+                    el.checked = true;
+                });
+                id.checked = false;
+            }
+
+        }
+        function setFinishChoice() {
+            if (document.getElementById('finishEndDoor').checked) {
+                document.getElementById("finishdooroption").style.display = 'block';
+                document.getElementById("finishtimeroption").style.display = 'none';
+
+            } else {
+                document.getElementById("finishtimeroption").style.display = 'block';
+                document.getElementById("finishdooroption").style.display = 'none';
+            }
+        }
+        //LED Behavious
+        function selectOnlyOne(id) {
+            var myCheckbox = document.getElementsByClassName("LEDBehavior")
+            Array.prototype.forEach.call(myCheckbox, function (el) {
+                el.checked = false;
+            });
+            id.checked = true;
+        }
+        function showhideOptions() {
+            if (document.getElementById('showtestcolor').checked) {
+                document.getElementById("testcolorchoice").style.display = 'block';
+            } else {
+                document.getElementById("testcolorchoice").style.display = 'none';
+            }
+            if (document.getElementById('debugwifi').checked) {
+                document.getElementById("displayWifiStrength").style.display = 'block';
+            } else {
+                document.getElementById("displayWifiStrength").style.display = 'none';
+            }
+            if (document.getElementById('replicateLedState').checked) {
+                document.getElementById("runningcolorchoice").style.display = 'block';
+            } else {
+                document.getElementById("runningcolorchoice").style.display = 'none';
+            }
+
+        }
+        //Error colors
+        function showcustomColors() {
+            if (document.getElementById('errorDetection').checked) {
+                document.getElementById("CustomColorsDiv").style.display = 'block';
+            } else {
+                document.getElementById("CustomColorsDiv").style.display = 'none';
+            }
+        }
+        function hasP1() {
+            if (document.getElementById('p1Printer').checked) {
+                document.getElementById("doorSwitch").checked = false;
+                document.getElementById("AllowDoorSwitch").style.display = 'none';
+
+                document.getElementById("stage14WW").value = 255;
+                document.getElementById("stage1WW").value = 255;
+                document.getElementById("stage8WW").value = 255;
+                document.getElementById("stage9WW").value = 255;
+                document.getElementById("stage10WW").value = 255;
+
+                document.getElementById("stage14CW").value = 255;
+                document.getElementById("stage1CW").value = 255;
+                document.getElementById("stage8CW").value = 255;
+                document.getElementById("stage9CW").value = 255;
+                document.getElementById("stage10CW").value = 255;
+                if (document.getElementById('finishIndication').checked) {
+                    if (document.getElementById('finishEndDoor').checked) {
+                        document.getElementById('finishEndDoor').checked = false;
+                        document.getElementById('finishEndTimer').checked = true;
+                        document.getElementById("finishdooroption").style.display = 'none';
+                        document.getElementById("finishtimeroption").style.display = 'block';
+                    }
+                }
+            } else {
+                document.getElementById("doorSwitch").checked = true;
+                document.getElementById("AllowDoorSwitch").style.display = 'block';
+
+                document.getElementById("stage14RGB").value = '#000000';
+                document.getElementById("stage1RGB").value = '#000000';
+                document.getElementById("stage8RGB").value = '#000000';
+                document.getElementById("stage9RGB").value = '#000000';
+                document.getElementById("stage10RGB").value = '#000000';
+
+                document.getElementById("stage14WW").value = 0;
+                document.getElementById("stage1WW").value = 0;
+                document.getElementById("stage8WW").value = 0;
+                document.getElementById("stage9WW").value = 0;
+                document.getElementById("stage10WW").value = 0;
+
+                document.getElementById("stage14CW").value = 0;
+                document.getElementById("stage1CW").value = 0;
+                document.getElementById("stage8CW").value = 0;
+                document.getElementById("stage9CW").value = 0;
+                document.getElementById("stage10CW").value = 0;
+
+                if (document.getElementById('finishIndication').checked) {
+                    document.getElementById('finishEndDoor').checked = true;
+                    document.getElementById('finishEndTimer').checked = false;
+                    document.getElementById("finishdooroption").style.display = 'block';
+                    document.getElementById("finishtimeroption").style.display = 'none';
+                }
+            }
+        }
+
+        function updateConfig() {
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        try {
+                            var configData = JSON.parse(xhr.responseText);
+                            document.getElementById("firmwareversion").textContent = "Firmware Version: " + (configData.firmwareversion || "Unknown version");
+                            /*                             if (configData.wifiStrength != "") {
+                                                            document.getElementById("wifiStrength").textContent = "Connection Strength: " + (configData.wifiStrength || "") + "dBm";
+                                                        } */
+                            //document.getElementById('ip').value = configData.ip || '';
+                            //document.getElementById('code').value = configData.code || '';
+                            //document.getElementById('id').value = configData.id || '';
+                            //document.getElementById('apMAC').value = configData.apMAC || '';
+                            document.getElementById('brightnessslider').value = configData.brightness || 100;
+                            document.getElementById("brightnesssliderDisplay").textContent = "Brightness: " + (configData.brightness || 100) + "%";
+                            document.getElementById('maintMode').checked = configData.maintMode || false;
+                            document.getElementById('discoMode').checked = configData.discoMode || false;
+                            document.getElementById('replicateLedState').checked = configData.replicateled || false;
+                            document.getElementById('runningRGB').value = configData.runningRGB || '';
+                            document.getElementById('runningWW').value = configData.runningWW || 255;
+                            document.getElementById('runningCW').value = configData.runningCW || 255;
+                            document.getElementById('showtestcolor').checked = configData.showtestcolor || false;
+                            document.getElementById('testRGB').value = configData.testRGB || '';
+                            document.getElementById('testWW').value = configData.testWW || 0;
+                            document.getElementById('testCW').value = configData.testCW || 0;
+                            document.getElementById('debugwifi').checked = configData.debugwifi || false;
+                            document.getElementById('finishIndication').checked = configData.finishindication || false;
+                            document.getElementById('finishColor').value = configData.finishColor || '';
+                            document.getElementById('finishWW').value = configData.finishWW || 0;
+                            document.getElementById('finishCW').value = configData.finishCW || 0;
+                            if (configData.finishExit) {
+                                document.getElementById('finishEndDoor').checked = true;
+                                setFinishExit(document.getElementById('finishEndDoor'));
+                            } else {
+                                document.getElementById('finishEndTimer').checked = true;
+                                setFinishExit(document.getElementById('finishEndTimer'));
+                            }
+                            document.getElementById('finishTimerMins').value = configData.finishTimerMins || 10;
+                            document.getElementById('inactivityEnabled').checked = configData.inactivityEnabled || false;
+                            document.getElementById('inactivityMins').value = configData.inactivityMins || 30;
+                            document.getElementById('debuging').checked = configData.debuging || false;
+                            document.getElementById('debugingchange').checked = configData.debugingchange || false;
+                            document.getElementById('mqttdebug').checked = configData.mqttdebug || false;
+                            document.getElementById('p1Printer').checked = configData.p1Printer || false;
+                            document.getElementById('doorSwitch').checked = configData.doorSwitch || false;
+                            document.getElementById('stage14RGB').value = configData.stage14RGB || '';
+                            document.getElementById('stage14WW').value = configData.stage14WW || 0;
+                            document.getElementById('stage14CW').value = configData.stage14CW || 0;
+                            document.getElementById('stage1RGB').value = configData.stage1RGB || '';
+                            document.getElementById('stage1WW').value = configData.stage1WW || 0;
+                            document.getElementById('stage1CW').value = configData.stage1CW || 0;
+                            document.getElementById('stage8RGB').value = configData.stage8RGB || '';
+                            document.getElementById('stage8WW').value = configData.stage8WW || 0;
+                            document.getElementById('stage8CW').value = configData.stage8CW || 0;
+                            document.getElementById('stage9RGB').value = configData.stage9RGB || '';
+                            document.getElementById('stage9WW').value = configData.stage9WW || 0;
+                            document.getElementById('stage9CW').value = configData.stage9CW || 0;
+                            document.getElementById('stage10RGB').value = configData.stage10RGB || '';
+                            document.getElementById('stage10WW').value = configData.stage10WW || 0;
+                            document.getElementById('stage10CW').value = configData.stage10CW || 0;
+                            document.getElementById('errorDetection').checked = configData.errordetection || false;
+                            document.getElementById('wifiRGB').value = configData.wifiRGB || '';
+                            document.getElementById('wifiWW').value = configData.wifiWW || 0;
+                            document.getElementById('wifiCW').value = configData.wifiCW || 0;
+                            document.getElementById('pauseRGB').value = configData.pauseRGB || '';
+                            document.getElementById('pauseWW').value = configData.pauseWW || 0;
+                            document.getElementById('pauseCW').value = configData.pauseCW || 0;
+                            document.getElementById('firstlayerRGB').value = configData.firstlayerRGB || '';
+                            document.getElementById('firstlayerWW').value = configData.firstlayerWW || 0;
+                            document.getElementById('firstlayerCW').value = configData.firstlayerCW || 0;
+                            document.getElementById('nozzleclogRGB').value = configData.nozzleclogRGB || '';
+                            document.getElementById('nozzleclogWW').value = configData.nozzleclogWW || 0;
+                            document.getElementById('nozzleclogCW').value = configData.nozzleclogCW || 0;
+                            document.getElementById('hmsSeriousRGB').value = configData.hmsSeriousRGB || '';
+                            document.getElementById('hmsSeriousWW').value = configData.hmsSeriousWW || 0;
+                            document.getElementById('hmsSeriousCW').value = configData.hmsSeriousCW || 0;
+                            document.getElementById('hmsFatalRGB').value = configData.hmsFatalRGB || '';
+                            document.getElementById('hmsFatalWW').value = configData.hmsFatalWW || 0;
+                            document.getElementById('hmsFatalCW').value = configData.hmsFatalCW || 0;
+                            document.getElementById('filamentRunoutRGB').value = configData.filamentRunoutRGB || '';
+                            document.getElementById('filamentRunoutWW').value = configData.filamentRunoutWW || 0;
+                            document.getElementById('filamentRunoutCW').value = configData.filamentRunoutCW || 0;
+                            document.getElementById('frontCoverRGB').value = configData.frontCoverRGB || '';
+                            document.getElementById('frontCoverWW').value = configData.frontCoverWW || 0;
+                            document.getElementById('frontCoverCW').value = configData.frontCoverCW || 0;
+                            document.getElementById('nozzleTempRGB').value = configData.nozzleTempRGB || '';
+                            document.getElementById('nozzleTempWW').value = configData.nozzleTempWW || 0;
+                            document.getElementById('nozzleTempCW').value = configData.nozzleTempCW || 0;
+                            document.getElementById('bedTempRGB').value = configData.bedTempRGB || '';
+                            document.getElementById('bedTempWW').value = configData.bedTempWW || 0;
+                            document.getElementById('bedTempCW').value = configData.bedTempCW || 0;
+
+                            updateIdle();
+                            showhideOptions();
+                            showcustomColors();
+                            setFinishColor();
+                            setFinishChoice();
+                            showMessage("Success", "Configuration loaded successfully!");
+                        } catch (e) {
+                            console.log(e);
+                            showMessage("Error", "Invalid server response! (" + e + ").");
+                        }
+                    } else if (xhr.status >= 400 && xhr.status < 500) {
+                        showMessage("Error", "Client Error (" + xhr.status + "): " + (xhr.responseText || "Request failed."));
+                    } else if (xhr.status >= 500) {
+                        showMessage("Error", "Server Error (" + xhr.status + "): " + (xhr.responseText || "Internal server error."));
+                    } else {
+                        showMessage("Error", "Unexpected response (" + xhr.status + ").");
+                    }
+                }
+            };
+            xhr.open('GET', '/getConfig', true);
+            xhr.send();
+        }
+        window.onload = function () {
+            document.getElementById("brightnessslider").addEventListener("input", function (e) {
+                document.getElementById("brightnesssliderDisplay").textContent = "Brightness: " + e.target.value + "%";
+            });
+            updateIdle();
+            updateConfig();
+            showhideOptions();
+            showcustomColors();
+            setFinishColor();
+            setFinishChoice();
+        };
+        function hideMessage() {
+            clearTimeout(showMessage.timer);
+            document.body.removeAttribute("message");
+            document.body.removeAttribute("message-type");
+            document.body.removeAttribute("message-icon");
+            document.body.removeEventListener("click", hideMessage);
+        }
+
+        function showMessage(type, message) {
+            clearTimeout(showMessage.timer);
+            showMessage.timer = setTimeout(hideMessage, 6000);
+
+            // Icon Mapping
+            let icon = "";
+            switch (type.toLowerCase()) {
+                case "success":
+                    icon = "✔️";
+                    break;
+                case "error":
+                    icon = "❌";
+                    break;
+                case "info":
+                    icon = "ℹ️";
+                    break;
+                default:
+                    icon = "🔔";
+            }
+
+            document.body.setAttribute("message", message);
+            document.body.setAttribute("message-type", type.toLowerCase());
+            document.body.setAttribute("message-icon", icon);
+            document.body.addEventListener("click", hideMessage);
+        }
+
+
+        function submitForm() {
+            event.preventDefault();
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/submitConfig', true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        showMessage("Success", "Settings saved successfully!");
+                    } else if (xhr.status >= 400 && xhr.status < 500) {
+                        showMessage("Error", "Client Error (" + xhr.status + "): " + (xhr.responseText || "Request failed."));
+                    } else if (xhr.status >= 500) {
+                        showMessage("Error", "Server Error (" + xhr.status + "): " + (xhr.responseText || "Internal server error."));
+                    } else {
+                        showMessage("Error", "Unexpected response (" + xhr.status + ").");
+                    }
+                }
+            };
+
+            xhr.onerror = function () {
+                showMessage("Error", "Network Error: Unable to reach server.");
+            };
+
+            xhr.ontimeout = function () {
+                showMessage("Error", "Request Timeout: The request took too long.");
+            };
+
+            xhr.onabort = function () {
+                showMessage("Error", "Request Aborted: The request was aborted.");
+            };
+
+            var formData = new FormData(document.querySelector('form'));
+            var parameters = [];
+            formData.forEach(function (value, key) {
+                parameters.push(encodeURIComponent(key) + '=' + encodeURIComponent(value));
+            });
+            var body = parameters.join('&');
+
+            xhr.send(body);
+
+            return false;
+        }
+
+    </script>
+
 </body>
 
 </html>
