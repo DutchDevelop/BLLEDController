@@ -307,12 +307,10 @@
                             <span class="slider"></span>
                         </label>
                         <span>Replicate State</span>
-                        <div class="input-inline-group">
+                        <div id="runningcolorchoice" class="input-inline-group">
                             <input type="color" id="runningRGB" name="runningRGB" value="#000000">
-
                             <label for="runningWW">WW</label>
                             <input type="number" id="runningWW" name="runningWW" value="255" min="0" max="255" step="1">
-
                             <label for="runningCW">CW</label>
                             <input type="number" id="runningCW" name="runningCW" value="255" min="0" max="255" step="1">
                         </div>
@@ -324,12 +322,10 @@
                             <span class="slider"></span>
                         </label>
                         <span>Colortest (Always On)</span>
-                        <div class="input-inline-group">
+                        <div id="testcolorchoice" class="input-inline-group">
                             <input type="color" id="testRGB" name="testRGB" value="#3F3CFB">
-
                             <label for="testWW">WW</label>
                             <input type="number" id="testWW" name="testWW" value="255" min="0" max="255" step="1">
-
                             <label for="testCW">CW</label>
                             <input type="number" id="testCW" name="testCW" value="255" min="0" max="255" step="1">
                         </div>
@@ -624,13 +620,13 @@
             });
             id.checked = true;
         }
-        function showhideOptions() {
+/*         function showhideOptions() {
             if (document.getElementById('showtestcolor').checked) {
                 document.getElementById("testcolorchoice").style.display = 'block';
             } else {
                 document.getElementById("testcolorchoice").style.display = 'none';
             }
-            if (document.getElementById('debugwifi').checked) {
+             if (document.getElementById('debugwifi').checked) {
                 document.getElementById("displayWifiStrength").style.display = 'block';
             } else {
                 document.getElementById("displayWifiStrength").style.display = 'none';
@@ -641,15 +637,15 @@
                 document.getElementById("runningcolorchoice").style.display = 'none';
             }
 
-        }
+        } */
         //Error colors
-        function showcustomColors() {
+/*         function showcustomColors() {
             if (document.getElementById('errorDetection').checked) {
                 document.getElementById("CustomColorsDiv").style.display = 'block';
             } else {
                 document.getElementById("CustomColorsDiv").style.display = 'none';
             }
-        }
+        } */
         function hasP1() {
             if (document.getElementById('p1Printer').checked) {
                 document.getElementById("doorSwitch").checked = false;
@@ -799,9 +795,9 @@
                             document.getElementById('bedTempWW').value = configData.bedTempWW || 0;
                             document.getElementById('bedTempCW').value = configData.bedTempCW || 0;
 
-                            updateIdle();
-                            showhideOptions();
-                            showcustomColors();
+                            //updateIdle();
+                            //showhideOptions();
+                            //showcustomColors();
                             setFinishColor();
                             setFinishChoice();
                             showMessage("Success", "Configuration loaded successfully!");
@@ -825,10 +821,10 @@
             document.getElementById("brightnessslider").addEventListener("input", function (e) {
                 document.getElementById("brightnesssliderDisplay").textContent = "Brightness: " + e.target.value + "%";
             });
-            updateIdle();
+            //updateIdle();
             updateConfig();
-            showhideOptions();
-            showcustomColors();
+            //showhideOptions();
+            //showcustomColors();
             setFinishColor();
             setFinishChoice();
         };
