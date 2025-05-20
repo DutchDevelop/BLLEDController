@@ -119,7 +119,7 @@ void ParseCallback(char *topic, byte *payload, unsigned int length)
 
         bool Changed = false;
 
-        if (messageobject["print"]["command"].is<const char *>())
+        if (!messageobject["print"]["command"].isNull())
         {
             if (messageobject["print"]["command"] == "gcode_line"           // gcode_line used a lot during print initialisations - Skip these
                 || messageobject["print"]["command"] == "project_prepare"   // 1 message per print
@@ -164,7 +164,7 @@ void ParseCallback(char *topic, byte *payload, unsigned int length)
         }
 
         // Check for Door Status
-        if (messageobject["print"]["home_flag"].is<signed long>())
+        if (!messageobject["print"]["home_flag"].isNull())
         {
             // https://github.com/greghesp/ha-bambulab/blob/main/custom_components/bambu_lab/pybambu/const.py#L324
 
@@ -200,8 +200,7 @@ void ParseCallback(char *topic, byte *payload, unsigned int length)
         }
 
         // Check BBLP Stage
-        need to check the printer response for light if during lidar - this text is right here and break the compile
-        if (messageobject["print"]["stg_cur"].is<const char *>())
+        if (!messageobject["print"]["stg_cur"].isNull())
         {
             if (printerVariables.stage != messageobject["print"]["stg_cur"].as<int>())
             {
@@ -217,7 +216,7 @@ void ParseCallback(char *topic, byte *payload, unsigned int length)
         }
 
         // Check BBLP GCode State
-        if (messageobject["print"]["gcode_state"].is<const char *>() && ((millis() - lastMQTTupdate) > 3000))
+        if (!messageobject["print"]["gcode_state"].isNull() && ((millis() - lastMQTTupdate) > 3000))
         {
             String mqttgcodeState = messageobject["print"]["gcode_state"].as<String>();
 
@@ -249,7 +248,7 @@ void ParseCallback(char *topic, byte *payload, unsigned int length)
         }
 
         // Pause Command - quicker, but Only for user generated pause - error & code pauses don't trigger this.
-        if (messageobject["print"]["command"].is<const char *>())
+        if (!messageobject["print"]["command"].isNull())
         {
             if (messageobject["print"]["command"] == "pause")
             {
@@ -261,7 +260,7 @@ void ParseCallback(char *topic, byte *payload, unsigned int length)
         }
 
         // Added a delay so the slower MQTT status message doesn't reverse the "system" commands
-        if (messageobject["print"]["lights_report"].is<const char *>() && ((millis() - lastMQTTupdate) > 3000))
+        if (!messageobject["print"]["lights_report"].isNull() && ((millis() - lastMQTTupdate) > 3000))
         {
             JsonArray lightsReport = messageobject["print"]["lights_report"];
             for (JsonObject light : lightsReport)
@@ -289,7 +288,7 @@ void ParseCallback(char *topic, byte *payload, unsigned int length)
         }
         // System Commands are sent quicker than the push_status
         // Message only sent onChange
-        if (messageobject["system"]["command"].is<const char *>())
+        if (!messageobject["system"]["command"].isNull())
         {
             if (messageobject["system"]["command"] == "ledctrl")
             {
@@ -315,7 +314,7 @@ void ParseCallback(char *topic, byte *payload, unsigned int length)
         }
 
         // Bambu Health Management System (HMS)
-        if (messageobject["print"]["hms"].is<const char *>())
+        if (!messageobject["print"]["hms"].isNull())
         {
             String oldHMSlevel = "";
             oldHMSlevel = printerVariables.parsedHMSlevel;
