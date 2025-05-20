@@ -1,2 +1,4 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+docs/ merge=ours
+.firmware/ merge=ours
