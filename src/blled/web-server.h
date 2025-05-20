@@ -464,6 +464,7 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventTyp
     {
     case WS_EVT_CONNECT:
         Serial.printf("[WS] Client connected: %u\n", client->id());
+        websocketLoop();
         break;
     case WS_EVT_DISCONNECT:
         Serial.printf("[WS] Client disconnected: %u\n", client->id());
