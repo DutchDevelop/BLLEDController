@@ -575,7 +575,7 @@
                     }
                 } */
 
-        function setFinishColor() {
+/*         function setFinishColor() {
             if (document.getElementById('finishIndication').checked) {
                 document.getElementById("finishcolorchoice").style.display = 'block';
                 document.getElementById("finishendchoice").style.display = 'block';
@@ -586,7 +586,7 @@
                 document.getElementById("finishendchoice").style.display = 'none';
                 document.getElementById("finishendchoicetitle").style.display = 'none';
             }
-        }
+        } */
         function setFinishExit(id) {
             var myCheckbox = document.getElementsByClassName("finishOption");
             if (id.checked) {
@@ -602,7 +602,7 @@
             }
 
         }
-        function setFinishChoice() {
+/*         function setFinishChoice() {
             if (document.getElementById('finishEndDoor').checked) {
                 document.getElementById("finishdooroption").style.display = 'block';
                 document.getElementById("finishtimeroption").style.display = 'none';
@@ -611,7 +611,7 @@
                 document.getElementById("finishtimeroption").style.display = 'block';
                 document.getElementById("finishdooroption").style.display = 'none';
             }
-        }
+        } */
         //LED Behavious
         function selectOnlyOne(id) {
             var myCheckbox = document.getElementsByClassName("LEDBehavior")
@@ -798,7 +798,7 @@
                             //updateIdle();
                             //showhideOptions();
                             //showcustomColors();
-                            setFinishColor();
+                            //setFinishColor();
                             setFinishChoice();
                             showMessage("Success", "Configuration loaded successfully!");
                         } catch (e) {
@@ -825,8 +825,8 @@
             updateConfig();
             //showhideOptions();
             //showcustomColors();
-            setFinishColor();
-            setFinishChoice();
+            //setFinishColor();
+            //setFinishChoice();
         };
         function hideMessage() {
             clearTimeout(showMessage.timer);

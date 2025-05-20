@@ -407,10 +407,7 @@ void websocketLoop()
         doc["doorOpen"] = printerVariables.doorOpen;
         doc["printerConnection"] = printerVariables.online;
         doc["clients"] = ws.count();
-
         sendJsonToAll(doc);
-
-        Serial.println(F("[WS] JSON Status Push send."));
     }
 }
 
@@ -429,13 +426,39 @@ void handleDownloadConfigFile(AsyncWebServerRequest *request)
     {
         return request->requestAuthentication();
     }
+
     if (!LittleFS.exists(configPath))
     {
         request->send(404, "text/plain", "Config file not found");
         return;
     }
-    request->send(LittleFS, configPath, "application/json", true, nullptr);
+
+    File configFile = LittleFS.open(configPath, "r");
+    if (!configFile)
+    {
+        request->send(500, "text/plain", "Failed to open config file");
+        return;
+    }
+
+    JsonDocument doc;
+    DeserializationError error = deserializeJson(doc, configFile);
+    configFile.close();
+
+    if (error)
+    {
+        request->send(500, "text/plain", "Failed to parse config file");
+        return;
+    }
+
+    String jsonString;
+    serializeJsonPretty(doc, jsonString);
+
+    AsyncWebServerResponse *response = request->beginResponse(200, "application/json", jsonString);
+    response->addHeader("Content-Disposition", "attachment; filename=\"blledconfig.json\"");
+    request->send(response);
 }
+
+
 
 void handleUploadConfigFileData(AsyncWebServerRequest *request, const String &filename,
                                 size_t index, uint8_t *data, size_t len, bool final)
@@ -467,6 +490,7 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventTyp
     {
     case WS_EVT_CONNECT:
         Serial.printf("[WS] Client connected: %u\n", client->id());
+        websocketLoop();
         break;
     case WS_EVT_DISCONNECT:
         Serial.printf("[WS] Client disconnected: %u\n", client->id());
@@ -520,7 +544,7 @@ void setupWebserver()
 
     webServer.on("/backuprestore", HTTP_GET, handleConfigPage);
     webServer.on("/configfile.json", HTTP_GET, handleDownloadConfigFile);
-    webServer.on("/confirestore", HTTP_POST, [](AsyncWebServerRequest *request)
+    webServer.on("/configrestore", HTTP_POST, [](AsyncWebServerRequest *request)
                  {
         if (!isAuthorized(request)) {
             return request->requestAuthentication();
