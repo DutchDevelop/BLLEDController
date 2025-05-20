@@ -1,10 +1,5 @@
 [
   {
-    "version": "1.0.0.nightly.190525.1",
-    "prerelease": true,
-    "file": "BLLEDController_V1.0.0.nightly.190525.1.bin"
-  },
-  {
     "version": "1.0.0.nightly.190525.3",
     "prerelease": true,
     "file": "BLLEDController_V1.0.0.nightly.190525.3.bin"
@@ -13,5 +8,10 @@
     "version": "1.0.0.nightly.200525.1",
     "prerelease": true,
     "file": "BLLEDController_V1.0.0.nightly.200525.1.bin"
+  },
+  {
+    "version": "1.0.0.nightly.200525.2",
+    "prerelease": true,
+    "file": "BLLEDController_V1.0.0.nightly.200525.2.bin"
   }
 ]
