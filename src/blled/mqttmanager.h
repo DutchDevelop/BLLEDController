@@ -200,6 +200,7 @@ void ParseCallback(char *topic, byte *payload, unsigned int length)
         }
 
         // Check BBLP Stage
+        need to check the printer response for light if during lidar - this text is right here and break the compile
         if (messageobject["print"]["stg_cur"].is<const char *>())
         {
             if (printerVariables.stage != messageobject["print"]["stg_cur"].as<int>())
