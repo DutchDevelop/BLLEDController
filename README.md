@@ -3,7 +3,7 @@
 The BL Led Controller is an ESP8266 / ESP32 based device that connects to your Bambulab X1,X1C,P1P Or P1S and controls the LED strip based on the state of the printer.
 
 ### Flashing and Setup
-1. go to the [Web Flasher](https://softwarecrash.github.io/BLLEDController-NG/)
+1. go to the [Web Flasher](https://softwarecrash.github.io/BLLED-Flasher/)
 2. connect your ESP32
 3. Select the Firmware build you want
 4. Click on Flash
