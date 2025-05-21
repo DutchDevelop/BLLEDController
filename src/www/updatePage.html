@@ -131,26 +131,6 @@
             box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
         }
 
-        #toast {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0.9);
-            background-color: #333;
-            color: white;
-            padding: 14px 24px;
-            border-radius: 6px;
-            font-size: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            z-index: 9999;
-            opacity: 0;
-            transition: opacity 0.4s ease, transform 0.3s ease;
-            pointer-events: none;
-            box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
-        }
-
         #toast.show {
             opacity: 1;
             transform: translate(-50%, -50%) scale(1);
