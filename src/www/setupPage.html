@@ -237,7 +237,6 @@
             border-radius: 3px;
         }
 
-
         #toast {
             position: fixed;
             top: 50%;
@@ -301,8 +300,6 @@
                 <!-- MQTT Connection Indicator -->
                 <svg id="status" viewBox="10 5 180 60" width="130" height="45"></svg>
             </div>
-
-
 
             <p>Use the options below to configure your BLLED Controller.</p>
             <form method='POST' action='/submitConfig' onsubmit='return submitForm(event);'>
@@ -431,7 +428,99 @@
                         </div>
                     </div>
                 </details>
-                <!-- LED Options page -->
+                <!-- Printer Dependant Page -->
+                <details class="collapse" open>
+                    <summary>Printer Dependant</summary>
+                    <div>
+                        </br>
+                        <!-- is P1 Printer -->
+                        <div class="toggle-switch">
+                            <label class="switch">
+                                <input type="checkbox" id='p1Printer' name='p1Printer' class="PrinterOptions"
+                                    onchange='hasP1()'>
+                                <span class="slider"></span>
+                            </label>
+                            <span>Connecting to a P1 Printer?</span>
+                        </div>
+                        <!-- Doorswitch use -->
+                        <div class="toggle-switch" id="AllowDoorSwitch">
+                            <label class="switch">
+                                <input type="checkbox" id='doorSwitch' name='doorSwitch' class="PrinterOptions">
+                                <span class="slider"></span>
+                            </label>
+                            <span>Stages with Lidar in use (if installed)</span>
+                        </div>
+                        <!-- splitt line -->
+                        <div class="detailSplitter">LED Actions</div>
+                        <!-- Cleaning Nozzle -->
+                        <div class="toggle-switch">
+                            <span>Cleaning Nozzle</span>
+                            <div class="input-inline-group" style="margin-left: auto; padding-right: 15px;">
+                                <input type="color" id="stage14RGB" name="stage14RGB" value="#000000">
+                                <label for="stage14WW">WW</label>
+                                <input type="number" id="stage14WW" name="stage14WW" value="0" min="0" max="255"
+                                    step="1">
+                                <label for="stage14CW">CW</label>
+                                <input type="number" id="stage14CW" name="stage14CW" value="0" min="0" max="255"
+                                    step="1">
+                            </div>
+                        </div>
+                        <!-- Bed Leveling -->
+                        <div class="toggle-switch">
+                            <span>Bed Leveling</span>
+                            <div class="input-inline-group" style="margin-left: auto; padding-right: 15px;">
+                                <input type="color" id="stage1RGB" name="stage1RGB" value="#0000AA">
+                                <label for="stage1WW">WW</label>
+                                <input type="number" id="stage1WW" name="stage1WW" value="0" min="0" max="255" step="1">
+                                <label for="stage1CW">CW</label>
+                                <input type="number" id="stage1CW" name="stage1CW" value="0" min="0" max="255" step="1">
+                            </div>
+                        </div>
+                        <!-- Calibrating Extrusion -->
+                        <div class="toggle-switch">
+                            <span>Calibrating Extrusion</span>
+                            <div class="input-inline-group" style="margin-left: auto; padding-right: 15px;">
+                                <input type="color" id="stage8RGB" name="stage8RGB" value="#000000">
+                                <label for="stage8WW">WW</label>
+                                <input type="number" id="stage8WW" name="stage8WW" value="0" min="0" max="255" step="1">
+                                <label for="stage8CW">CW</label>
+                                <input type="number" id="stage8CW" name="stage8CW" value="0" min="0" max="255" step="1">
+                            </div>
+                        </div>
+                        <!-- Scanning Bed Surface -->
+                        <div class="toggle-switch">
+                            <span>Scanning Bed Surface</span>
+                            <div class="input-inline-group" style="margin-left: auto; padding-right: 15px;">
+                                <input type="color" id="stage9RGB" name="stage9RGB" value="#000000">
+                                <label for="stage9WW">WW</label>
+                                <input type="number" id="stage9WW" name="stage9WW" value="0" min="0" max="255" step="1">
+                                <label for="stage9CW">CW</label>
+                                <input type="number" id="stage9CW" name="stage9CW" value="0" min="0" max="255" step="1">
+                            </div>
+                        </div>
+                        <!-- First Layer Inspection -->
+                        <div class="toggle-switch">
+                            <span>First Layer Inspection</span>
+                            <div class="input-inline-group" style="margin-left: auto; padding-right: 15px;">
+                                <input type="color" id="stage10RGB" name="stage10RGB" value="#000000">
+                                <label for="stage10WW">WW</label>
+                                <input type="number" id="stage10WW" name="stage10WW" value="0" min="0" max="255"
+                                    step="1">
+                                <label for="stage10CW">CW</label>
+                                <input type="number" id="stage10CW" name="stage10CW" value="0" min="0" max="255"
+                                    step="1">
+                            </div>
+                        </div>
+
+
+
+                    </div>
+                </details>
+                <!-- Error Page -->
+                <details class="collapse">
+                    <summary>Customise Colors</summary>
+                </details>
+                <!-- Debug Page -->
                 <details class="collapse">
                     <summary>Debug Options</summary>
                     <div>
@@ -462,90 +551,7 @@
                         </div>
                     </div>
                 </details>
-                <details class="collapse">
-                    <summary>Printer Dependant</summary>
-                </details>
-
-                <details class="collapse">
-                    <summary>Customise Colors</summary>
-                </details>
-
-                <!--   
-
-                            <div class='toggle-container'>
-                                <label class='toggle-switch'>
-                                    <input type='checkbox' id='showtestcolor' name='showtestcolor' class="LEDBehavior"
-                                        onchange='selectOnlyOne(this);showhideOptions();'>
-                                    <span class='slider'></span>
-                                </label>
-
-                                &nbsp;&nbsp;&nbsp;<span class='toggle-label'>Test LED Colors (Always On)</span>
-                                <div id="testcolorchoice">
-                                    <input type="color" id='testRGB' name='testRGB' value='#3F3CFB'>
-                                    &nbsp;WW&nbsp;<input style="text-align:center; height:20px; width: 43px"
-                                        type="number" step=1 max=255 min=0 id='testWW' name='testWW' value='100'>
-                                    &nbsp;CW&nbsp;<input style="text-align:center; height:20px; width: 43px"
-                                        type="number" step=1 max=255 min=0 id='testCW' name='testCW' value='100'>
-                                </div>
-                            </div> -->
-
-                <!--  <table style="border-spacing:0" width="100%">
-                                <TR>
-                                    <TD valign="middle">
-                                        <div class='toggle-container'>
-                                            <label class='toggle-switch'>
-                                                <input type='checkbox' id='debugwifi' name='debugwifi'
-                                                    class="LEDBehavior"
-                                                    onchange='selectOnlyOne(this);showhideOptions();'>
-                                                <span class='slider'></span>
-                                            </label>
-                                            &nbsp;&nbsp;&nbsp;<span class='toggle-label'>Show Wifi Strength via
-                                                LEDs</span>
-                                        </div>
-                                    </TD>
-                                    <TD valign="top" id='displayWifiStrength' style='display:none'>
-                                        <table style="border-spacing:0">
-                                            <TR style="color:white;background-color: #303030;text-align: center;">
-                                                <TD width="70px"><B>RSSI</B></TD>
-                                                <TD> &nbsp; </TD>
-                                                <TD><B>Signal Strength</B></TD>
-                                            </TR>
-                                            <TR style="background-color: #00ff00;">
-                                                <TD style="text-align: center;">-30 to -50</TD>
-                                                <TD width='20px'> &nbsp; </TD>
-                                                <TD>Excellent</TD>
-                                            </TR>
-                                            <TR style="background-color: #aaffaa;">
-                                                <TD style="text-align: center;">-51 to -60</TD>
-                                                <TD> &nbsp; </TD>
-                                                <TD>Good</TD>
-                                            </TR>
-                                            <TR style="background-color: #ffff00;">
-                                                <TD style="text-align: center;">-61 to -70</TD>
-                                                <TD> &nbsp; </TD>
-                                                <TD>Fair</TD>
-                                            </TR>
-                                            <TR style="background-color: #ff8800;">
-                                                <TD style="text-align: center;">-71 to -80</TD>
-                                                <TD> &nbsp; </TD>
-                                                <TD>Poor</TD>
-                                            </TR>
-                                            <TR style="background-color: #ff0000;">
-                                                <TD style="text-align: center;">&lt; -80</TD>
-                                                <TD> &nbsp; </TD>
-                                                <TD>Unreliable</TD>
-                                            </TR>
-                                        </table>
-                                    </TD>
-                                </TR>
-                            </table> -->
-
-
-
-
-
-
-
+                <!-- navigation Page -->
                 <details class="collapse">
                     <summary>Navigation</summary>
                     <div>
@@ -568,57 +574,54 @@
 
 
     <script>
-        function setupExclusiveToggles(groupClassList) {
-            groupClassList.forEach((groupClass) => {
-                const toggles = document.querySelectorAll(`.${groupClass}`);
-                if (![...toggles].some(el => el.checked) && toggles.length > 0) {
-                    //toggles[0].checked = true;
-                }
-
-                toggles.forEach((toggle) => {
-                    toggle.addEventListener('change', function () {
-                        if (!this.checked) {
-                            this.checked = true;
-                            return;
+        /*         function setupExclusiveToggles(groupClassList) {
+                    groupClassList.forEach((groupClass) => {
+                        const toggles = document.querySelectorAll(`.${groupClass}`);
+                        if (![...toggles].some(el => el.checked) && toggles.length > 0) {
+                            //toggles[0].checked = true;
                         }
-                        toggles.forEach((el) => {
-                            if (el !== this) el.checked = false;
+        
+                        toggles.forEach((toggle) => {
+                            toggle.addEventListener('change', function () {
+                                if (!this.checked) {
+                                    this.checked = true;
+                                    return;
+                                }
+                                toggles.forEach((el) => {
+                                    if (el !== this) el.checked = false;
+                                });
+                            });
                         });
                     });
-                });
-            });
-        }
-        setupExclusiveToggles(['LEDBehavior', 'DoorActions']);
-
-
-
-        function updateFinishExitVisibility() {
-            const visible = document.getElementById('finishIndication').checked;
-            document.getElementById('finishExitOptions').style.display = visible ? 'block' : 'none';
-        }
-
-        // Beim Seitenaufbau und bei Änderung ausführen
-        document.addEventListener('DOMContentLoaded', () => {
-            const fin = document.getElementById('finishIndication');
-            if (fin) {
-                fin.addEventListener('change', updateFinishExitVisibility);
-                updateFinishExitVisibility(); // Initial prüfen
-            }
-        });
+                }
+                setupExclusiveToggles(['LEDBehavior', 'DoorActions']);
+        
+                function updateFinishExitVisibility() {
+                    const visible = document.getElementById('finishIndication').checked;
+                    document.getElementById('finishExitOptions').style.display = visible ? 'block' : 'none';
+                }
+        
+                document.addEventListener('DOMContentLoaded', () => {
+                    const fin = document.getElementById('finishIndication');
+                    if (fin) {
+                        fin.addEventListener('change', updateFinishExitVisibility);
+                        updateFinishExitVisibility();
+                    }
+                }); */
 
     </script>
 
     <!-- colapse JS -->
     <script>
-        document.querySelectorAll("details.collapse").forEach((detail) => {
-            detail.addEventListener("toggle", function () {
-                if (detail.open) {
-                    document.querySelectorAll("details.collapse").forEach((other) => {
-                        if (other !== detail) other.removeAttribute("open");
+        /*         document.querySelectorAll("details.collapse").forEach((detail) => {
+                    detail.addEventListener("toggle", function () {
+                        if (detail.open) {
+                            document.querySelectorAll("details.collapse").forEach((other) => {
+                                if (other !== detail) other.removeAttribute("open");
+                            });
+                        }
                     });
-                }
-            });
-        });
+                }); */
 
     </script>
 
@@ -662,28 +665,28 @@
 
     <!-- old script -->
     <script>
-        /*         function updateIdle() {
-                    var x = document.getElementById("inactivityMins");
-                    if (document.getElementById('inactivityEnabled').checked) {
-                        x.style.display = 'block';
-                    } else {
-                        x.style.display = 'none';
-                    }
-                } */
+        function updateIdle() {
+            var x = document.getElementById("inactivityMins");
+            if (document.getElementById('inactivityEnabled').checked) {
+                x.style.display = 'block';
+            } else {
+                x.style.display = 'none';
+            }
+        }
 
-        /*         function setFinishColor() {
-                    if (document.getElementById('finishIndication').checked) {
-                        document.getElementById("finishcolorchoice").style.display = 'block';
-                        document.getElementById("finishendchoice").style.display = 'block';
-                        document.getElementById("finishendchoicetitle").style.display = 'block';
-        
-                    } else {
-                        document.getElementById("finishcolorchoice").style.display = 'none';
-                        document.getElementById("finishendchoice").style.display = 'none';
-                        document.getElementById("finishendchoicetitle").style.display = 'none';
-                    }
-                } */
-/*         function setFinishExit(id) {
+        function setFinishColor() {
+            if (document.getElementById('finishIndication').checked) {
+                document.getElementById("finishcolorchoice").style.display = 'block';
+                document.getElementById("finishendchoice").style.display = 'block';
+                document.getElementById("finishendchoicetitle").style.display = 'block';
+
+            } else {
+                document.getElementById("finishcolorchoice").style.display = 'none';
+                document.getElementById("finishendchoice").style.display = 'none';
+                document.getElementById("finishendchoicetitle").style.display = 'none';
+            }
+        }
+        function setFinishExit(id) {
             var myCheckbox = document.getElementsByClassName("finishOption");
             if (id.checked) {
                 Array.prototype.forEach.call(myCheckbox, function (el) {
@@ -697,51 +700,51 @@
                 id.checked = false;
             }
 
-        } */
-        /*         function setFinishChoice() {
-                    if (document.getElementById('finishEndDoor').checked) {
-                        document.getElementById("finishdooroption").style.display = 'block';
-                        document.getElementById("finishtimeroption").style.display = 'none';
-        
-                    } else {
-                        document.getElementById("finishtimeroption").style.display = 'block';
-                        document.getElementById("finishdooroption").style.display = 'none';
-                    }
-                } */
+        }
+        function setFinishChoice() {
+            if (document.getElementById('finishEndDoor').checked) {
+                document.getElementById("finishdooroption").style.display = 'block';
+                document.getElementById("finishtimeroption").style.display = 'none';
+
+            } else {
+                document.getElementById("finishtimeroption").style.display = 'block';
+                document.getElementById("finishdooroption").style.display = 'none';
+            }
+        }
         //LED Behavious
-        /*         function selectOnlyOne(id) {
-                    var myCheckbox = document.getElementsByClassName("LEDBehavior")
-                    Array.prototype.forEach.call(myCheckbox, function (el) {
-                        el.checked = false;
-                    });
-                    id.checked = true;
-                } */
-        /*         function showhideOptions() {
-                    if (document.getElementById('showtestcolor').checked) {
-                        document.getElementById("testcolorchoice").style.display = 'block';
-                    } else {
-                        document.getElementById("testcolorchoice").style.display = 'none';
-                    }
-                     if (document.getElementById('debugwifi').checked) {
-                        document.getElementById("displayWifiStrength").style.display = 'block';
-                    } else {
-                        document.getElementById("displayWifiStrength").style.display = 'none';
-                    }
-                    if (document.getElementById('replicateLedState').checked) {
-                        document.getElementById("runningcolorchoice").style.display = 'block';
-                    } else {
-                        document.getElementById("runningcolorchoice").style.display = 'none';
-                    }
-        
-                } */
+        function selectOnlyOne(id) {
+            var myCheckbox = document.getElementsByClassName("LEDBehavior")
+            Array.prototype.forEach.call(myCheckbox, function (el) {
+                el.checked = false;
+            });
+            id.checked = true;
+        }
+        function showhideOptions() {
+            if (document.getElementById('showtestcolor').checked) {
+                document.getElementById("testcolorchoice").style.display = 'block';
+            } else {
+                document.getElementById("testcolorchoice").style.display = 'none';
+            }
+            if (document.getElementById('debugwifi').checked) {
+                //document.getElementById("displayWifiStrength").style.display = 'block';
+            } else {
+                //document.getElementById("displayWifiStrength").style.display = 'none';
+            }
+            if (document.getElementById('replicateLedState').checked) {
+                document.getElementById("runningcolorchoice").style.display = 'block';
+            } else {
+                document.getElementById("runningcolorchoice").style.display = 'none';
+            }
+
+        }
         //Error colors
-        /*         function showcustomColors() {
-                    if (document.getElementById('errorDetection').checked) {
-                        document.getElementById("CustomColorsDiv").style.display = 'block';
-                    } else {
-                        document.getElementById("CustomColorsDiv").style.display = 'none';
-                    }
-                } */
+        function showcustomColors() {
+            if (document.getElementById('errorDetection').checked) {
+                document.getElementById("CustomColorsDiv").style.display = 'block';
+            } else {
+                document.getElementById("CustomColorsDiv").style.display = 'none';
+            }
+        }
         function hasP1() {
             if (document.getElementById('p1Printer').checked) {
                 document.getElementById("doorSwitch").checked = false;
@@ -802,111 +805,111 @@
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === 4) {
                     if (xhr.status === 200) {
-                        //try {
-                        var configData = JSON.parse(xhr.responseText);
-                        /* move to bottom */
-                        document.getElementById("firmwareversion").textContent = "Firmware Version: " + (configData.firmwareversion || "Unknown version");
-                        /* LED Behaviour */
-                        document.getElementById('brightnessslider').value = configData.brightness || 100;
-                        document.getElementById("brightnesssliderDisplay").textContent = "Brightness: " + (configData.brightness || 100) + "%";
-                        document.getElementById('maintMode').checked = configData.maintMode || false;
-                        document.getElementById('discoMode').checked = configData.discoMode || false;
-                        document.getElementById('replicateLedState').checked = configData.replicateled || false;
-                        document.getElementById('runningRGB').value = configData.runningRGB || '';
-                        document.getElementById('runningWW').value = configData.runningWW || 255;
-                        document.getElementById('runningCW').value = configData.runningCW || 255;
-                        document.getElementById('showtestcolor').checked = configData.showtestcolor || false;
-                        document.getElementById('testRGB').value = configData.testRGB || '';
-                        document.getElementById('testWW').value = configData.testWW || 0;
-                        document.getElementById('testCW').value = configData.testCW || 0;
+                        try {
+                            var configData = JSON.parse(xhr.responseText);
+                            document.getElementById("firmwareversion").textContent = "Firmware Version: " + (configData.firmwareversion || "Unknown version");
+                            /*                             if (configData.wifiStrength != "") {
+                                                            document.getElementById("wifiStrength").textContent = "Connection Strength: " + (configData.wifiStrength || "") + "dBm";
+                                                        } */
+                            //document.getElementById('ip').value = configData.ip || '';
+                            //document.getElementById('code').value = configData.code || '';
+                            //document.getElementById('id').value = configData.id || '';
+                            //document.getElementById('apMAC').value = configData.apMAC || '';
+                            document.getElementById('brightnessslider').value = configData.brightness || 100;
+                            document.getElementById("brightnesssliderDisplay").textContent = "Brightness: " + (configData.brightness || 100) + "%";
+                            document.getElementById('maintMode').checked = configData.maintMode || false;
+                            document.getElementById('discoMode').checked = configData.discoMode || false;
+                            document.getElementById('replicateLedState').checked = configData.replicateled || false;
+                            document.getElementById('runningRGB').value = configData.runningRGB || '';
+                            document.getElementById('runningWW').value = configData.runningWW || 255;
+                            document.getElementById('runningCW').value = configData.runningCW || 255;
+                            document.getElementById('showtestcolor').checked = configData.showtestcolor || false;
+                            document.getElementById('testRGB').value = configData.testRGB || '';
+                            document.getElementById('testWW').value = configData.testWW || 0;
+                            document.getElementById('testCW').value = configData.testCW || 0;
+                            document.getElementById('debugwifi').checked = configData.debugwifi || false;
+                            document.getElementById('finishIndication').checked = configData.finishindication || false;
+                            document.getElementById('finishColor').value = configData.finishColor || '';
+                            document.getElementById('finishWW').value = configData.finishWW || 0;
+                            document.getElementById('finishCW').value = configData.finishCW || 0;
+                            if (configData.finishExit) {
+                                document.getElementById('finishEndDoor').checked = true;
+                                setFinishExit(document.getElementById('finishEndDoor'));
+                            } else {
+                                document.getElementById('finishEndTimer').checked = true;
+                                setFinishExit(document.getElementById('finishEndTimer'));
+                            }
+                            document.getElementById('finishTimerMins').value = configData.finishTimerMins || 10;
+                            document.getElementById('inactivityEnabled').checked = configData.inactivityEnabled || false;
+                            document.getElementById('inactivityMins').value = configData.inactivityMins || 30;
+                            document.getElementById('debuging').checked = configData.debuging || false;
+                            document.getElementById('debugingchange').checked = configData.debugingchange || false;
+                            document.getElementById('mqttdebug').checked = configData.mqttdebug || false;
+                            document.getElementById('p1Printer').checked = configData.p1Printer || false;
+                            document.getElementById('doorSwitch').checked = configData.doorSwitch || false;
+                            document.getElementById('stage14RGB').value = configData.stage14RGB || '';
+                            document.getElementById('stage14WW').value = configData.stage14WW || 0;
+                            document.getElementById('stage14CW').value = configData.stage14CW || 0;
+                            document.getElementById('stage1RGB').value = configData.stage1RGB || '';
+                            document.getElementById('stage1WW').value = configData.stage1WW || 0;
+                            document.getElementById('stage1CW').value = configData.stage1CW || 0;
+                            document.getElementById('stage8RGB').value = configData.stage8RGB || '';
+                            document.getElementById('stage8WW').value = configData.stage8WW || 0;
+                            document.getElementById('stage8CW').value = configData.stage8CW || 0;
+                            document.getElementById('stage9RGB').value = configData.stage9RGB || '';
+                            document.getElementById('stage9WW').value = configData.stage9WW || 0;
+                            document.getElementById('stage9CW').value = configData.stage9CW || 0;
+                            document.getElementById('stage10RGB').value = configData.stage10RGB || '';
+                            document.getElementById('stage10WW').value = configData.stage10WW || 0;
+                            document.getElementById('stage10CW').value = configData.stage10CW || 0;
+                            document.getElementById('errorDetection').checked = configData.errordetection || false;
+                            document.getElementById('wifiRGB').value = configData.wifiRGB || '';
+                            document.getElementById('wifiWW').value = configData.wifiWW || 0;
+                            document.getElementById('wifiCW').value = configData.wifiCW || 0;
+                            document.getElementById('pauseRGB').value = configData.pauseRGB || '';
+                            document.getElementById('pauseWW').value = configData.pauseWW || 0;
+                            document.getElementById('pauseCW').value = configData.pauseCW || 0;
+                            document.getElementById('firstlayerRGB').value = configData.firstlayerRGB || '';
+                            document.getElementById('firstlayerWW').value = configData.firstlayerWW || 0;
+                            document.getElementById('firstlayerCW').value = configData.firstlayerCW || 0;
+                            document.getElementById('nozzleclogRGB').value = configData.nozzleclogRGB || '';
+                            document.getElementById('nozzleclogWW').value = configData.nozzleclogWW || 0;
+                            document.getElementById('nozzleclogCW').value = configData.nozzleclogCW || 0;
+                            document.getElementById('hmsSeriousRGB').value = configData.hmsSeriousRGB || '';
+                            document.getElementById('hmsSeriousWW').value = configData.hmsSeriousWW || 0;
+                            document.getElementById('hmsSeriousCW').value = configData.hmsSeriousCW || 0;
+                            document.getElementById('hmsFatalRGB').value = configData.hmsFatalRGB || '';
+                            document.getElementById('hmsFatalWW').value = configData.hmsFatalWW || 0;
+                            document.getElementById('hmsFatalCW').value = configData.hmsFatalCW || 0;
+                            document.getElementById('filamentRunoutRGB').value = configData.filamentRunoutRGB || '';
+                            document.getElementById('filamentRunoutWW').value = configData.filamentRunoutWW || 0;
+                            document.getElementById('filamentRunoutCW').value = configData.filamentRunoutCW || 0;
+                            document.getElementById('frontCoverRGB').value = configData.frontCoverRGB || '';
+                            document.getElementById('frontCoverWW').value = configData.frontCoverWW || 0;
+                            document.getElementById('frontCoverCW').value = configData.frontCoverCW || 0;
+                            document.getElementById('nozzleTempRGB').value = configData.nozzleTempRGB || '';
+                            document.getElementById('nozzleTempWW').value = configData.nozzleTempWW || 0;
+                            document.getElementById('nozzleTempCW').value = configData.nozzleTempCW || 0;
+                            document.getElementById('bedTempRGB').value = configData.bedTempRGB || '';
+                            document.getElementById('bedTempWW').value = configData.bedTempWW || 0;
+                            document.getElementById('bedTempCW').value = configData.bedTempCW || 0;
 
-                        document.getElementById('finishIndication').checked = configData.finishindication || false;
-                        document.getElementById('finishColor').value = configData.finishColor || '';
-                        document.getElementById('finishWW').value = configData.finishWW || 0;
-                        document.getElementById('finishCW').value = configData.finishCW || 0;
-                        //senden: wenn finishEndTimer on dann wird zeit genutzt, off ist tür aktion.......
-                        //empfang: finishExit false ist zeit, true ist tür
-                        document.getElementById('finishEndDoor').checked = configData.finishExit;
-                        document.getElementById('finishEndTimer').checked = !configData.finishExit;
-
-
-
-
-                        document.getElementById('debugwifi').checked = configData.debugwifi || false;
-
-                        document.getElementById('finishTimerMins').value = configData.finishTimerMins || 10;
-                        document.getElementById('inactivityEnabled').checked = configData.inactivityEnabled || false;
-                        document.getElementById('inactivityMins').value = configData.inactivityMins || 30;
-                        document.getElementById('debuging').checked = configData.debuging || false;
-                        document.getElementById('debugingchange').checked = configData.debugingchange || false;
-                        document.getElementById('mqttdebug').checked = configData.mqttdebug || false;
-
-                        /*                         document.getElementById('p1Printer').checked = configData.p1Printer || false;
-                                                document.getElementById('doorSwitch').checked = configData.doorSwitch || false;
-                                                document.getElementById('stage14RGB').value = configData.stage14RGB || '';
-                                                document.getElementById('stage14WW').value = configData.stage14WW || 0;
-                                                document.getElementById('stage14CW').value = configData.stage14CW || 0;
-                                                document.getElementById('stage1RGB').value = configData.stage1RGB || '';
-                                                document.getElementById('stage1WW').value = configData.stage1WW || 0;
-                                                document.getElementById('stage1CW').value = configData.stage1CW || 0;
-                                                document.getElementById('stage8RGB').value = configData.stage8RGB || '';
-                                                document.getElementById('stage8WW').value = configData.stage8WW || 0;
-                                                document.getElementById('stage8CW').value = configData.stage8CW || 0;
-                                                document.getElementById('stage9RGB').value = configData.stage9RGB || '';
-                                                document.getElementById('stage9WW').value = configData.stage9WW || 0;
-                                                document.getElementById('stage9CW').value = configData.stage9CW || 0;
-                                                document.getElementById('stage10RGB').value = configData.stage10RGB || '';
-                                                document.getElementById('stage10WW').value = configData.stage10WW || 0;
-                                                document.getElementById('stage10CW').value = configData.stage10CW || 0;
-                                                document.getElementById('errorDetection').checked = configData.errordetection || false;
-                                                document.getElementById('wifiRGB').value = configData.wifiRGB || '';
-                                                document.getElementById('wifiWW').value = configData.wifiWW || 0;
-                                                document.getElementById('wifiCW').value = configData.wifiCW || 0;
-                                                document.getElementById('pauseRGB').value = configData.pauseRGB || '';
-                                                document.getElementById('pauseWW').value = configData.pauseWW || 0;
-                                                document.getElementById('pauseCW').value = configData.pauseCW || 0;
-                                                document.getElementById('firstlayerRGB').value = configData.firstlayerRGB || '';
-                                                document.getElementById('firstlayerWW').value = configData.firstlayerWW || 0;
-                                                document.getElementById('firstlayerCW').value = configData.firstlayerCW || 0;
-                                                document.getElementById('nozzleclogRGB').value = configData.nozzleclogRGB || '';
-                                                document.getElementById('nozzleclogWW').value = configData.nozzleclogWW || 0;
-                                                document.getElementById('nozzleclogCW').value = configData.nozzleclogCW || 0;
-                                                document.getElementById('hmsSeriousRGB').value = configData.hmsSeriousRGB || '';
-                                                document.getElementById('hmsSeriousWW').value = configData.hmsSeriousWW || 0;
-                                                document.getElementById('hmsSeriousCW').value = configData.hmsSeriousCW || 0;
-                                                document.getElementById('hmsFatalRGB').value = configData.hmsFatalRGB || '';
-                                                document.getElementById('hmsFatalWW').value = configData.hmsFatalWW || 0;
-                                                document.getElementById('hmsFatalCW').value = configData.hmsFatalCW || 0;
-                                                document.getElementById('filamentRunoutRGB').value = configData.filamentRunoutRGB || '';
-                                                document.getElementById('filamentRunoutWW').value = configData.filamentRunoutWW || 0;
-                                                document.getElementById('filamentRunoutCW').value = configData.filamentRunoutCW || 0;
-                                                document.getElementById('frontCoverRGB').value = configData.frontCoverRGB || '';
-                                                document.getElementById('frontCoverWW').value = configData.frontCoverWW || 0;
-                                                document.getElementById('frontCoverCW').value = configData.frontCoverCW || 0;
-                                                document.getElementById('nozzleTempRGB').value = configData.nozzleTempRGB || '';
-                                                document.getElementById('nozzleTempWW').value = configData.nozzleTempWW || 0;
-                                                document.getElementById('nozzleTempCW').value = configData.nozzleTempCW || 0;
-                                                document.getElementById('bedTempRGB').value = configData.bedTempRGB || '';
-                                                document.getElementById('bedTempWW').value = configData.bedTempWW || 0;
-                                                document.getElementById('bedTempCW').value = configData.bedTempCW || 0; */
-
-                        //updateIdle();
-                        //showhideOptions();
-                        //showcustomColors();
-                        //setFinishColor();
-                        //setFinishChoice();
-                        updateFinishExitVisibility();
-                        alertToast("Success", "Configuration loaded successfully!");
-                        //} catch (e) {
-                        //   console.log(e);
-                        //   alertToast("Error", "Invalid server response! (" + e + ").");
-                        //}
+                            updateIdle();
+                            showhideOptions();
+                            showcustomColors();
+                            setFinishColor();
+                            setFinishChoice();
+                            showMessage("Success", "Configuration loaded successfully!");
+                        } catch (e) {
+                            console.log(e);
+                            showMessage("Error", "Invalid server response! (" + e + ").");
+                        }
                     } else if (xhr.status >= 400 && xhr.status < 500) {
-                        alertToast("Error", "Client Error (" + xhr.status + "): " + (xhr.responseText || "Request failed."));
+                        showMessage("Error", "Client Error (" + xhr.status + "): " + (xhr.responseText || "Request failed."));
                     } else if (xhr.status >= 500) {
-                        alertToast("Error", "Server Error (" + xhr.status + "): " + (xhr.responseText || "Internal server error."));
+                        showMessage("Error", "Server Error (" + xhr.status + "): " + (xhr.responseText || "Internal server error."));
                     } else {
-                        alertToast("Error", "Unexpected response (" + xhr.status + ").");
+                        showMessage("Error", "Unexpected response (" + xhr.status + ").");
                     }
                 }
             };
@@ -917,13 +920,46 @@
             document.getElementById("brightnessslider").addEventListener("input", function (e) {
                 document.getElementById("brightnesssliderDisplay").textContent = "Brightness: " + e.target.value + "%";
             });
-            //updateIdle();
+            updateIdle();
             updateConfig();
-            //showhideOptions();
-            //showcustomColors();
-            //setFinishColor();
-            //setFinishChoice();
+            showhideOptions();
+            showcustomColors();
+            setFinishColor();
+            setFinishChoice();
         };
+        function hideMessage() {
+            clearTimeout(showMessage.timer);
+            document.body.removeAttribute("message");
+            document.body.removeAttribute("message-type");
+            document.body.removeAttribute("message-icon");
+            document.body.removeEventListener("click", hideMessage);
+        }
+
+        function showMessage(type, message) {
+            clearTimeout(showMessage.timer);
+            showMessage.timer = setTimeout(hideMessage, 6000);
+
+            // Icon Mapping
+            let icon = "";
+            switch (type.toLowerCase()) {
+                case "success":
+                    icon = "✔️";
+                    break;
+                case "error":
+                    icon = "❌";
+                    break;
+                case "info":
+                    icon = "ℹ️";
+                    break;
+                default:
+                    icon = "🔔";
+            }
+
+            document.body.setAttribute("message", message);
+            document.body.setAttribute("message-type", type.toLowerCase());
+            document.body.setAttribute("message-icon", icon);
+            document.body.addEventListener("click", hideMessage);
+        }
 
 
         /* Submit all form data */
