@@ -274,6 +274,13 @@
             margin-bottom: 8px;
             border-radius: 4px;
         }
+
+        details.collapse>div {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease, opacity 0.4s ease;
+            opacity: 0;
+        }
     </style>
 </head>
 
@@ -429,7 +436,8 @@
                                 <span class="slider"></span>
                             </label>
                             <span>Inactivity Timeout (Minutes)</span>
-                            <div class="input-inline-group" id="inactivityMinsDiv" style="margin-left: auto; padding-right: 15px;">
+                            <div class="input-inline-group" id="inactivityMinsDiv"
+                                style="margin-left: auto; padding-right: 15px;">
                                 <label for="inactivityMins">Min.</label>
                                 <input type="text" id="inactivityMins" name="inactivityMins" value='1' maxlength='3'
                                     size='3'>
@@ -544,11 +552,9 @@
                                 <div class="input-inline-group" style="margin-left: auto; padding-right: 15px;">
                                     <input type="color" id="wifiRGB" name="wifiRGB" value="#FFA500">
                                     <label for="wifiWW">WW</label>
-                                    <input type="number" id="wifiWW" name="wifiWW" value="0" min="0" max="255"
-                                        step="1">
+                                    <input type="number" id="wifiWW" name="wifiWW" value="0" min="0" max="255" step="1">
                                     <label for="wifiCW">CW</label>
-                                    <input type="number" id="wifiCW" name="wifiCW" value="0" min="0" max="255"
-                                        step="1">
+                                    <input type="number" id="wifiCW" name="wifiCW" value="0" min="0" max="255" step="1">
                                 </div>
                             </div>
                             <div class="toggle-switch">
@@ -716,17 +722,57 @@
 
     <!-- colapse JS -->
     <script>
-                 document.querySelectorAll("details.collapse").forEach((detail) => {
-                    detail.addEventListener("toggle", function () {
-                        if (detail.open) {
-                            document.querySelectorAll("details.collapse").forEach((other) => {
-                                if (other !== detail) other.removeAttribute("open");
+        document.querySelectorAll("details.collapse").forEach((detail) => {
+            const content = detail.querySelector("div");
+            const summary = detail.querySelector("summary");
+
+            if (detail.hasAttribute("open")) {
+                content.style.maxHeight = content.scrollHeight + "px";
+                content.style.opacity = 1;
+            } else {
+                content.style.maxHeight = "0px";
+                content.style.opacity = 0;
+            }
+
+            summary.addEventListener("click", (e) => {
+                e.preventDefault();
+
+                if (detail.hasAttribute("open")) {
+                    content.style.maxHeight = content.scrollHeight + "px";
+                    requestAnimationFrame(() => {
+                        content.style.maxHeight = "0px";
+                        content.style.opacity = 0;
+                    });
+                    setTimeout(() => {
+                        detail.removeAttribute("open");
+                    }, 400);
+                } else {
+                    document.querySelectorAll("details.collapse[open]").forEach((openDetail) => {
+                        if (openDetail !== detail) {
+                            const openContent = openDetail.querySelector("div");
+                            openContent.style.maxHeight = openContent.scrollHeight + "px";
+                            openContent.style.opacity = 1;
+                            requestAnimationFrame(() => {
+                                openContent.style.maxHeight = "0px";
+                                openContent.style.opacity = 0;
                             });
+                            setTimeout(() => {
+                                openDetail.removeAttribute("open");
+                            }, 400);
                         }
                     });
-                }); 
-
+                    detail.setAttribute("open", "");
+                    content.style.maxHeight = "0px";
+                    content.style.opacity = 0;
+                    requestAnimationFrame(() => {
+                        content.style.maxHeight = content.scrollHeight + "px";
+                        content.style.opacity = 1;
+                    });
+                }
+            });
+        });
     </script>
+
 
     <!-- AlertToast JS-->
     <script>
