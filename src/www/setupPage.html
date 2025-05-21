@@ -333,11 +333,12 @@
                         <div class="toggle-switch">
                             <label class="switch">
                                 <input type="checkbox" id="replicateLedState" name="replicateLedState"
-                                    class="LEDBehavior">
+                                    class="LEDBehavior" checked>
                                 <span class="slider"></span>
                             </label>
                             <span>Replicate State</span>
-                            <div id="runningcolorchoice" class="input-inline-group" style="margin-left: auto; padding-right: 15px;">
+                            <div id="runningcolorchoice" class="input-inline-group"
+                                style="margin-left: auto; padding-right: 15px;">
                                 <input type="color" id="runningRGB" name="runningRGB" value="#000000">
                                 <label for="runningWW">WW</label>
                                 <input type="number" id="runningWW" name="runningWW" value="255" min="0" max="255"
@@ -354,7 +355,8 @@
                                 <span class="slider"></span>
                             </label>
                             <span>Colortest (Always On)</span>
-                            <div id="testcolorchoice" class="input-inline-group" style="margin-left: auto; padding-right: 15px;">
+                            <div id="testcolorchoice" class="input-inline-group"
+                                style="margin-left: auto; padding-right: 15px;">
                                 <input type="color" id="testRGB" name="testRGB" value="#3F3CFB">
                                 <label for="testWW">WW</label>
                                 <input type="number" id="testWW" name="testWW" value="255" min="0" max="255" step="1">
@@ -390,25 +392,27 @@
                             </div>
                         </div>
                         <!-- Finish Exit selector -->
-                        <div class="toggle-switch">
-                            <label class="switch">
-                                <input type="checkbox" id='finishEndDoor' name='finishEndDoor'
-                                    class="LEDOptions DoorActions" checked>
-                                <span class="slider"></span>
-                            </label>
-                            <span>Exit Finish after Door Action Open / Close</span>
-                        </div>
-                        <div class="toggle-switch">
-                            <label class="switch">
-                                <input type="checkbox" id='finishEndTimer' name='finishEndTimer'
-                                    class="LEDOptions DoorActions">
-                                <span class="slider"></span>
-                            </label>
-                            <span>Exit Finish after</span>
-                            <div class="input-inline-group" style="margin-left: auto; padding-right: 15px;">
-                                <label for="finishTimerMins">Min.</label>
-                                <input type="text" id="finishTimerMins" name="finishTimerMins" value='1' maxlength='3'
-                                    size='3'>
+                        <div id="finishExitOptions">
+                            <div class="toggle-switch">
+                                <label class="switch">
+                                    <input type="checkbox" id='finishEndDoor' name='finishEndDoor'
+                                        class="LEDOptions DoorActions" checked>
+                                    <span class="slider"></span>
+                                </label>
+                                <span>Exit Finish after Door Action Open / Close</span>
+                            </div>
+                            <div class="toggle-switch">
+                                <label class="switch">
+                                    <input type="checkbox" id='finishEndTimer' name='finishEndTimer'
+                                        class="LEDOptions DoorActions">
+                                    <span class="slider"></span>
+                                </label>
+                                <span>Exit Finish after</span>
+                                <div class="input-inline-group" style="margin-left: auto; padding-right: 15px;">
+                                    <label for="finishTimerMins">Min.</label>
+                                    <input type="text" id="finishTimerMins" name="finishTimerMins" value='1'
+                                        maxlength='3' size='3'>
+                                </div>
                             </div>
                         </div>
                         <!-- Inactivity Timeout -->
@@ -458,7 +462,13 @@
                         </div>
                     </div>
                 </details>
+                <details class="collapse">
+                    <summary>Printer Dependant</summary>
+                </details>
 
+                <details class="collapse">
+                    <summary>Customise Colors</summary>
+                </details>
 
                 <!--   
 
@@ -534,26 +544,7 @@
 
 
 
-                <details class="collapse">
-                    <summary>LED Color</summary>
-                    <div>
-                        </br>
-                        <label for="ledColor">LED Color</label>
-                        <input type="color" id="ledColor" name="ledColor" value="#00ff00">
-                    </div>
-                </details>
 
-                <details class="collapse">
-                    <summary>MQTT Settings</summary>
-                    <div>
-                        </br>
-                        <label for="mqtt">Enable MQTT</label>
-                        <select id="mqtt" name="mqtt">
-                            <option value="true">Yes</option>
-                            <option value="false">No</option>
-                        </select>
-                    </div>
-                </details>
 
                 <details class="collapse">
                     <summary>Navigation</summary>
@@ -564,7 +555,6 @@
                         <button onclick="location.href='/backuprestore'">backup & Restore</button>
                     </div>
                 </details>
-                <!-- <input type='submit' value='Save Configuration'> -->
                 <button type="submit">Save Configuration</button>
             </form>
 
@@ -575,23 +565,65 @@
     <div id="toast"><span id="toast-icon">ℹ️</span><span id="toast-msg">Placeholder</span></div>
 
     <script src="particleCanvas.js"></script>
-    <script>
 
+
+    <script>
         function setupExclusiveToggles(groupClassList) {
             groupClassList.forEach((groupClass) => {
-                document.querySelectorAll(`.${groupClass}`).forEach((toggle) => {
+                const toggles = document.querySelectorAll(`.${groupClass}`);
+                if (![...toggles].some(el => el.checked) && toggles.length > 0) {
+                    //toggles[0].checked = true;
+                }
+
+                toggles.forEach((toggle) => {
                     toggle.addEventListener('change', function () {
-                        if (this.checked) {
-                            document.querySelectorAll(`.${groupClass}`).forEach((el) => {
-                                if (el !== this) el.checked = false;
-                            });
+                        if (!this.checked) {
+                            this.checked = true;
+                            return;
                         }
+                        toggles.forEach((el) => {
+                            if (el !== this) el.checked = false;
+                        });
                     });
                 });
             });
         }
         setupExclusiveToggles(['LEDBehavior', 'DoorActions']);
 
+
+
+        function updateFinishExitVisibility() {
+            const visible = document.getElementById('finishIndication').checked;
+            document.getElementById('finishExitOptions').style.display = visible ? 'block' : 'none';
+        }
+
+        // Beim Seitenaufbau und bei Änderung ausführen
+        document.addEventListener('DOMContentLoaded', () => {
+            const fin = document.getElementById('finishIndication');
+            if (fin) {
+                fin.addEventListener('change', updateFinishExitVisibility);
+                updateFinishExitVisibility(); // Initial prüfen
+            }
+        });
+
+    </script>
+
+    <!-- colapse JS -->
+    <script>
+        document.querySelectorAll("details.collapse").forEach((detail) => {
+            detail.addEventListener("toggle", function () {
+                if (detail.open) {
+                    document.querySelectorAll("details.collapse").forEach((other) => {
+                        if (other !== detail) other.removeAttribute("open");
+                    });
+                }
+            });
+        });
+
+    </script>
+
+    <!-- AlertToast JS-->
+    <script>
         function alertToast(type, message) {
             const toast = document.getElementById("toast");
             const icon = document.getElementById("toast-icon");
@@ -618,20 +650,13 @@
         function saveConfig() {
             alertToast("success", "Settings saved.");
         }
-
-        document.querySelectorAll("details.collapse").forEach((detail) => {
-            detail.addEventListener("toggle", function () {
-                if (detail.open) {
-                    document.querySelectorAll("details.collapse").forEach((other) => {
-                        if (other !== detail) other.removeAttribute("open");
-                    });
-                }
-            });
-        });
-
-
-
-
+        function hideMessage() {
+            clearTimeout(alertToast.timer);
+            document.body.removeAttribute("message");
+            document.body.removeAttribute("message-type");
+            document.body.removeAttribute("message-icon");
+            document.body.removeEventListener("click", hideMessage);
+        }
     </script>
 
 
@@ -658,7 +683,7 @@
                         document.getElementById("finishendchoicetitle").style.display = 'none';
                     }
                 } */
-        function setFinishExit(id) {
+/*         function setFinishExit(id) {
             var myCheckbox = document.getElementsByClassName("finishOption");
             if (id.checked) {
                 Array.prototype.forEach.call(myCheckbox, function (el) {
@@ -672,7 +697,7 @@
                 id.checked = false;
             }
 
-        }
+        } */
         /*         function setFinishChoice() {
                     if (document.getElementById('finishEndDoor').checked) {
                         document.getElementById("finishdooroption").style.display = 'block';
@@ -684,13 +709,13 @@
                     }
                 } */
         //LED Behavious
-        function selectOnlyOne(id) {
-            var myCheckbox = document.getElementsByClassName("LEDBehavior")
-            Array.prototype.forEach.call(myCheckbox, function (el) {
-                el.checked = false;
-            });
-            id.checked = true;
-        }
+        /*         function selectOnlyOne(id) {
+                    var myCheckbox = document.getElementsByClassName("LEDBehavior")
+                    Array.prototype.forEach.call(myCheckbox, function (el) {
+                        el.checked = false;
+                    });
+                    id.checked = true;
+                } */
         /*         function showhideOptions() {
                     if (document.getElementById('showtestcolor').checked) {
                         document.getElementById("testcolorchoice").style.display = 'block';
@@ -815,60 +840,62 @@
                         document.getElementById('debuging').checked = configData.debuging || false;
                         document.getElementById('debugingchange').checked = configData.debugingchange || false;
                         document.getElementById('mqttdebug').checked = configData.mqttdebug || false;
-                        document.getElementById('p1Printer').checked = configData.p1Printer || false;
-                        document.getElementById('doorSwitch').checked = configData.doorSwitch || false;
-                        document.getElementById('stage14RGB').value = configData.stage14RGB || '';
-                        document.getElementById('stage14WW').value = configData.stage14WW || 0;
-                        document.getElementById('stage14CW').value = configData.stage14CW || 0;
-                        document.getElementById('stage1RGB').value = configData.stage1RGB || '';
-                        document.getElementById('stage1WW').value = configData.stage1WW || 0;
-                        document.getElementById('stage1CW').value = configData.stage1CW || 0;
-                        document.getElementById('stage8RGB').value = configData.stage8RGB || '';
-                        document.getElementById('stage8WW').value = configData.stage8WW || 0;
-                        document.getElementById('stage8CW').value = configData.stage8CW || 0;
-                        document.getElementById('stage9RGB').value = configData.stage9RGB || '';
-                        document.getElementById('stage9WW').value = configData.stage9WW || 0;
-                        document.getElementById('stage9CW').value = configData.stage9CW || 0;
-                        document.getElementById('stage10RGB').value = configData.stage10RGB || '';
-                        document.getElementById('stage10WW').value = configData.stage10WW || 0;
-                        document.getElementById('stage10CW').value = configData.stage10CW || 0;
-                        document.getElementById('errorDetection').checked = configData.errordetection || false;
-                        document.getElementById('wifiRGB').value = configData.wifiRGB || '';
-                        document.getElementById('wifiWW').value = configData.wifiWW || 0;
-                        document.getElementById('wifiCW').value = configData.wifiCW || 0;
-                        document.getElementById('pauseRGB').value = configData.pauseRGB || '';
-                        document.getElementById('pauseWW').value = configData.pauseWW || 0;
-                        document.getElementById('pauseCW').value = configData.pauseCW || 0;
-                        document.getElementById('firstlayerRGB').value = configData.firstlayerRGB || '';
-                        document.getElementById('firstlayerWW').value = configData.firstlayerWW || 0;
-                        document.getElementById('firstlayerCW').value = configData.firstlayerCW || 0;
-                        document.getElementById('nozzleclogRGB').value = configData.nozzleclogRGB || '';
-                        document.getElementById('nozzleclogWW').value = configData.nozzleclogWW || 0;
-                        document.getElementById('nozzleclogCW').value = configData.nozzleclogCW || 0;
-                        document.getElementById('hmsSeriousRGB').value = configData.hmsSeriousRGB || '';
-                        document.getElementById('hmsSeriousWW').value = configData.hmsSeriousWW || 0;
-                        document.getElementById('hmsSeriousCW').value = configData.hmsSeriousCW || 0;
-                        document.getElementById('hmsFatalRGB').value = configData.hmsFatalRGB || '';
-                        document.getElementById('hmsFatalWW').value = configData.hmsFatalWW || 0;
-                        document.getElementById('hmsFatalCW').value = configData.hmsFatalCW || 0;
-                        document.getElementById('filamentRunoutRGB').value = configData.filamentRunoutRGB || '';
-                        document.getElementById('filamentRunoutWW').value = configData.filamentRunoutWW || 0;
-                        document.getElementById('filamentRunoutCW').value = configData.filamentRunoutCW || 0;
-                        document.getElementById('frontCoverRGB').value = configData.frontCoverRGB || '';
-                        document.getElementById('frontCoverWW').value = configData.frontCoverWW || 0;
-                        document.getElementById('frontCoverCW').value = configData.frontCoverCW || 0;
-                        document.getElementById('nozzleTempRGB').value = configData.nozzleTempRGB || '';
-                        document.getElementById('nozzleTempWW').value = configData.nozzleTempWW || 0;
-                        document.getElementById('nozzleTempCW').value = configData.nozzleTempCW || 0;
-                        document.getElementById('bedTempRGB').value = configData.bedTempRGB || '';
-                        document.getElementById('bedTempWW').value = configData.bedTempWW || 0;
-                        document.getElementById('bedTempCW').value = configData.bedTempCW || 0;
+
+                        /*                         document.getElementById('p1Printer').checked = configData.p1Printer || false;
+                                                document.getElementById('doorSwitch').checked = configData.doorSwitch || false;
+                                                document.getElementById('stage14RGB').value = configData.stage14RGB || '';
+                                                document.getElementById('stage14WW').value = configData.stage14WW || 0;
+                                                document.getElementById('stage14CW').value = configData.stage14CW || 0;
+                                                document.getElementById('stage1RGB').value = configData.stage1RGB || '';
+                                                document.getElementById('stage1WW').value = configData.stage1WW || 0;
+                                                document.getElementById('stage1CW').value = configData.stage1CW || 0;
+                                                document.getElementById('stage8RGB').value = configData.stage8RGB || '';
+                                                document.getElementById('stage8WW').value = configData.stage8WW || 0;
+                                                document.getElementById('stage8CW').value = configData.stage8CW || 0;
+                                                document.getElementById('stage9RGB').value = configData.stage9RGB || '';
+                                                document.getElementById('stage9WW').value = configData.stage9WW || 0;
+                                                document.getElementById('stage9CW').value = configData.stage9CW || 0;
+                                                document.getElementById('stage10RGB').value = configData.stage10RGB || '';
+                                                document.getElementById('stage10WW').value = configData.stage10WW || 0;
+                                                document.getElementById('stage10CW').value = configData.stage10CW || 0;
+                                                document.getElementById('errorDetection').checked = configData.errordetection || false;
+                                                document.getElementById('wifiRGB').value = configData.wifiRGB || '';
+                                                document.getElementById('wifiWW').value = configData.wifiWW || 0;
+                                                document.getElementById('wifiCW').value = configData.wifiCW || 0;
+                                                document.getElementById('pauseRGB').value = configData.pauseRGB || '';
+                                                document.getElementById('pauseWW').value = configData.pauseWW || 0;
+                                                document.getElementById('pauseCW').value = configData.pauseCW || 0;
+                                                document.getElementById('firstlayerRGB').value = configData.firstlayerRGB || '';
+                                                document.getElementById('firstlayerWW').value = configData.firstlayerWW || 0;
+                                                document.getElementById('firstlayerCW').value = configData.firstlayerCW || 0;
+                                                document.getElementById('nozzleclogRGB').value = configData.nozzleclogRGB || '';
+                                                document.getElementById('nozzleclogWW').value = configData.nozzleclogWW || 0;
+                                                document.getElementById('nozzleclogCW').value = configData.nozzleclogCW || 0;
+                                                document.getElementById('hmsSeriousRGB').value = configData.hmsSeriousRGB || '';
+                                                document.getElementById('hmsSeriousWW').value = configData.hmsSeriousWW || 0;
+                                                document.getElementById('hmsSeriousCW').value = configData.hmsSeriousCW || 0;
+                                                document.getElementById('hmsFatalRGB').value = configData.hmsFatalRGB || '';
+                                                document.getElementById('hmsFatalWW').value = configData.hmsFatalWW || 0;
+                                                document.getElementById('hmsFatalCW').value = configData.hmsFatalCW || 0;
+                                                document.getElementById('filamentRunoutRGB').value = configData.filamentRunoutRGB || '';
+                                                document.getElementById('filamentRunoutWW').value = configData.filamentRunoutWW || 0;
+                                                document.getElementById('filamentRunoutCW').value = configData.filamentRunoutCW || 0;
+                                                document.getElementById('frontCoverRGB').value = configData.frontCoverRGB || '';
+                                                document.getElementById('frontCoverWW').value = configData.frontCoverWW || 0;
+                                                document.getElementById('frontCoverCW').value = configData.frontCoverCW || 0;
+                                                document.getElementById('nozzleTempRGB').value = configData.nozzleTempRGB || '';
+                                                document.getElementById('nozzleTempWW').value = configData.nozzleTempWW || 0;
+                                                document.getElementById('nozzleTempCW').value = configData.nozzleTempCW || 0;
+                                                document.getElementById('bedTempRGB').value = configData.bedTempRGB || '';
+                                                document.getElementById('bedTempWW').value = configData.bedTempWW || 0;
+                                                document.getElementById('bedTempCW').value = configData.bedTempCW || 0; */
 
                         //updateIdle();
                         //showhideOptions();
                         //showcustomColors();
                         //setFinishColor();
-                        setFinishChoice();
+                        //setFinishChoice();
+                        updateFinishExitVisibility();
                         alertToast("Success", "Configuration loaded successfully!");
                         //} catch (e) {
                         //   console.log(e);
@@ -897,13 +924,7 @@
             //setFinishColor();
             //setFinishChoice();
         };
-        function hideMessage() {
-            clearTimeout(alertToast.timer);
-            document.body.removeAttribute("message");
-            document.body.removeAttribute("message-type");
-            document.body.removeAttribute("message-icon");
-            document.body.removeEventListener("click", hideMessage);
-        }
+
 
         /* Submit all form data */
         function submitForm(event) {
@@ -1051,9 +1072,6 @@
         };
         drawStatusSVG('status', true);
     </script>
-
-
-
 </body>
 
 </html>

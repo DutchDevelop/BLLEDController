@@ -470,6 +470,7 @@ void websocketLoop()
         doc["doorOpen"] = printerVariables.doorOpen;
         doc["printerConnection"] = printerVariables.online;
         doc["clients"] = ws.count();
+        doc["stg_cur"] = printerVariables.stage;
         sendJsonToAll(doc);
     }
 }
