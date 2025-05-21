@@ -51,7 +51,6 @@ jobs:
       - name: Generate firmware.json + manifests
         run: |
           cd flasher
-          npm install
           node generateRelease.js
 
       - name: Commit and Push to BLLED-Flasher
