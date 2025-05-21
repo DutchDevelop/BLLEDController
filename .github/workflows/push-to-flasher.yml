@@ -9,10 +9,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout source repo
+      - name: Checkout BLLEDController-NG
         uses: actions/checkout@v3
 
-      - name: Download release assets
+      - name: Download .bin from current release
         uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -30,21 +30,23 @@ jobs:
             }
 
             fs.mkdirSync('firmware', { recursive: true });
+
             for (const asset of assets) {
               const dl = await github.rest.repos.getReleaseAsset({
                 owner,
                 repo,
                 asset_id: asset.id,
-                headers: { Accept: 'application/octet-stream' },
+                headers: { Accept: 'application/octet-stream' }
               });
+
               fs.writeFileSync(`firmware/${asset.name}`, Buffer.from(dl.data));
-              console.log(`Downloaded: ${asset.name}`);
+              console.log(`✅ Downloaded: ${asset.name}`);
             }
 
       - name: Clone BLLED-Flasher repo
         run: |
           git clone https://x-access-token:${{ secrets.BLLED_FLASHER_TOKEN }}@github.com/softwarecrash/BLLED-Flasher.git flasher
-          cp firmware/*.bin flasher/
+          cp firmware/*.bin flasher/firmware/
 
       - name: Generate firmware.json + manifests
         run: |
@@ -57,6 +59,11 @@ jobs:
           cd flasher
           git config user.name "BLLED Release Bot"
           git config user.email "actions@github.com"
-          git add .
-          git commit -m "📦 Add firmware from release ${{ github.event.release.tag_name }}" || echo "No changes to commit"
-          git push
+          git fetch origin
+          git add firmware/
+          if git diff --cached --quiet; then
+            echo "✅ Keine Änderungen – kein Push."
+          else
+            git commit -m "📦 Add firmware from release ${{ github.event.release.tag_name }}"
+            git push
+          fi
