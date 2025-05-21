@@ -3,7 +3,7 @@
 The BL Led Controller is an ESP8266 / ESP32 based device that connects to your Bambulab X1,X1C,P1P Or P1S and controls the LED strip based on the state of the printer.
 
 ### Flashing and Setup
-1. go to https://softwarecrash.github.io/BLLEDController-NG/
+1. go to https://dutchdevelop.github.io/blledsetup/
 2. connect your ESP32
 3. Select the Firmware build you want
 4. Click on Flash
@@ -37,7 +37,7 @@ To contribute to the BL Led Controller project, you'll need the following tools:
 1. Clone the repository to your local machine.
 2. Open the project folder in Visual Studio Code.
 3. Ensure that PlatformIO is installed and configured in your Visual Studio Code environment.
-4. Connect your BLLED device (ESP8266 or ESP32) to your computer.
+4. Connect your BLLED device ESP32 to your computer.
 6. Build the project by clicking on the PlatformIO icon in the sidebar and selecting "Build" from the available options.
 7. Once the build process is complete, upload the firmware to your device using the "Upload" option in PlatformIO.
 8. After uploading the firmware, your BL Led Controller device should be ready to use.
