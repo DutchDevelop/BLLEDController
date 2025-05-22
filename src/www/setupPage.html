@@ -543,7 +543,7 @@
                 document.getElementById("inactivityMinsDiv").style.display = 'none';
             }
         }
-        function setFinishColor() {
+/*         function setFinishColor() {
             if (document.getElementById('finishIndication').checked) {
                 document.getElementById("finishcolorchoice").style.display = '';
                 document.getElementById("finishendchoice").style.display = '';
@@ -554,7 +554,26 @@
                 document.getElementById("finishendchoice").style.display = 'none';
                 //document.getElementById("finishendchoicetitle").style.display = 'none';
             }
-        }
+        } */
+
+function setFinishColor() {
+  const show = document.getElementById('finishIndication').checked;
+
+  document.getElementById("finishcolorchoice").style.display = show ? '' : 'none';
+  document.getElementById("finishendchoice").style.display = show ? '' : 'none';
+
+  if (show) {
+    setFinishChoice();
+
+    // Fix: max-height neu berechnen
+    const parentCollapse = document.getElementById("finishendchoice")?.closest("details.collapse");
+    if (parentCollapse) {
+      const content = parentCollapse.querySelector("div");
+      content.style.maxHeight = content.scrollHeight + "px";
+    }
+  }
+}
+
         function setFinishExit(id) {
             var myCheckbox = document.getElementsByClassName("finishOption");
             if (id.checked) {
@@ -568,7 +587,6 @@
                 });
                 id.checked = false;
             }
-
         }
         function setFinishChoice() {
             if (document.getElementById('finishEndDoor').checked) {
@@ -670,8 +688,8 @@
                 if (document.getElementById('finishIndication').checked) {
                     document.getElementById('finishEndDoor').checked = true;
                     document.getElementById('finishEndTimer').checked = false;
-                    //document.getElementById("finishdooroption").style.display = '';
-                    document.getElementById("finishtimeroption").style.display = 'none';
+                    document.getElementById("finishdooroption").style.display = '';
+                    //document.getElementById("finishtimeroption").style.display = 'none';
                 }
             }
         }
