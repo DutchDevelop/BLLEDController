@@ -207,7 +207,7 @@ void handlePrinterConfigJson(AsyncWebServerRequest *request)
     request->send(200, "application/json", json);
 }
 
-/* void handleStyleCss(AsyncWebServerRequest *request)
+void handleStyleCss(AsyncWebServerRequest *request)
 {
     if (!isAuthorized(request))
     {
@@ -216,21 +216,22 @@ void handlePrinterConfigJson(AsyncWebServerRequest *request)
     AsyncWebServerResponse *response = request->beginResponse(200, style_css_gz_mime, style_css_gz, style_css_gz_len);
     response->addHeader("Content-Encoding", "gzip");
     request->send(response);
-} */
-
-
+}
 
 void handleSubmitConfig(AsyncWebServerRequest *request)
 {
-    if (!isAuthorized(request)) {
+    if (!isAuthorized(request))
+    {
         return request->requestAuthentication();
     }
 
-    auto getSafeParamValue = [](AsyncWebServerRequest *req, const char *name, const char *fallback = "") -> String {
+    auto getSafeParamValue = [](AsyncWebServerRequest *req, const char *name, const char *fallback = "") -> String
+    {
         return req->hasParam(name, true) ? req->getParam(name, true)->value() : fallback;
     };
 
-    auto getSafeParamInt = [](AsyncWebServerRequest *req, const char *name, int fallback = 0) -> int {
+    auto getSafeParamInt = [](AsyncWebServerRequest *req, const char *name, int fallback = 0) -> int
+    {
         return req->hasParam(name, true) ? req->getParam(name, true)->value().toInt() : fallback;
     };
 
@@ -511,7 +512,7 @@ void setupWebserver()
         handleSetup(request);
         //handleOldSetup(request);
     } });
-     webServer.on("/old", HTTP_GET, handleOldSetup);
+    webServer.on("/old", HTTP_GET, handleOldSetup);
     webServer.on("/fwupdate", HTTP_GET, handleUpdatePage);
     webServer.on("/getConfig", HTTP_GET, handleGetConfig);
     webServer.on("/submitConfig", HTTP_POST, handleSubmitConfig);
@@ -522,7 +523,7 @@ void setupWebserver()
     webServer.on("/wifi", HTTP_GET, handleWiFiSetupPage);
     webServer.on("/wifiScan", HTTP_GET, handleWiFiScan);
     webServer.on("/submitWiFi", HTTP_POST, handleSubmitWiFi);
-    //webServer.on("/style.css", HTTP_GET, handleStyleCss);
+    webServer.on("/style.css", HTTP_GET, handleStyleCss);
     webServer.on("/backuprestore", HTTP_GET, handleConfigPage);
     webServer.on("/configfile.json", HTTP_GET, handleDownloadConfigFile);
     webServer.on("/configrestore", HTTP_POST, [](AsyncWebServerRequest *request)
