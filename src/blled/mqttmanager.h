@@ -127,7 +127,8 @@ void ParseCallback(char *topic, byte *payload, unsigned int length)
                 || messageobject["print"]["command"] == "clean_print_error" // During error (no info)
                 || messageobject["print"]["command"] == "resume"            // After error or pause
                 || messageobject["print"]["command"] == "get_accessories"   // After error or pause
-                || messageobject["print"]["command"] == "prepare")
+                || messageobject["print"]["command"] == "prepare"
+                || messageobject["print"]["command"] == "extrusion_cali_get")
             { // 1 message per print
                 return;
             }
