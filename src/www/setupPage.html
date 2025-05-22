@@ -13,14 +13,13 @@
     <div id="container">
         <div id="header">
             <img id="logo" src="/blled.png">
-            <h1>BLLED Controller Setup</h1>
+            <h1>BLLED LED Settings</h1>
         </div>
 
         <div class="form-container">
-
             <div style="text-align: center">
                 <!-- Wifi Signal indicator -->
-                <svg class="wifi-symbol" viewBox="0 12 64 64" xmlns="http://www.w3.org/2000/svg" width="40" height="40">
+                <svg id="wifi-symbol" class="wifi-symbol" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
                     <title id="wifiTitle">WiFi-Signal</title>
                     <path id="level5" d="M8 32 A33 32 0 0 1 56 32" stroke="black" stroke-width="4" fill="none" />
                     <path id="level4" d="M14 38 A26 26 0 0 1 50 38" stroke="black" stroke-width="4" fill="none" />
@@ -28,11 +27,67 @@
                     <path id="level2" d="M26 50 A10 14 0 0 1 38 50" stroke="black" stroke-width="4" fill="none" />
                     <circle id="level1" cx="32" cy="56" r="3" fill="black" />
                 </svg>
+
                 <!-- MQTT Connection Indicator -->
-                <svg id="status" viewBox="10 5 180 60" width="130" height="45"></svg>
+                <svg id="mqtt_status_svg" viewBox="0 0 140 56" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <style>
+                            .mqtt-offline {
+                                fill: #c00;
+                            }
+
+                            .mqtt-online {
+                                fill: #327b1d;
+                            }
+
+                            .svg-blled {
+
+                                fill: #327b1d;
+                            }
+
+                            .svg-x1c {
+
+                                fill: #333;
+                            }
+
+                            .mqtt-offline,
+                            .mqtt-online,
+                            .svg-x1c,
+                            .svg-blled {
+                                fill-rule: evenodd;
+                                stroke-width: 0px;
+                            }
+
+                            .cls-4 {
+                                isolation: isolate;
+                            }
+                        </style>
+                    </defs>
+                    <g class="cls-4" data-name="MQTT Online">
+                        <g id="mqtt_online" data-name="MQTT Online" style="display:inline">
+                            <path class="mqtt-online"
+                                d="M59.95,33.52c.52,1.11.33,2.47-.59,3.39l-6.25,6.25c-1.17,1.17-3.07,1.17-4.24,0l-2.05-2.05c-1.17-1.17-1.17-3.07,0-4.24l6.25-6.25c.92-.92,2.27-1.11,3.39-.59l2.16-2.16c-2.34-1.63-5.58-1.42-7.66.67l-6.2,6.2c-2.34,2.34-2.34,6.14,0,8.49l2.01,2.01c2.34,2.34,6.14,2.34,8.49,0l6.2-6.2c2.09-2.09,2.3-5.33.67-7.66l-2.16,2.16ZM54.83,35.13h0c.58.58,1.52.58,2.09,0l11.19-11.19c.58-.58.58-1.52,0-2.09h0c-.58-.58-1.52-.58-2.09,0l-11.19,11.19c-.58.58-.58,1.52,0,2.09ZM78.22,13.75l-2.01-2.01c-2.34-2.34-6.14-2.34-8.49,0l-6.2,6.2c-2.09,2.09-2.3,5.33-.67,7.66l2.16-2.16c-.52-1.11-.33-2.47.59-3.39l6.25-6.25c1.17-1.17,3.07-1.17,4.24,0l2.05,2.05c1.17,1.17,1.17,3.07,0,4.24l-6.25,6.25c-.92.92-2.27,1.11-3.39.59l-2.16,2.16c2.34,1.63,5.58,1.42,7.66-.67l6.2-6.2c2.34-2.34,2.34-6.14,0-8.49Z" />
+                        </g>
+                    </g>
+                    <g class="cls-4" data-name="MQTT Offline">
+                        <g id="mqtt_offline" data-name="MQTT Offline" style="display:none">
+                            <path class="mqtt-offline"
+                                d="M45.95,21.78l5.61,2.25c.52.21,1.1-.04,1.31-.55s-.04-1.09-.56-1.3l-5.61-2.25c-.52-.21-1.1.04-1.31.55-.21.51.04,1.09.56,1.3ZM54.44,19.77c.34.44.98.51,1.42.17.44-.34.52-.97.17-1.4l-3.73-4.73c-.34-.44-.98-.51-1.42-.17-.44.34-.52.97-.17,1.4l3.73,4.73ZM60.03,17.94c.55-.08.94-.58.86-1.13l-.84-5.94c-.08-.55-.59-.93-1.14-.85-.55.08-.94.58-.86,1.13l.84,5.94c.08.55.59.93,1.14.85ZM60.32,33.23c.53,1.11.35,2.48-.58,3.41l-6.42,6.36c-1.18,1.17-3.1,1.17-4.28,0l-2.14-2.12c-1.18-1.17-1.18-3.07,0-4.24l6.42-6.36c.93-.92,2.31-1.11,3.44-.58l2.2-2.18c-2.36-1.67-5.65-1.47-7.77.64l-6.42,6.36c-2.36,2.34-2.36,6.14,0,8.49l2.14,2.12c2.36,2.34,6.2,2.34,8.56,0l6.42-6.36c2.12-2.1,2.32-5.36.64-7.71l-2.2,2.18ZM82.21,18.1l-1.51-2.6c-1.67-2.87-5.37-3.85-8.27-2.2l-7.86,4.5c-2.6,1.49-3.64,4.59-2.63,7.28l2.69-1.54c-.23-1.21.31-2.49,1.45-3.14l7.86-4.5c1.45-.83,3.3-.34,4.13,1.1l1.51,2.6c.84,1.43.34,3.27-1.11,4.1l-7.86,4.5c-1.14.65-2.52.48-3.47-.32l-2.69,1.54c1.85,2.22,5.08,2.87,7.67,1.38l7.86-4.5c2.89-1.66,3.89-5.33,2.22-8.2ZM78.54,35.26l-5.57-2.2c-.51-.2-1.1.05-1.31.56s.03,1.09.55,1.29l5.57,2.2c.51.2,1.1-.05,1.31-.56s-.03-1.09-.55-1.29ZM64.51,39.16c-.55.08-.94.58-.86,1.13l.8,5.89c.07.54.58.92,1.13.84s.94-.58.86-1.13l-.8-5.89c-.07-.54-.58-.92-1.13-.84ZM70.09,37.31c-.34-.44-.98-.51-1.42-.17-.44.34-.52.97-.17,1.4l3.67,4.65c.34.44.98.51,1.42.17s.52-.97.17-1.4l-3.67-4.65Z" />
+                        </g>
+                    </g>
+                    <g id="g6" data-name="BLLED">
+                        <path class="svg-blled"
+                            d="M16,0l-.75.12c-2.61.31-5.95,1.7-8.23,3.4C.66,8.29-1.65,16.39,1.22,23.92c.24.62.48,1.13.54,1.12.09,0,14.24-6.04,14.24-6.04V0ZM33.59,10.28c-2.07-4.45-6.13-8.03-10.75-9.47-.74-.23-1.72-.47-2.18-.53-.46-.06-1.66-.28-1.66-.28v10s16.05,6.2,15.82,6.19c.55.04-.25-3.81-1.23-5.91ZM19,13v25h7l.79-2.03c1.04-2.86,2.02-4.57,4.45-7.76,1.44-1.89,2.34-3.48,2.91-5.15.35-1.03.91-3.37.81-3.44-13.24-5.49-15.96-6.62-15.96-6.62ZM16,38v-16s-13.24,5.23-13,5c-.04.04.8,1.34,1.26,1.91,1.82,2.28,3.38,5.11,4.23,7.68l.51,1.41h7ZM10,43h15l1-3H9l1,3ZM10,49c0,1.1.9,2,2,2,0,2.76,2.24,5,5,5h1c2.76,0,5-2.24,5-5,1.1,0,2-.9,2-2v-4h-15v4Z" />
+                    </g>
+                    <g id="g8" data-name="X1C">
+                        <path class="svg-x1c"
+                            d="M99.5,11h14c.83,0,1.5-.67,1.5-1.5V1.5c0-.83-.67-1.5-1.5-1.5h-14c-.83,0-1.5.67-1.5,1.5v8c0,.83.67,1.5,1.5,1.5ZM138,4h-22v6.5c0,.83-.67,1.5-1.5,1.5h-16c-.83,0-1.5-.67-1.5-1.5v-6.5h-4c-1.1,0-2,.9-2,2v48c0,1.1.9,2,2,2h45c1.1,0,2-.9,2-2V6c0-1.1-.9-2-2-2ZM136,49.5c0,.83-.67,1.5-1.5,1.5h-38c-.83,0-1.5-.67-1.5-1.5v-28.5h18v4.5c0,.55.45,1,1,1h1l1,1.5h1l1-1.5h1c.55,0,1-.45,1-1v-4.5h16v28.5ZM114.5,23c0-1.1.9-2,2-2s2,.9,2,2-.9,2-2,2-2-.9-2-2ZM136,19h-16v-1c0-.55-.45-1-1-1h-5c-.55,0-1,.45-1,1v1h-18v-3.5c0-.83.67-1.5,1.5-1.5h38c.83,0,1.5.67,1.5,1.5v3.5ZM96,49h39v-3h-39v3Z" />
+                    </g>
+                </svg>
+
             </div>
 
-            <p>Use the options below to configure your BLLED Controller.</p>
+            <!-- <p>Use the options below to configure your BLLED Controller.</p> -->
             <form method='POST' action='/submitConfig' onsubmit='return submitForm(event);'>
                 <label for="brightnessslider" id="brightnesssliderDisplay">Brightness: 100%</label>
                 <input type="range" id="brightnessslider" name="brightnessslider" min="0" max="100" value="100">
@@ -543,36 +598,36 @@
                 document.getElementById("inactivityMinsDiv").style.display = 'none';
             }
         }
-/*         function setFinishColor() {
-            if (document.getElementById('finishIndication').checked) {
-                document.getElementById("finishcolorchoice").style.display = '';
-                document.getElementById("finishendchoice").style.display = '';
-                //document.getElementById("finishendchoicetitle").style.display = '';
+        /*         function setFinishColor() {
+                    if (document.getElementById('finishIndication').checked) {
+                        document.getElementById("finishcolorchoice").style.display = '';
+                        document.getElementById("finishendchoice").style.display = '';
+                        //document.getElementById("finishendchoicetitle").style.display = '';
+        
+                    } else {
+                        document.getElementById("finishcolorchoice").style.display = 'none';
+                        document.getElementById("finishendchoice").style.display = 'none';
+                        //document.getElementById("finishendchoicetitle").style.display = 'none';
+                    }
+                } */
 
-            } else {
-                document.getElementById("finishcolorchoice").style.display = 'none';
-                document.getElementById("finishendchoice").style.display = 'none';
-                //document.getElementById("finishendchoicetitle").style.display = 'none';
+        function setFinishColor() {
+            const show = document.getElementById('finishIndication').checked;
+
+            document.getElementById("finishcolorchoice").style.display = show ? '' : 'none';
+            document.getElementById("finishendchoice").style.display = show ? '' : 'none';
+
+            if (show) {
+                setFinishChoice();
+
+                // Fix: max-height neu berechnen
+                const parentCollapse = document.getElementById("finishendchoice")?.closest("details.collapse");
+                if (parentCollapse) {
+                    const content = parentCollapse.querySelector("div");
+                    content.style.maxHeight = content.scrollHeight + "px";
+                }
             }
-        } */
-
-function setFinishColor() {
-  const show = document.getElementById('finishIndication').checked;
-
-  document.getElementById("finishcolorchoice").style.display = show ? '' : 'none';
-  document.getElementById("finishendchoice").style.display = show ? '' : 'none';
-
-  if (show) {
-    setFinishChoice();
-
-    // Fix: max-height neu berechnen
-    const parentCollapse = document.getElementById("finishendchoice")?.closest("details.collapse");
-    if (parentCollapse) {
-      const content = parentCollapse.querySelector("div");
-      content.style.maxHeight = content.scrollHeight + "px";
-    }
-  }
-}
+        }
 
         function setFinishExit(id) {
             var myCheckbox = document.getElementsByClassName("finishOption");
@@ -923,55 +978,11 @@ function setFinishColor() {
             });
         }
 
-        //mqtt con draw
-        function drawStatusSVG(containerId, status) {
-            const svg = document.getElementById(containerId);
-            svg.innerHTML = '';
-
-            const w = 150, h = 75, y = h / 2;
-            const mx = 20, px = w - 45, pShift = -8;
-
-            function create(tag, attrs) {
-                const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
-                for (let k in attrs) el.setAttribute(k, attrs[k]);
-                return el;
-            }
-            [12, 18, 24].forEach(r => {
-                svg.appendChild(create('path', {
-                    d: describeArc(mx, y, r, 45, 135),
-                    stroke: '#800080', 'stroke-width': '4', 'fill': 'none', 'stroke-linecap': 'round'
-                }));
-            });
-            svg.appendChild(create('rect', { x: px - 20, y: y - 12, width: 40, height: 24, fill: 'none', stroke: '#000', 'stroke-width': '1.5' }));
-            svg.appendChild(create('line', { x1: px - 12, y1: y + 8, x2: px + 12, y2: y + 8, stroke: '#000', 'stroke-width': '1.5' }));
-            svg.appendChild(create('rect', { x: px - 4, y: y - 12, width: 8, height: 6, fill: 'none', stroke: '#000', 'stroke-width': '1.5' }));
-            svg.appendChild(create('line', { x1: px, y1: y - 6, x2: px, y2: y + 8, stroke: '#000', 'stroke-width': '1.5' }));
-            const linkEnd = mx + 38 + pShift, rightStart = px - 20 + pShift;
-            svg.appendChild(create('line', { x1: linkEnd, y1: y, x2: rightStart, y2: y, stroke: 'green', 'stroke-width': '2' }));
-            [[linkEnd, y, 10], [rightStart, y, -10]].forEach(p => {
-                const points = `${p[0]},${p[1]} ${p[0] + p[2]},${p[1] - 5} ${p[0] + p[2]},${p[1] + 5}`;
-                svg.appendChild(create('polygon', { points: points, fill: 'green' }));
-            });
-
-            if (!status) {
-                const cx = (linkEnd + rightStart) / 2;
-                svg.appendChild(create('line', { x1: cx - 10, y1: y - 10, x2: cx + 10, y2: y + 10, stroke: 'red', 'stroke-width': '6' }));
-                svg.appendChild(create('line', { x1: cx - 10, y1: y + 10, x2: cx + 10, y2: y - 10, stroke: 'red', 'stroke-width': '6' }));
-            }
-        }
-
-        function describeArc(x, y, radius, startAngle, endAngle) {
-            const start = polarToCartesian(x, y, radius, startAngle);
-            const end = polarToCartesian(x, y, radius, endAngle);
-            return `M${start.x},${start.y} A${radius},${radius} 0 0 1 ${end.x},${end.y}`;
-        }
-
-        function polarToCartesian(cx, cy, r, angle) {
-            const rad = (angle - 90) * Math.PI / 180;
-            return {
-                x: cx + r * Math.cos(rad),
-                y: cy + r * Math.sin(rad)
-            };
+        function setOnlineStatus(isOnline) {
+            const onlineEl = document.getElementById("g2");
+            const offlineEl = document.getElementById("g4");
+            if (onlineEl) onlineEl.style.display = isOnline ? "inline" : "none";
+            if (offlineEl) offlineEl.style.display = isOnline ? "none" : "inline";
         }
 
         const ws = new WebSocket(`ws://${window.location.host}/ws`);
@@ -981,7 +992,7 @@ function setFinishColor() {
             try {
                 const data = JSON.parse(event.data);
                 setWiFiSignal(data.wifi_rssi);
-                drawStatusSVG('status', data.printerConnection);
+                setOnlineStatus(data.printerConnection);
             } catch (error) {
                 console.error('json error:', event.data);
             }
@@ -991,7 +1002,6 @@ function setFinishColor() {
         ws.onerror = (error) => {
             console.error('WebSocket error:', error);
         };
-        drawStatusSVG('status', true);
     </script>
 </body>
 

@@ -40,7 +40,22 @@ canvas {
   display: inline-block;
 }
 
-h1, h2 {
+svg#wifi-symbol {
+  width: 60px;
+  height: 55px;
+  max-width: 100%;
+  padding-right: 20px;
+}
+
+svg#mqtt_status_svg {
+  width: 100px;
+  height: auto;
+  max-width: 100%;
+  padding-left: 20px;
+}
+
+h1,
+h2 {
   color: white;
   text-align: center;
 }
@@ -180,11 +195,11 @@ button:disabled {
   border-radius: 50%;
 }
 
-input:checked + .slider {
+input:checked+.slider {
   background-color: #28a745;
 }
 
-input:checked + .slider:before {
+input:checked+.slider:before {
   transform: translateX(26px);
 }
 
@@ -255,7 +270,7 @@ progress {
   border-top: none;
 }
 
-details.collapse > div {
+details.collapse>div {
   max-height: 0;
   overflow: hidden;
   transition: max-height 0.4s ease, opacity 0.4s ease;
@@ -263,7 +278,7 @@ details.collapse > div {
   padding-bottom: 0;
 }
 
-details.collapse[open] > div {
+details.collapse[open]>div {
   max-height: unset;
   opacity: 1;
   padding-bottom: 10px;
@@ -301,6 +316,7 @@ form {
   border-radius: 4px;
   font-size: 14px;
 }
+
 .input-inline-group input[type="text"] {
   width: 50px;
   display: inline-block;
