@@ -12,7 +12,7 @@
     <canvas id="particleCanvas"></canvas>
     <div id="container">
         <div id="header">
-            <img id="logo" src="/blled.png">
+            <img id="logo" src="/blled.svg">
             <h1>BLLED LED Settings</h1>
         </div>
 
@@ -123,7 +123,7 @@
                             </label>
                             <span>Replicate State</span>
                             <div id="runningcolorchoice" class="input-inline-group"
-                                style="margin-left: auto; padding-right: 15px;">
+                                style="margin-left: auto;">
                                 <input type="color" id="runningRGB" name="runningRGB" value="#000000">
                                 <label for="runningWW">WW</label>
                                 <input type="number" id="runningWW" name="runningWW" value="255" min="0" max="255"
@@ -142,7 +142,7 @@
                             </label>
                             <span>Color Test (Always On)</span>
                             <div id="testcolorchoice" class="input-inline-group"
-                                style="margin-left: auto; padding-right: 15px;">
+                                style="margin-left: auto;">
                                 <input type="color" id="testRGB" name="testRGB" value="#3F3CFB">
                                 <label for="testWW">WW</label>
                                 <input type="number" id="testWW" name="testWW" value="255" min="0" max="255" step="1">
@@ -171,7 +171,7 @@
                             <span>Finish Indication</span>
 
                             <div class="input-inline-group" id="finishcolorchoice"
-                                style="margin-left: auto; padding-right: 15px;">
+                                style="margin-left: auto;">
                                 <input type="color" id="finishColor" name="finishColor" value="#00FF00">
                                 <label for="finishWW">WW</label>
                                 <input type="number" id="finishWW" name="finishWW" value="255" min="0" max="255"
@@ -199,7 +199,7 @@
                                         <span class="slider"></span>
                                     </label>
                                     <span>Exit Finish after</span>
-                                    <div class="input-inline-group" style="margin-left: auto; padding-right: 15px;">
+                                    <div class="input-inline-group" style="margin-left: auto;">
                                         <label for="finishTimerMins">Min.</label>
                                         <input type="text" id="finishTimerMins" name="finishTimerMins" value='1'
                                             maxlength='3' size='3'>
@@ -216,7 +216,7 @@
                             </label>
                             <span>Inactivity Timeout (Minutes)</span>
                             <div class="input-inline-group" id="inactivityMinsDiv"
-                                style="margin-left: auto; padding-right: 15px;">
+                                style="margin-left: auto;">
                                 <label for="inactivityMins">Min.</label>
                                 <input type="text" id="inactivityMins" name="inactivityMins" value='1' maxlength='3'
                                     size='3'>
@@ -251,7 +251,7 @@
                         <!-- Cleaning Nozzle -->
                         <div class="toggle-switch">
                             <span>Cleaning Nozzle</span>
-                            <div class="input-inline-group" style="margin-left: auto; padding-right: 15px;">
+                            <div class="input-inline-group" style="margin-left: auto;">
                                 <input type="color" id="stage14RGB" name="stage14RGB" value="#000000">
                                 <label for="stage14WW">WW</label>
                                 <input type="number" id="stage14WW" name="stage14WW" value="0" min="0" max="255"
@@ -264,7 +264,7 @@
                         <!-- Bed Leveling -->
                         <div class="toggle-switch">
                             <span>Bed Leveling</span>
-                            <div class="input-inline-group" style="margin-left: auto; padding-right: 15px;">
+                            <div class="input-inline-group" style="margin-left: auto;">
                                 <input type="color" id="stage1RGB" name="stage1RGB" value="#0000AA">
                                 <label for="stage1WW">WW</label>
                                 <input type="number" id="stage1WW" name="stage1WW" value="0" min="0" max="255" step="1">
@@ -275,7 +275,7 @@
                         <!-- Calibrating Extrusion -->
                         <div class="toggle-switch">
                             <span>Calibrating Extrusion</span>
-                            <div class="input-inline-group" style="margin-left: auto; padding-right: 15px;">
+                            <div class="input-inline-group" style="margin-left: auto;">
                                 <input type="color" id="stage8RGB" name="stage8RGB" value="#000000">
                                 <label for="stage8WW">WW</label>
                                 <input type="number" id="stage8WW" name="stage8WW" value="0" min="0" max="255" step="1">
@@ -286,7 +286,7 @@
                         <!-- Scanning Bed Surface -->
                         <div class="toggle-switch">
                             <span>Scanning Bed Surface</span>
-                            <div class="input-inline-group" style="margin-left: auto; padding-right: 15px;">
+                            <div class="input-inline-group" style="margin-left: auto;">
                                 <input type="color" id="stage9RGB" name="stage9RGB" value="#000000">
                                 <label for="stage9WW">WW</label>
                                 <input type="number" id="stage9WW" name="stage9WW" value="0" min="0" max="255" step="1">
@@ -297,7 +297,7 @@
                         <!-- First Layer Inspection -->
                         <div class="toggle-switch">
                             <span>First Layer Inspection</span>
-                            <div class="input-inline-group" style="margin-left: auto; padding-right: 15px;">
+                            <div class="input-inline-group" style="margin-left: auto;">
                                 <input type="color" id="stage10RGB" name="stage10RGB" value="#000000">
                                 <label for="stage10WW">WW</label>
                                 <input type="number" id="stage10WW" name="stage10WW" value="0" min="0" max="255"
@@ -328,7 +328,7 @@
                         <div id='CustomColorsDiv'>
                             <div class="toggle-switch">
                                 <span>WiFi Setup / Scanning</span>
-                                <div class="input-inline-group" style="margin-left: auto; padding-right: 15px;">
+                                <div class="input-inline-group" style="margin-left: auto;">
                                     <input type="color" id="wifiRGB" name="wifiRGB" value="#FFA500">
                                     <label for="wifiWW">WW</label>
                                     <input type="number" id="wifiWW" name="wifiWW" value="0" min="0" max="255" step="1">
@@ -338,7 +338,7 @@
                             </div>
                             <div class="toggle-switch">
                                 <span>Pause (Gcode or User)</span>
-                                <div class="input-inline-group" style="margin-left: auto; padding-right: 15px;">
+                                <div class="input-inline-group" style="margin-left: auto;">
                                     <input type="color" id="pauseRGB" name="pauseRGB" value="#0000FF">
                                     <label for="pauseWW">WW</label>
                                     <input type="number" id="pauseWW" name="pauseWW" value="0" min="0" max="255"
@@ -350,7 +350,7 @@
                             </div>
                             <div class="toggle-switch">
                                 <span>First Layer Error (Pause user)</span>
-                                <div class="input-inline-group" style="margin-left: auto; padding-right: 15px;">
+                                <div class="input-inline-group" style="margin-left: auto;">
                                     <input type="color" id="firstlayerRGB" name="firstlayerRGB" value="#0000FF">
                                     <label for="firstlayerWW">WW</label>
                                     <input type="number" id="firstlayerWW" name="firstlayerWW" value="0" min="0"
@@ -362,7 +362,7 @@
                             </div>
                             <div class="toggle-switch">
                                 <span>Nozzle Clog (Pause user)</span>
-                                <div class="input-inline-group" style="margin-left: auto; padding-right: 15px;">
+                                <div class="input-inline-group" style="margin-left: auto;">
                                     <input type="color" id="nozzleclogRGB" name="nozzleclogRGB" value="#0000FF">
                                     <label for="nozzleclogWW">WW</label>
                                     <input type="number" id="nozzleclogWW" name="nozzleclogWW" value="0" min="0"
@@ -374,7 +374,7 @@
                             </div>
                             <div class="toggle-switch">
                                 <span>HMS Severity, SERIOUS</span>
-                                <div class="input-inline-group" style="margin-left: auto; padding-right: 15px;">
+                                <div class="input-inline-group" style="margin-left: auto;">
                                     <input type="color" id="hmsSeriousRGB" name="hmsSeriousRGB" value="#FF0000">
                                     <label for="hmsSeriousWW">WW</label>
                                     <input type="number" id="hmsSeriousWW" name="hmsSeriousWW" value="0" min="0"
@@ -386,7 +386,7 @@
                             </div>
                             <div class="toggle-switch">
                                 <span>HMS Severity, FATAL</span>
-                                <div class="input-inline-group" style="margin-left: auto; padding-right: 15px;">
+                                <div class="input-inline-group" style="margin-left: auto;">
                                     <input type="color" id="hmsFatalRGB" name="hmsFatalRGB" value="#FF0000">
                                     <label for="hmsFatalWW">WW</label>
                                     <input type="number" id="hmsFatalWW" name="hmsFatalWW" value="0" min="0" max="255"
@@ -398,7 +398,7 @@
                             </div>
                             <div class="toggle-switch">
                                 <span>Filament Runout</span>
-                                <div class="input-inline-group" style="margin-left: auto; padding-right: 15px;">
+                                <div class="input-inline-group" style="margin-left: auto;">
                                     <input type="color" id="filamentRunoutRGB" name="filamentRunoutRGB" value="#FF0000">
                                     <label for="filamentRunoutWW">WW</label>
                                     <input type="number" id="filamentRunoutWW" name="filamentRunoutWW" value="0" min="0"
@@ -410,7 +410,7 @@
                             </div>
                             <div class="toggle-switch">
                                 <span>Front Cover Removed</span>
-                                <div class="input-inline-group" style="margin-left: auto; padding-right: 15px;">
+                                <div class="input-inline-group" style="margin-left: auto;">
                                     <input type="color" id="frontCoverRGB" name="frontCoverRGB" value="#FF0000">
                                     <label for="frontCoverWW">WW</label>
                                     <input type="number" id="frontCoverWW" name="frontCoverWW" value="0" min="0"
@@ -422,7 +422,7 @@
                             </div>
                             <div class="toggle-switch">
                                 <span>Nozzle Temp Fail</span>
-                                <div class="input-inline-group" style="margin-left: auto; padding-right: 15px;">
+                                <div class="input-inline-group" style="margin-left: auto;">
                                     <input type="color" id="nozzleTempRGB" name="nozzleTempRGB" value="#FF0000">
                                     <label for="nozzleTempWW">WW</label>
                                     <input type="number" id="nozzleTempWW" name="nozzleTempWW" value="0" min="0"
@@ -434,7 +434,7 @@
                             </div>
                             <div class="toggle-switch">
                                 <span>Bed Temp Fail</span>
-                                <div class="input-inline-group" style="margin-left: auto; padding-right: 15px;">
+                                <div class="input-inline-group" style="margin-left: auto;">
                                     <input type="color" id="bedTempRGB" name="bedTempRGB" value="#FF0000">
                                     <label for="bedTempWW">WW</label>
                                     <input type="number" id="bedTempWW" name="bedTempWW" value="0" min="0" max="255"
@@ -486,6 +486,7 @@
                         <button onclick="location.href='/wifi'">WiFi Setup</button>
                         <button onclick="location.href='/fwupdate'">Firmware Update</button>
                         <button onclick="location.href='/backuprestore'">backup & Restore</button>
+                        <button onclick="window.open('/webserial','_blank')">Web Serial Log</button>
                     </div>
                 </details>
                 <button type="submit">Save Configuration</button>
@@ -958,7 +959,6 @@
 
     <script>
         //wifi svg draw
-        var wifiSvg = '<svg class="wifi-symbol" viewBox="0 15 64 64" xmlns="http://www.w3.org/2000/svg" width="32" height="32"><title id="wifiTitle">WiFi-Signal</title><path id="level5" d="M8 32 A33 32 0 0 1 56 32" stroke="black" stroke-width="4" fill="none" /><path id="level4" d="M14 38 A26 26 0 0 1 50 38" stroke="black" stroke-width="4" fill="none" /><path id="level3" d="M20 44 A18 20 0 0 1 44 44" stroke="black" stroke-width="4" fill="none" /><path id="level2" d="M26 50 A10 14 0 0 1 38 50" stroke="black" stroke-width="4" fill="none"/><circle id="level1" cx="32" cy="56" r="3" fill="black"/></svg>';
         const minRSSI = -85, maxRSSI = -60;
         function setWiFiSignal(rssi) {
             const lv = ['level1', 'level2', 'level3', 'level4', 'level5'],
@@ -969,7 +969,7 @@
             const svg = document.querySelector(".wifi-symbol");
             if (svg) {
                 const title = svg.querySelector("title");
-                if (title) title.textContent = p + "%% Strength";
+                if (title) title.textContent = p + "% Strength";
             }
             lv.forEach((id, i) => {
                 const e = document.getElementById(id);
@@ -979,8 +979,8 @@
         }
 
         function setOnlineStatus(isOnline) {
-            const onlineEl = document.getElementById("g2");
-            const offlineEl = document.getElementById("g4");
+            const onlineEl = document.getElementById("mqtt_online");
+            const offlineEl = document.getElementById("mqtt_offline");
             if (onlineEl) onlineEl.style.display = isOnline ? "inline" : "none";
             if (offlineEl) offlineEl.style.display = isOnline ? "none" : "inline";
         }

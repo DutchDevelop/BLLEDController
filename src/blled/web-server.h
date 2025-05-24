@@ -14,8 +14,6 @@ AsyncWebServer webServer(80);
 AsyncWebSocket ws("/ws");
 
 #include "../www/www.h"
-#include "../www/blled_svg.h"
-#include "../www/favicon.h"
 
 unsigned long lastWsPush = 0;
 const unsigned long wsPushInterval = 1000; // alle 1000ms
@@ -274,7 +272,7 @@ void handleSubmitConfig(AsyncWebServerRequest *request)
     printerConfig.bedTempRGB = hex2rgb(getSafeParamValue(request, "bedTempRGB").c_str(), getSafeParamInt(request, "bedTempWW"), getSafeParamInt(request, "bedTempCW"));
 
     saveFileSystem();
-    Serial.println(F("Packet received from setuppage"));
+    LogSerial.println(F("Packet received from setuppage"));
     printerConfig.inactivityStartms = millis();
     printerConfig.isIdleOFFActive = false;
     printerConfig.replicate_update = true;
@@ -333,23 +331,23 @@ void handleSubmitWiFi(AsyncWebServerRequest *request)
 
         if (ssid.length() > 0 && pass.length() > 0)
         {
-            Serial.println(F("[WiFiSetup] Updating WiFi credentials:"));
-            Serial.print(F("SSID: "));
-            Serial.println(ssid);
-            Serial.print(F("Password: "));
-            Serial.println(pass);
+            LogSerial.println(F("[WiFiSetup] Updating WiFi credentials:"));
+            LogSerial.print(F("SSID: "));
+            LogSerial.println(ssid);
+            LogSerial.print(F("Password: "));
+            LogSerial.println(pass);
 
             strlcpy(globalVariables.SSID, ssid.c_str(), sizeof(globalVariables.SSID));
             strlcpy(globalVariables.APPW, pass.c_str(), sizeof(globalVariables.APPW));
         }
         else
         {
-            Serial.println(F("[WiFiSetup] Empty SSID or PASS received → ignoring WiFi update."));
+            LogSerial.println(F("[WiFiSetup] Empty SSID or PASS received → ignoring WiFi update."));
         }
     }
     else
     {
-        Serial.println(F("[WiFiSetup] No SSID or PASS provided → keeping existing WiFi credentials."));
+        LogSerial.println(F("[WiFiSetup] No SSID or PASS provided → keeping existing WiFi credentials."));
     }
 
     // Optional other fields (printerIP, printerSerial, etc.)
@@ -443,6 +441,17 @@ void handleDownloadConfigFile(AsyncWebServerRequest *request)
     request->send(response);
 }
 
+
+void handleWebSerialPage(AsyncWebServerRequest *request)
+{
+    if (!isAuthorized(request))
+        return request->requestAuthentication();
+    AsyncWebServerResponse *response = request->beginResponse(200, webSerialPage_html_gz_mime, webSerialPage_html_gz, webSerialPage_html_gz_len);
+    response->addHeader("Content-Encoding", "gzip");
+    request->send(response);
+}
+
+
 void handleUploadConfigFileData(AsyncWebServerRequest *request, const String &filename,
                                 size_t index, uint8_t *data, size_t len, bool final)
 {
@@ -450,7 +459,7 @@ void handleUploadConfigFileData(AsyncWebServerRequest *request, const String &fi
 
     if (!index)
     {
-        Serial.println(F("[ConfigUpload] Start"));
+        LogSerial.println(F("[ConfigUpload] Start"));
         uploadFile = LittleFS.open(configPath, "w");
     }
     if (uploadFile)
@@ -460,7 +469,7 @@ void handleUploadConfigFileData(AsyncWebServerRequest *request, const String &fi
     if (final)
     {
         uploadFile.close();
-        Serial.println(F("[ConfigUpload] Finished"));
+        LogSerial.println(F("[ConfigUpload] Finished"));
     }
     shouldRestart = true;
     restartRequestTime = millis();
@@ -472,21 +481,21 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventTyp
     switch (type)
     {
     case WS_EVT_CONNECT:
-        Serial.printf("[WS] Client connected: %u\n", client->id());
+        LogSerial.printf("[WS] Client connected: %u\n", client->id());
         websocketLoop();
         break;
     case WS_EVT_DISCONNECT:
-        Serial.printf("[WS] Client disconnected: %u\n", client->id());
+        LogSerial.printf("[WS] Client disconnected: %u\n", client->id());
         ws.cleanupClients();
         break;
     case WS_EVT_DATA:
-        Serial.printf("[WS] Data received from client %u\n", client->id());
+        LogSerial.printf("[WS] Data received from client %u\n", client->id());
         break;
     case WS_EVT_PONG:
-        Serial.printf("[WS] Pong received from %u\n", client->id());
+        LogSerial.printf("[WS] Pong received from %u\n", client->id());
         break;
     case WS_EVT_ERROR:
-        Serial.printf("[WS] Error on connection %u\n", client->id());
+        LogSerial.printf("[WS] Error on connection %u\n", client->id());
         ws.cleanupClients();
         break;
     }
@@ -496,17 +505,17 @@ void setupWebserver()
 {
     if (!MDNS.begin(globalVariables.Host.c_str()))
     {
-        Serial.println(F("Error setting up MDNS responder!"));
+        LogSerial.println(F("Error setting up MDNS responder!"));
         while (1)
             delay(500);
     }
 
-    Serial.println(F("Setting up webserver"));
+    LogSerial.println(F("Setting up webserver"));
 
     webServer.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
                  {
     if (WiFi.getMode() == WIFI_AP) {
-        Serial.println(F("[WebServer] Captive Portal activ – redirect to /wifi"));
+        LogSerial.println(F("[WebServer] Captive Portal activ – redirect to /wifi"));
         request->redirect("/wifi");
     } else {
         handleSetup(request);
@@ -516,7 +525,7 @@ void setupWebserver()
     webServer.on("/fwupdate", HTTP_GET, handleUpdatePage);
     webServer.on("/getConfig", HTTP_GET, handleGetConfig);
     webServer.on("/submitConfig", HTTP_POST, handleSubmitConfig);
-    webServer.on("/blled.png", HTTP_GET, handleGetIcon);
+    webServer.on("/blled.svg", HTTP_GET, handleGetIcon);
     webServer.on("/favicon.ico", HTTP_GET, handleGetfavicon);
     webServer.on("/particleCanvas.js", HTTP_GET, handleGetPCC);
     webServer.on("/config.json", HTTP_GET, handlePrinterConfigJson);
@@ -526,6 +535,7 @@ void setupWebserver()
     webServer.on("/style.css", HTTP_GET, handleStyleCss);
     webServer.on("/backuprestore", HTTP_GET, handleConfigPage);
     webServer.on("/configfile.json", HTTP_GET, handleDownloadConfigFile);
+    webServer.on("/webserial", HTTP_GET, handleWebSerialPage);
     webServer.on("/configrestore", HTTP_POST, [](AsyncWebServerRequest *request)
                  {
         if (!isAuthorized(request)) {
@@ -538,7 +548,7 @@ void setupWebserver()
         static File uploadFile;
 
         if (!index) {
-            Serial.printf("[ConfigUpload] Start: %s\n", filename.c_str());
+            LogSerial.printf("[ConfigUpload] Start: %s\n", filename.c_str());
             uploadFile = LittleFS.open(configPath, "w");
         }
         if (uploadFile) {
@@ -546,40 +556,43 @@ void setupWebserver()
         }
         if (final) {
             uploadFile.close();
-            Serial.println(F("[ConfigUpload] Finished"));
+            LogSerial.println(F("[ConfigUpload] Finished"));
         } });
 
     webServer.on("/update", HTTP_POST, [](AsyncWebServerRequest *request)
                  {
         request->send(200, "text/plain", "OK");
-        Serial.println(F("OTA Upload done. Marking for restart."));
+        LogSerial.println(F("OTA Upload done. Marking for restart."));
         shouldRestart = true;
         restartRequestTime = millis(); }, [](AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final)
                  {
         if (!index) {
-            Serial.printf("[OTA] Start: %s\n", filename.c_str());
+            LogSerial.printf("[OTA] Start: %s\n", filename.c_str());
             if (!Update.begin(UPDATE_SIZE_UNKNOWN)) {
-                Update.printError(Serial);
+                Update.printError(LogSerial);
             }
         }
 
         if (Update.write(data, len) != len) {
-            Update.printError(Serial);
+            Update.printError(LogSerial);
         }
 
         if (final) {
             if (Update.end(true)) {
-                Serial.printf("[OTA] Success (%u bytes). Awaiting reboot...\n", index + len);
+                LogSerial.printf("[OTA] Success (%u bytes). Awaiting reboot...\n", index + len);
             } else {
-                Update.printError(Serial);
+                Update.printError(LogSerial);
             }
         } });
 
+    LogSerial.begin(&webServer);
+
     ws.onEvent(onWsEvent);
     webServer.addHandler(&ws);
+
     webServer.begin();
 
-    Serial.println(F("Webserver started"));
+    LogSerial.println(F("Webserver started"));
 }
 
 #endif
