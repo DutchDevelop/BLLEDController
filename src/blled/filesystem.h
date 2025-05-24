@@ -28,7 +28,7 @@ char *generateRandomString(int length)
 
 void saveFileSystem()
 {
-    Serial.println(F("Saving config"));
+    LogSerial.println(F("Saving config"));
 
     JsonDocument json;
     json["ssid"] = globalVariables.SSID;
@@ -124,17 +124,17 @@ void saveFileSystem()
     File configFile = LittleFS.open(configPath, "w");
     if (!configFile)
     {
-        Serial.println(F("Failed to save config"));
+        LogSerial.println(F("Failed to save config"));
         return;
     }
     serializeJson(json, configFile);
     configFile.close();
-    Serial.println(F("Config Saved"));
+    LogSerial.println(F("Config Saved"));
 }
 
 void loadFileSystem()
 {
-    Serial.println(F("Loading config"));
+    LogSerial.println(F("Loading config"));
 
     File configFile;
     int attempts = 0;
@@ -146,16 +146,16 @@ void loadFileSystem()
             break;
         }
         attempts++;
-        Serial.println(F("Failed to open config file, retrying.."));
+        LogSerial.println(F("Failed to open config file, retrying.."));
         delay(2000);
     }
     if (!configFile)
     {
-        Serial.print(F("Failed to open config file after "));
-        Serial.print(attempts);
-        Serial.println(F(" retries"));
+        LogSerial.print(F("Failed to open config file after "));
+        LogSerial.print(attempts);
+        LogSerial.println(F(" retries"));
 
-        Serial.println(F("Clearing config"));
+        LogSerial.println(F("Clearing config"));
         // LittleFS.remove(configPath);
         saveFileSystem();
         return;
@@ -222,15 +222,15 @@ void loadFileSystem()
         printerConfig.frontCoverRGB = hex2rgb(json["frontCoverRGB"], json["frontCoverWW"], json["frontCoverCW"]);
         printerConfig.nozzleTempRGB = hex2rgb(json["nozzleTempRGB"], json["nozzleTempWW"], json["nozzleTempCW"]);
         printerConfig.bedTempRGB = hex2rgb(json["bedTempRGB"], json["bedTempWW"], json["bedTempCW"]);
-        Serial.println(F("Loaded config"));
+        LogSerial.println(F("Loaded config"));
     }
     else
     {
-        Serial.println(F("Failed loading config"));
-        Serial.println(F("Clearing config"));
+        LogSerial.println(F("Failed loading config"));
+        LogSerial.println(F("Clearing config"));
         LittleFS.remove(configPath);
 
-        // Serial.println(F("Generating new password"));
+        // LogSerial.println(F("Generating new password"));
         // char* pw = generateRandomString(8);
         // strcpy(printerConfig.webpagePassword, pw);
     }
@@ -240,7 +240,7 @@ void loadFileSystem()
 
 void deleteFileSystem()
 {
-    Serial.println(F("Deleting LittleFS"));
+    LogSerial.println(F("Deleting LittleFS"));
     LittleFS.remove(configPath);
 }
 
@@ -251,17 +251,17 @@ bool hasFileSystem()
 
 void setupFileSystem()
 {
-    Serial.println(F("Mounting LittleFS"));
+    LogSerial.println(F("Mounting LittleFS"));
     if (!LittleFS.begin())
     {
-        Serial.println(F("Failed to mount LittleFS"));
+        LogSerial.println(F("Failed to mount LittleFS"));
         LittleFS.format();
-        Serial.println(F("Formatting LittleFS"));
-        Serial.println(F("Restarting Device"));
+        LogSerial.println(F("Formatting LittleFS"));
+        LogSerial.println(F("Restarting Device"));
         delay(1000);
         ESP.restart();
     }
-    Serial.println(F("Mounted LittleFS"));
+    LogSerial.println(F("Mounted LittleFS"));
 };
 
 #endif

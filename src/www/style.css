@@ -142,6 +142,10 @@ button {
   margin-bottom: 10px;
 }
 
+.downloadConfigButton {
+  padding: 14px;
+}
+
 button:hover {
   background-color: #4CAF50;
 }

@@ -67,19 +67,19 @@ void tweenToColor(int targetRed, int targetGreen, int targetBlue, int targetWarm
         // Already set to the requested color
         if (printerConfig.debuging)
         {
-            Serial.print(F("LEDS already at color: ("));
-            Serial.print(currentRed);
-            Serial.print(F(", "));
-            Serial.print(currentGreen);
-            Serial.print(F(", "));
-            Serial.print(currentBlue);
-            Serial.print(F(", "));
-            Serial.print(currentWarm);
-            Serial.print(F(", "));
-            Serial.print(currentCold);
-            Serial.print(F(" Brightness: "));
-            Serial.print(printerConfig.brightness);
-            Serial.println(F(")"));
+            LogSerial.print(F("LEDS already at color: ("));
+            LogSerial.print(currentRed);
+            LogSerial.print(F(", "));
+            LogSerial.print(currentGreen);
+            LogSerial.print(F(", "));
+            LogSerial.print(currentBlue);
+            LogSerial.print(F(", "));
+            LogSerial.print(currentWarm);
+            LogSerial.print(F(", "));
+            LogSerial.print(currentCold);
+            LogSerial.print(F(" Brightness: "));
+            LogSerial.print(printerConfig.brightness);
+            LogSerial.println(F(")"));
         };
         return;
     }
@@ -158,10 +158,10 @@ void RGBCycle()
         printerConfig.discoMode_update = false;
         if (printerConfig.debugingchange)
         {
-            Serial.print(F("["));
-            Serial.print(millis());
-            Serial.print(F("]"));
-            Serial.println(F(" ** RGB Cycle Mode **"));
+            LogSerial.print(F("["));
+            LogSerial.print(millis());
+            LogSerial.print(F("]"));
+            LogSerial.println(F(" ** RGB Cycle Mode **"));
         };
     }
 
@@ -199,25 +199,25 @@ void printLogs(String Desc, COLOR thisColor)
 {
     if (printerConfig.debuging || printerConfig.debugingchange)
     {
-        Serial.print(Desc);
-        Serial.print(F(" - Turning LEDs to: "));
+        LogSerial.print(Desc);
+        LogSerial.print(F(" - Turning LEDs to: "));
         if ((thisColor.r + thisColor.g + thisColor.b + thisColor.ww + thisColor.cw) == 0)
         {
-            Serial.println(F(" OFF"));
+            LogSerial.println(F(" OFF"));
             return;
         }
-        Serial.print(F(" r:"));
-        Serial.print(thisColor.r);
-        Serial.print(F(" g:"));
-        Serial.print(thisColor.g);
-        Serial.print(F(" b:"));
-        Serial.print(thisColor.b);
-        Serial.print(F(" ww:"));
-        Serial.print(thisColor.ww);
-        Serial.print(F(" cw:"));
-        Serial.print(thisColor.cw);
-        Serial.print(F(" Brightness: "));
-        Serial.println(printerConfig.brightness);
+        LogSerial.print(F(" r:"));
+        LogSerial.print(thisColor.r);
+        LogSerial.print(F(" g:"));
+        LogSerial.print(thisColor.g);
+        LogSerial.print(F(" b:"));
+        LogSerial.print(thisColor.b);
+        LogSerial.print(F(" ww:"));
+        LogSerial.print(thisColor.ww);
+        LogSerial.print(F(" cw:"));
+        LogSerial.print(thisColor.cw);
+        LogSerial.print(F(" Brightness: "));
+        LogSerial.println(printerConfig.brightness);
     };
 }
 void printLogs(String Desc, short r, short g, short b, short ww, short cw)
@@ -239,10 +239,10 @@ void updateleds()
         tweenToColor(0, 0, 0, 255, 255); // WHITE
         printerConfig.maintMode_update = false;
         printLogs("Maintenance Mode", 0, 0, 0, 255, 255);
-        Serial.print(F("["));
-        Serial.print(millis());
-        Serial.print(F("]"));
-        Serial.println(F(" ** Maintenance Mode **"));
+        LogSerial.print(F("["));
+        LogSerial.print(millis());
+        LogSerial.print(F("]"));
+        LogSerial.println(F(" ** Maintenance Mode **"));
         return;
     }
 
@@ -255,8 +255,8 @@ void updateleds()
             long wifiNow = WiFi.RSSI();
             if (printerConfig.debugingchange)
             {
-                Serial.print(F("WiFi Strength Visialisation, display LEDs for: "));
-                Serial.println(wifiNow);
+                LogSerial.print(F("WiFi Strength Visialisation, display LEDs for: "));
+                LogSerial.println(wifiNow);
             }
             if (wifiNow >= -50)
                 tweenToColor(0, 255, 0, 0, 0); // GREEN
@@ -279,10 +279,10 @@ void updateleds()
     {
         tweenToColor(printerConfig.testColor); // Variable Test Color
         printLogs("LED Test ON", printerConfig.testColor);
-        Serial.print(F("["));
-        Serial.print(millis());
-        Serial.print(F("]"));
-        Serial.println(F(" ** Test Color Mode **"));
+        LogSerial.print(F("["));
+        LogSerial.print(millis());
+        LogSerial.print(F("]"));
+        LogSerial.println(F(" ** Test Color Mode **"));
         printerConfig.testcolor_update = false;
         return;
     }
@@ -290,13 +290,13 @@ void updateleds()
     // From here the BBLP status sets the colors
     if (printerConfig.debuging == true)
     {
-        Serial.println(F("Updating LEDs"));
+        LogSerial.println(F("Updating LEDs"));
 
-        Serial.println(printerVariables.stage);
-        Serial.println(printerVariables.gcodeState);
-        Serial.println(printerVariables.printerledstate);
-        Serial.println(printerVariables.hmsstate);
-        Serial.println(printerVariables.parsedHMSlevel);
+        LogSerial.println(printerVariables.stage);
+        LogSerial.println(printerVariables.gcodeState);
+        LogSerial.println(printerVariables.printerledstate);
+        LogSerial.println(printerVariables.hmsstate);
+        LogSerial.println(printerVariables.parsedHMSlevel);
     }
 
     // Initial Boot
@@ -308,7 +308,7 @@ void updateleds()
         printerVariables.waitingForDoor = false;
         printerConfig.finish_check = false;
         printerVariables.lastdoorClosems = millis();
-        Serial.println(F("Initial Boot"));
+        LogSerial.println(F("Initial Boot"));
         return;
     }
 
@@ -324,14 +324,14 @@ void updateleds()
     {
         if (printerConfig.debugingchange)
         {
-            Serial.print(F("Door closed twice within 6 seconds - Toggling LEDs to "));
+            LogSerial.print(F("Door closed twice within 6 seconds - Toggling LEDs to "));
         }
         if (currentWarm == 0 && currentCold == 0)
         {
             tweenToColor(0, 0, 0, 255, 255); // WHITE
             if (printerConfig.debuging || printerConfig.debugingchange)
             {
-                Serial.println(F("ON"));
+                LogSerial.println(F("ON"));
             }
             printerConfig.isIdleOFFActive = false;
         }
@@ -343,7 +343,7 @@ void updateleds()
             printerConfig.inactivityStartms = (millis() - printerConfig.inactivityTimeOut);
             if (printerConfig.debuging || printerConfig.debugingchange)
             {
-                Serial.println(F("OFF"));
+                LogSerial.println(F("OFF"));
             }
         }
         printerVariables.doorSwitchTriggered = false;
@@ -391,9 +391,9 @@ void updateleds()
         if (printerVariables.parsedHMSlevel == "Serious")
         {
             tweenToColor(printerConfig.hmsSeriousRGB); // Customisable - Default is RED
-            Serial.print(F("HMS SERIOUS Severity      "));
-            Serial.print(F("Error Code: "));
-            Serial.printf("%016llX\n", printerVariables.parsedHMScode);
+            LogSerial.print(F("HMS SERIOUS Severity      "));
+            LogSerial.print(F("Error Code: "));
+            LogSerial.printf("%016llX\n", printerVariables.parsedHMScode);
             printLogs("PROBLEM", printerConfig.hmsSeriousRGB);
             return;
         };
@@ -402,9 +402,9 @@ void updateleds()
         if (printerVariables.parsedHMSlevel == "Fatal")
         {
             tweenToColor(printerConfig.hmsFatalRGB); // Customisable - Default is RED
-            Serial.print(F("HMS FATAL Severity      "));
-            Serial.print(F("Error Code: "));
-            Serial.printf("%016llX\n", printerVariables.parsedHMScode);
+            LogSerial.print(F("HMS FATAL Severity      "));
+            LogSerial.print(F("Error Code: "));
+            LogSerial.printf("%016llX\n", printerVariables.parsedHMScode);
             printLogs("PROBLEM", printerConfig.hmsFatalRGB);
             return;
         };
@@ -510,9 +510,9 @@ void updateleds()
         printerConfig.isIdleOFFActive = true;
         if (printerConfig.debuging || printerConfig.debugingchange)
         {
-            Serial.print(F("Idle Timeout ["));
-            Serial.print((int)(printerConfig.inactivityTimeOut / 60000));
-            Serial.println(F(" mins] - Turning LEDs OFF"));
+            LogSerial.print(F("Idle Timeout ["));
+            LogSerial.print((int)(printerConfig.inactivityTimeOut / 60000));
+            LogSerial.println(F(" mins] - Turning LEDs OFF"));
         };
         return;
     }
@@ -562,7 +562,7 @@ void updateleds()
     if (printerVariables.stage == 13)
     {
         // No color change assigned
-        Serial.println(F("STAGE 13, HOMING TOOL HEAD"));
+        LogSerial.println(F("STAGE 13, HOMING TOOL HEAD"));
         return;
     }
 
@@ -597,7 +597,7 @@ void updateleds()
 
 void setupLeds()
 {
-    Serial.println(F("Updating from setupleds"));
+    LogSerial.println(F("Updating from setupleds"));
 
     ledcSetup(redChannel, pwmFreq, pwmResolution);
     ledcSetup(greenChannel, pwmFreq, pwmResolution);
@@ -617,17 +617,17 @@ void ledsloop()
     RGBCycle();
     if ((millis() - lastUpdatems) > 30000 && (printerConfig.maintMode || printerConfig.testcolorEnabled || printerConfig.discoMode || printerConfig.debugwifi))
     {
-        Serial.print(F("["));
-        Serial.print(millis());
-        Serial.print(F("]"));
+        LogSerial.print(F("["));
+        LogSerial.print(millis());
+        LogSerial.print(F("]"));
         if (printerConfig.maintMode)
-            Serial.println(F(" Maintenance Mode - next update in 30 seconds"));
+            LogSerial.println(F(" Maintenance Mode - next update in 30 seconds"));
         if (printerConfig.testcolorEnabled)
-            Serial.println(F(" Test Color - next update in 30 seconds"));
+            LogSerial.println(F(" Test Color - next update in 30 seconds"));
         if (printerConfig.discoMode)
-            Serial.println(F(" RGB Cycle Mode - next update in 30 seconds"));
+            LogSerial.println(F(" RGB Cycle Mode - next update in 30 seconds"));
         if (printerConfig.debugwifi)
-            Serial.println(F(" Wifi Debug Mode - next update in 30 seconds"));
+            LogSerial.println(F(" Wifi Debug Mode - next update in 30 seconds"));
         lastUpdatems = millis();
     }
 
@@ -637,7 +637,7 @@ void ledsloop()
     {
         if (printerConfig.debuging || printerConfig.debugingchange)
         {
-            Serial.println(F("Updating from finishloop after Door interaction - Starting IDLE timer"));
+            LogSerial.println(F("Updating from finishloop after Door interaction - Starting IDLE timer"));
         }
         printerVariables.waitingForDoor = false;
         printerConfig.inactivityStartms = millis();
@@ -649,7 +649,7 @@ void ledsloop()
     {
         if (printerConfig.debuging || printerConfig.debugingchange)
         {
-            Serial.println(F("Updating from finishloop after Finish timer expired - Starting IDLE timer"));
+            LogSerial.println(F("Updating from finishloop after Finish timer expired - Starting IDLE timer"));
         }
         printerConfig.finish_check = false;
         printerConfig.inactivityStartms = millis();
