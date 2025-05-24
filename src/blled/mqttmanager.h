@@ -419,8 +419,8 @@ void setupMqtt()
 
     wifiSecureClient.setInsecure();
 
-    wifiSecureClient.setTimeout(1);        // Max 1 Sekunde für connect() und handshake
-    mqttClient.setSocketTimeout(1);        // Max 1 Sekunde für mqttClient.connect()
+    wifiSecureClient.setTimeout(3);        // Max 1 Sekunde für connect() und handshake
+    mqttClient.setSocketTimeout(3);        // Max 1 Sekunde für mqttClient.connect()
 
     mqttClient.setBufferSize(1024); // 1024
     mqttClient.setServer(printerConfig.printerIP, 8883);

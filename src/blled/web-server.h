@@ -10,15 +10,8 @@
 #include "leds.h"
 #include "filesystem.h"
 
-/* #include <AsyncTCP.h>
-#include <WiFi.h>
-#include <WString.h>
-#include <MycilaWebSerial.h> */
-
 AsyncWebServer webServer(80);
 AsyncWebSocket ws("/ws");
-
-//WebSerial webSerial;
 
 #include "../www/www.h"
 
@@ -290,12 +283,12 @@ void handleSubmitConfig(AsyncWebServerRequest *request)
     request->send(200, "text/plain", "OK");
 }
 
- void sendJsonToAll(JsonDocument &doc)
+void sendJsonToAll(JsonDocument &doc)
 {
     String jsonString;
     serializeJson(doc, jsonString);
     ws.textAll(jsonString);
-} 
+}
 
 void handleWiFiScan(AsyncWebServerRequest *request)
 {
@@ -381,7 +374,7 @@ void handleSubmitWiFi(AsyncWebServerRequest *request)
     restartRequestTime = millis();
 }
 
- void websocketLoop()
+void websocketLoop()
 {
     if (ws.count() == 0)
         return;
@@ -399,7 +392,7 @@ void handleSubmitWiFi(AsyncWebServerRequest *request)
         doc["stg_cur"] = printerVariables.stage;
         sendJsonToAll(doc);
     }
-} 
+}
 
 void handleConfigPage(AsyncWebServerRequest *request)
 {
@@ -448,6 +441,17 @@ void handleDownloadConfigFile(AsyncWebServerRequest *request)
     request->send(response);
 }
 
+
+void handleWebSerialPage(AsyncWebServerRequest *request)
+{
+    if (!isAuthorized(request))
+        return request->requestAuthentication();
+    AsyncWebServerResponse *response = request->beginResponse(200, webSerialPage_html_gz_mime, webSerialPage_html_gz, webSerialPage_html_gz_len);
+    response->addHeader("Content-Encoding", "gzip");
+    request->send(response);
+}
+
+
 void handleUploadConfigFileData(AsyncWebServerRequest *request, const String &filename,
                                 size_t index, uint8_t *data, size_t len, bool final)
 {
@@ -471,10 +475,10 @@ void handleUploadConfigFileData(AsyncWebServerRequest *request, const String &fi
     restartRequestTime = millis();
 }
 
- void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type,
+void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type,
                void *arg, uint8_t *data, size_t len)
 {
-     switch (type)
+    switch (type)
     {
     case WS_EVT_CONNECT:
         LogSerial.printf("[WS] Client connected: %u\n", client->id());
@@ -495,7 +499,7 @@ void handleUploadConfigFileData(AsyncWebServerRequest *request, const String &fi
         ws.cleanupClients();
         break;
     }
-} 
+}
 
 void setupWebserver()
 {
@@ -531,6 +535,7 @@ void setupWebserver()
     webServer.on("/style.css", HTTP_GET, handleStyleCss);
     webServer.on("/backuprestore", HTTP_GET, handleConfigPage);
     webServer.on("/configfile.json", HTTP_GET, handleDownloadConfigFile);
+    webServer.on("/webserial", HTTP_GET, handleWebSerialPage);
     webServer.on("/configrestore", HTTP_POST, [](AsyncWebServerRequest *request)
                  {
         if (!isAuthorized(request)) {
@@ -580,15 +585,10 @@ void setupWebserver()
             }
         } });
 
-/*   webSerial.onMessage([](const std::string& msg) { Serial.println(msg.c_str()); });
-  webSerial.begin(&webServer);
-  webSerial.setBuffer(100); */
-LogSerial.begin(&webServer);
-
+    LogSerial.begin(&webServer);
 
     ws.onEvent(onWsEvent);
     webServer.addHandler(&ws);
-
 
     webServer.begin();
 
