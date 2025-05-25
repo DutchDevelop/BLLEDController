@@ -24,6 +24,9 @@ AutoGrowBufferStream stream;
 unsigned long mqttattempt = (millis() - 3000);
 unsigned long lastMQTTupdate = millis();
 
+TaskHandle_t mqttTaskHandle = NULL;
+bool mqttTaskRunning = false;
+
 // With a Default BLLED
 // Expected information when viewing MQTT status messages
 
@@ -85,6 +88,46 @@ void connectMqtt()
             }
         }
     }
+}
+
+void mqttTask(void *parameter)
+{
+    mqttTaskRunning = true;
+
+    while (true)
+    {
+        if (WiFi.status() != WL_CONNECTED || WiFi.getMode() != WIFI_MODE_STA)
+        {
+            printerVariables.online = false;
+            vTaskDelay(pdMS_TO_TICKS(2000));
+            continue;
+        }
+
+        if (!mqttClient.connected())
+        {
+            printerVariables.online = false;
+
+            if (printerVariables.disconnectMQTTms == 0)
+            {
+                printerVariables.disconnectMQTTms = millis();
+                LogSerial.println(F("[MQTT Task] Disconnected"));
+                ParseMQTTState(mqttClient.state());
+            }
+
+            connectMqtt();
+            vTaskDelay(pdMS_TO_TICKS(32));
+        }
+        else
+        {
+            printerVariables.disconnectMQTTms = 0;
+            mqttClient.loop();
+        }
+
+        vTaskDelay(pdMS_TO_TICKS(10));
+    }
+
+    mqttTaskRunning = false;
+    vTaskDelete(NULL);
 }
 
 void ParseCallback(char *topic, byte *payload, unsigned int length)
@@ -418,18 +461,51 @@ void setupMqtt()
     report_topic = device_topic + String("/report");
 
     wifiSecureClient.setInsecure();
-
-    wifiSecureClient.setTimeout(3);        // Max 1 Sekunde für connect() und handshake
-    mqttClient.setSocketTimeout(3);        // Max 1 Sekunde für mqttClient.connect()
-
-    mqttClient.setBufferSize(1024); // 1024
+    wifiSecureClient.setTimeout(3);
+    mqttClient.setSocketTimeout(3);
+    mqttClient.setBufferSize(1024);
     mqttClient.setServer(printerConfig.printerIP, 8883);
     mqttClient.setStream(stream);
     mqttClient.setCallback(mqttCallback);
-    //mqttClient.setSocketTimeout(20);
+
     LogSerial.println(F("Finished setting up MQTT"));
-    connectMqtt();
+
+    if (mqttTaskHandle == NULL)
+    {
+        BaseType_t result;
+
+        #if CONFIG_FREERTOS_UNICORE
+            result = xTaskCreate(
+                mqttTask,
+                "mqttTask",
+                6144,
+                NULL,
+                1,
+                &mqttTaskHandle
+            );
+        #else
+            result = xTaskCreatePinnedToCore(
+                mqttTask,
+                "mqttTask",
+                6144,
+                NULL,
+                1,
+                &mqttTaskHandle,
+                1 // Core 1 (App Core)
+            );
+        #endif
+
+        if (result == pdPASS)
+        {
+            LogSerial.println(F("MQTT task successfully started"));
+        }
+        else
+        {
+            LogSerial.println(F("Failed to create MQTT task!"));
+        }
+    }
 }
+
 
 void mqttloop()
 {
