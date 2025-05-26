@@ -70,24 +70,22 @@ void setup()
         startAPMode();
         setupWebserver();
         return;
-    } else
+    }
+    else
 
-    if (!connectToWifi())
+        if (!connectToWifi())
     {
         Serial.println(F("[WiFiManager] Not connected → AP Mode"));
         startAPMode();
         setupWebserver();
         return;
-    } else {
-Serial.println(F("[WiFiManager] connected. Starting webUI."));
-tweenToColor(0, 0, 255, 0, 0); // BLUE
-setupWebserver();
     }
-    
-    
-
-    
-    //setupWebserver();
+    else
+    {
+        Serial.println(F("[WiFiManager] connected. Starting webUI."));
+        tweenToColor(0, 0, 255, 0, 0); // BLUE
+        setupWebserver();
+    }
 
     start_ssdp();
 
@@ -110,7 +108,6 @@ void loop()
     serialLoop();
     if (globalVariables.started)
     {
-        mqttloop();
         websocketLoop();
         ledsloop();
 
