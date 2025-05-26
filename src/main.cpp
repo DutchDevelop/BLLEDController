@@ -1,6 +1,7 @@
 #include <Arduino.h>
 bool shouldRestart = false;
 unsigned long restartRequestTime = 0;
+#include "./blled/logSerial.h"
 #include "./blled/web-server.h"
 #include "./blled/mqttmanager.h"
 #include "./blled/filesystem.h"
@@ -14,7 +15,7 @@ int wifi_reconnect_count = 0;
 
 void defaultcolors()
 {
-    Serial.println(F("Setting default customisable colors"));
+    LogSerial.println(F("Setting default customisable colors"));
     printerConfig.runningColor = hex2rgb("#000000", 255, 255); // WHITE Running
     printerConfig.testColor = hex2rgb("#3F3CFB");              // Violet Test
     printerConfig.finishColor = hex2rgb("#00FF00");            // Green Finish
@@ -70,19 +71,21 @@ void setup()
         setupWebserver();
         return;
     }
+    else
 
-    if (!connectToWifi())
+        if (!connectToWifi())
     {
         Serial.println(F("[WiFiManager] Not connected → AP Mode"));
         startAPMode();
         setupWebserver();
         return;
     }
-    Serial.println(F("[WiFiManager] connected. Starting webUI."));
-    setupWebserver();
-
-    tweenToColor(0, 0, 255, 0, 0); // BLUE
-    setupWebserver();
+    else
+    {
+        Serial.println(F("[WiFiManager] connected. Starting webUI."));
+        tweenToColor(0, 0, 255, 0, 0); // BLUE
+        setupWebserver();
+    }
 
     start_ssdp();
 
@@ -105,16 +108,15 @@ void loop()
     serialLoop();
     if (globalVariables.started)
     {
-        mqttloop();
         websocketLoop();
         ledsloop();
 
         if (WiFi.status() != WL_CONNECTED)
         {
-            Serial.print(F("Wifi connection dropped.  "));
-            Serial.print(F("Wifi Status: "));
-            Serial.println(wl_status_to_string(WiFi.status()));
-            Serial.println(F("Attempting to reconnect to WiFi..."));
+            LogSerial.print(F("Wifi connection dropped.  "));
+            LogSerial.print(F("Wifi Status: "));
+            LogSerial.println(wl_status_to_string(WiFi.status()));
+            LogSerial.println(F("Attempting to reconnect to WiFi..."));
             wifi_reconnect_count += 1;
             if (wifi_reconnect_count <= 2)
             {
@@ -138,7 +140,7 @@ void loop()
     }
     if (printerConfig.rescanWiFiNetwork)
     {
-        Serial.println(F("Web submitted refresh of Wifi Scan (assigning Strongest AP)"));
+        LogSerial.println(F("Web submitted refresh of Wifi Scan (assigning Strongest AP)"));
         tweenToColor(printerConfig.wifiRGB); // Customisable - Default is ORANGE
         scanNetwork();                       // Sets the MAC address for following connection attempt
         printerConfig.rescanWiFiNetwork = false;
@@ -146,7 +148,7 @@ void loop()
     }
     if (shouldRestart && millis() - restartRequestTime > 1500)
     {
-        Serial.println(F("[WiFiSetup] Restarting now..."));
+        LogSerial.println(F("[WiFiSetup] Restarting now..."));
         ESP.restart();
     }
 }

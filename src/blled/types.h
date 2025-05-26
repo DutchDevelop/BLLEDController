@@ -54,7 +54,7 @@ extern "C"
 
     typedef struct GlobalVariablesStruct{
         char SSID[32];
-        char APPW[32];
+        char APPW[64];
         String FWVersion = STRVERSION;
         String Host = "BLLED";
         bool started = false;
