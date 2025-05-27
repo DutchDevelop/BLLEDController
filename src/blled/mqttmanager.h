@@ -26,6 +26,7 @@ unsigned long lastMQTTupdate = millis();
 
 TaskHandle_t mqttTaskHandle = NULL;
 bool mqttTaskRunning = false;
+volatile bool mqttConnectInProgress = false;
 
 // With a Default BLLED
 // Expected information when viewing MQTT status messages
@@ -44,7 +45,7 @@ bool mqttTaskRunning = false;
 // FINISH	    -1	        White	                After door interaction
 // FINISH	    -1	        OFF                     Inactivity after 30mins
 
-void connectMqtt()
+/* void connectMqtt()
 {
     if (WiFi.status() != WL_CONNECTED  || WiFi.getMode() != WIFI_MODE_STA)
     {
@@ -88,7 +89,57 @@ void connectMqtt()
             }
         }
     }
+} */
+void connectMqtt()
+{
+    if (mqttConnectInProgress) return;
+
+    mqttConnectInProgress = true;
+
+    if (WiFi.status() != WL_CONNECTED || WiFi.getMode() != WIFI_MODE_STA)
+    {
+        mqttConnectInProgress = false;
+        return;
+    }
+
+    if (strlen(printerConfig.printerIP) == 0 || strlen(printerConfig.accessCode) == 0)
+    {
+        Serial.println(F("[MQTT] Abort connect: printerIP oder accessCode wrong or empty"));
+        mqttConnectInProgress = false;
+        return;
+    }
+
+    if (!mqttClient.connected() && (millis() - mqttattempt) >= 3000)
+    {
+        tweenToColor(10, 10, 10, 10, 10);
+        Serial.println(F("Connecting to mqtt..."));
+
+        if (mqttClient.connect(clientId.c_str(), "bblp", printerConfig.accessCode))
+        {
+            Serial.print(F("MQTT connected, subscribing to MQTT Topic:  "));
+            Serial.println(report_topic);
+            mqttClient.subscribe(report_topic.c_str());
+            printerVariables.online = true;
+            printerVariables.disconnectMQTTms = 0;
+        }
+        else
+        {
+            Serial.println(F("Failed to connect with error code: "));
+            Serial.print(mqttClient.state());
+            Serial.print(F("  "));
+            ParseMQTTState(mqttClient.state());
+
+            if (mqttClient.state() == 5)
+            {
+                tweenToColor(127, 0, 0, 0, 0);
+                mqttattempt = millis() - 3000;
+            }
+        }
+    }
+
+    mqttConnectInProgress = false;
 }
+
 
 void mqttTask(void *parameter)
 {
@@ -461,8 +512,8 @@ void setupMqtt()
     report_topic = device_topic + String("/report");
 
     wifiSecureClient.setInsecure();
-    wifiSecureClient.setTimeout(3);
-    mqttClient.setSocketTimeout(3);
+    wifiSecureClient.setTimeout(10);
+    mqttClient.setSocketTimeout(10);
     mqttClient.setBufferSize(1024);
     mqttClient.setServer(printerConfig.printerIP, 8883);
     mqttClient.setStream(stream);
