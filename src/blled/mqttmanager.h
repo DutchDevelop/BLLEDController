@@ -111,7 +111,7 @@ void connectMqtt()
 
     if (!mqttClient.connected() && (millis() - mqttattempt) >= 3000)
     {
-        tweenToColor(10, 10, 10, 10, 10);
+        //tweenToColor(10, 10, 10, 10, 10);
         Serial.println(F("Connecting to mqtt..."));
 
         if (mqttClient.connect(clientId.c_str(), "bblp", printerConfig.accessCode))
