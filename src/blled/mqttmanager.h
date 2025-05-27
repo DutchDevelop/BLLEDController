@@ -187,6 +187,14 @@ void ParseCallback(char *topic, byte *payload, unsigned int length)
     JsonDocument filter;
     // Rather than showing the entire message to Serial - grabbing only the pertinent bits for BLLED.
     // Device Status
+
+//sniped: implement to get layer num. for hms error, swap back to running state after layer change
+/*     "print": {
+        "3D": {
+            "layer_num": 0,
+            "total_layer_num": 191
+        } */
+
     filter["print"]["command"] = true;
     filter["print"]["fail_reason"] = true;
     filter["print"]["gcode_state"] = true;

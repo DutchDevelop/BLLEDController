@@ -299,13 +299,23 @@ void updateleds()
     // From here the BBLP status sets the colors
     if (printerConfig.debuging == true)
     {
-        LogSerial.println(F("Updating LEDs"));
+/*         LogSerial.println(F("Updating LEDs"));
 
         LogSerial.println(printerVariables.stage);
         LogSerial.println(printerVariables.gcodeState);
         LogSerial.println(printerVariables.printerledstate);
         LogSerial.println(printerVariables.hmsstate);
-        LogSerial.println(printerVariables.parsedHMSlevel);
+        LogSerial.println(printerVariables.parsedHMSlevel); */
+
+    char ledDbgStr[128];
+    snprintf(ledDbgStr, sizeof(ledDbgStr),
+    "[LED] Stage:%d gcodeState:%s printerLedState:%s HMSErr:%s ParsedHMS:%s",
+    printerVariables.stage,
+    printerVariables.gcodeState.c_str(),
+    printerVariables.printerledstate ? "true" : "false",
+    printerVariables.hmsstate ? "true" : "false",
+    printerVariables.parsedHMSlevel.c_str());
+    LogSerial.println(ledDbgStr);
     }
 
     // Initial Boot
