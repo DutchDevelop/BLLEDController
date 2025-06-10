@@ -458,7 +458,7 @@ void updateleds()
     // OFF -- OFF -- OFF -- OFF
 
     // printer offline and MQTT disconnect more than 5 seconds.
-    if (printerVariables.online == false && (millis() - printerVariables.disconnectMQTTms) >= 5000)
+    if (printerVariables.online == false && (millis() - printerVariables.disconnectMQTTms) >= 30000)
     {
         tweenToColor(0, 0, 0, 0, 0); // OFF
         printLogs("Printer offline", 0, 0, 0, 0, 0);
