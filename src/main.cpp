@@ -141,7 +141,7 @@ void loop()
         }
         if(WiFi.status() == WL_CONNECTED && WiFi.getMode() != WIFI_AP)
         {
-            bblSearchPrinters();  // gibt alle 10s IP + MAC der Drucker aus
+            bblSearchPrinters();
         }
     }
     if (printerConfig.rescanWiFiNetwork)
