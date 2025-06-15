@@ -3,6 +3,7 @@
 
 #include <WiFi.h>
 #include <WiFiUdp.h>
+#include "filesystem.h"  // for saveFileSystem()
 
 #define BBL_SSDP_PORT 2021
 #define BBL_SSDP_MCAST_IP IPAddress(239, 255, 255, 250)
@@ -104,6 +105,16 @@ void bblSearchPrinters() {
         int end = response.indexOf("\r\n", usnPos);
         usnStr = response.substring(usnPos + 4, end);
         usnStr.trim();
+      }
+
+      // IP update check for stored USN
+      if (usnStr.length() > 0 && strcmp(printerConfig.serialNumber, usnStr.c_str()) == 0) {
+        String currentIP = senderIP.toString();
+        if (String(printerConfig.printerIP) != currentIP) {
+          LogSerial.printf("[BBLScan] Detected matching USN with updated IP (%s → %s). Saving...\n", printerConfig.printerIP, currentIP.c_str());
+          strlcpy(printerConfig.printerIP, currentIP.c_str(), sizeof(printerConfig.printerIP));
+          saveFileSystem();
+        }
       }
 
       int existingIndex = -1;

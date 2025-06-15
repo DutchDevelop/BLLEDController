@@ -8,8 +8,6 @@ unsigned long restartRequestTime = 0;
 #include "./blled/bblPrinterDiscovery.h"
 #include "./blled/web-server.h"
 #include "./blled/mqttmanager.h"
-
-
 #include "./blled/serialmanager.h"
 #include "./blled/wifi-manager.h"
 #include "./blled/ssdp.h"
