@@ -2,12 +2,14 @@
 bool shouldRestart = false;
 unsigned long restartRequestTime = 0;
 #include "./blled/logSerial.h"
+#include "./blled/leds.h"
+#include "./blled/filesystem.h"
+#include "./blled/types.h"
 #include "./blled/bblPrinterDiscovery.h"
 #include "./blled/web-server.h"
 #include "./blled/mqttmanager.h"
-#include "./blled/filesystem.h"
-#include "./blled/types.h"
-#include "./blled/leds.h"
+
+
 #include "./blled/serialmanager.h"
 #include "./blled/wifi-manager.h"
 #include "./blled/ssdp.h"

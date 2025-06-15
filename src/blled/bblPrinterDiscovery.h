@@ -3,7 +3,6 @@
 
 #include <WiFi.h>
 #include <WiFiUdp.h>
-#include <lwip/etharp.h>  // for ARP lookup
 
 #define BBL_SSDP_PORT 2021
 #define BBL_SSDP_MCAST_IP IPAddress(239, 255, 255, 250)
@@ -12,7 +11,6 @@
 
 struct BBLPrinter {
   IPAddress ip;
-  uint8_t mac[6];
   char usn[64];
 };
 
@@ -23,9 +21,12 @@ static unsigned long bblLastDiscovery = 0;
 static BBLPrinter bblLastKnownPrinters[BBL_MAX_PRINTERS];
 static int bblKnownPrinterCount = 0;
 
-bool bblIsPrinterKnown(IPAddress ip) {
+bool bblIsPrinterKnown(IPAddress ip, int* index = nullptr) {
   for (int i = 0; i < bblKnownPrinterCount; i++) {
-    if (bblLastKnownPrinters[i].ip == ip) return true;
+    if (bblLastKnownPrinters[i].ip == ip) {
+      if (index) *index = i;
+      return true;
+    }
   }
   return false;
 }
@@ -36,12 +37,7 @@ void bblPrintKnownPrinters() {
     LogSerial.println("  (none)");
   }
   for (int i = 0; i < bblKnownPrinterCount; i++) {
-    LogSerial.printf("  [%d] IP: %s  MAC: %02X:%02X:%02X:%02X:%02X:%02X",
-                  i + 1,
-                  bblLastKnownPrinters[i].ip.toString().c_str(),
-                  bblLastKnownPrinters[i].mac[0], bblLastKnownPrinters[i].mac[1],
-                  bblLastKnownPrinters[i].mac[2], bblLastKnownPrinters[i].mac[3],
-                  bblLastKnownPrinters[i].mac[4], bblLastKnownPrinters[i].mac[5]);
+    LogSerial.printf("  [%d] IP: %s", i + 1, bblLastKnownPrinters[i].ip.toString().c_str());
     if (strlen(bblLastKnownPrinters[i].usn) > 0) {
       LogSerial.printf("  [USN: %s]", bblLastKnownPrinters[i].usn);
     }
@@ -66,7 +62,6 @@ void bblSearchPrinters() {
     "MX: 5\r\n"
     "ST: urn:bambulab-com:device:3dprinter:1\r\n\r\n";
 
-  // Send twice
   for (int i = 0; i < 2; i++) {
     bblUdp.beginPacket(BBL_SSDP_MCAST_IP, BBL_SSDP_PORT);
     bblUdp.print(msearch);
@@ -74,7 +69,9 @@ void bblSearchPrinters() {
     delay(250);
   }
 
-  LogSerial.println("[BBLScan] Searching for printers...");
+  if (printerConfig.debuging) {
+    LogSerial.println("[BBLScan] Searching for printers...");
+  }
 
   unsigned long start = millis();
   int sessionFound = 0;
@@ -100,12 +97,6 @@ void bblSearchPrinters() {
       int len = bblUdp.read(buffer, sizeof(buffer) - 1);
       buffer[len] = 0;
 
-      eth_addr* mac;
-      ip4_addr_t ip4;
-      ip4.addr = static_cast<uint32_t>(senderIP);
-      const ip4_addr_t* dummyPtr;
-      bool macFound = (etharp_find_addr(netif_list, &ip4, &mac, &dummyPtr) == ERR_OK);
-
       String response(buffer);
       String usnStr = "";
       int usnPos = response.indexOf("USN:");
@@ -115,27 +106,20 @@ void bblSearchPrinters() {
         usnStr.trim();
       }
 
-      LogSerial.printf("  [%d] IP: %s", ++sessionFound, senderIP.toString().c_str());
-      if (macFound) {
-        LogSerial.printf("  MAC: %02X:%02X:%02X:%02X:%02X:%02X",
-                      mac->addr[0], mac->addr[1], mac->addr[2],
-                      mac->addr[3], mac->addr[4], mac->addr[5]);
-      } else {
-        LogSerial.print("  MAC: (not found)");
-      }
-      if (usnStr.length()) {
-        LogSerial.printf("  [USN: %s]", usnStr.c_str());
-      }
-      LogSerial.println();
+      int existingIndex = -1;
+      bool isNewPrinter = !bblIsPrinterKnown(senderIP, &existingIndex);
 
-      if (!bblIsPrinterKnown(senderIP) && bblKnownPrinterCount < BBL_MAX_PRINTERS) {
+      if (printerConfig.debuging || (printerConfig.debugingchange && isNewPrinter)) {
+        LogSerial.printf("[BBLScan]  [%d] IP: %s", ++sessionFound, senderIP.toString().c_str());
+        if (usnStr.length()) {
+          LogSerial.printf("  [USN: %s]", usnStr.c_str());
+        }
+        LogSerial.println();
+      }
+
+      if (isNewPrinter && bblKnownPrinterCount < BBL_MAX_PRINTERS) {
         BBLPrinter& printer = bblLastKnownPrinters[bblKnownPrinterCount++];
         printer.ip = senderIP;
-        if (macFound) {
-          memcpy(printer.mac, mac->addr, 6);
-        } else {
-          memset(printer.mac, 0, 6);
-        }
         strncpy(printer.usn, usnStr.c_str(), sizeof(printer.usn) - 1);
         printer.usn[sizeof(printer.usn) - 1] = 0;
       }
@@ -143,11 +127,13 @@ void bblSearchPrinters() {
     delay(10);
   }
 
-  if (sessionFound == 0) {
+  if (printerConfig.debuging && sessionFound == 0) {
     LogSerial.println("[BBLScan] No printers found.");
   }
 
-  bblPrintKnownPrinters();
+  if (printerConfig.debuging) {
+    bblPrintKnownPrinters();
+  }
 }
 
 #endif
