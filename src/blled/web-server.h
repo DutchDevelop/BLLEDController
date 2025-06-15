@@ -441,7 +441,6 @@ void handleDownloadConfigFile(AsyncWebServerRequest *request)
     request->send(response);
 }
 
-
 void handleWebSerialPage(AsyncWebServerRequest *request)
 {
     if (!isAuthorized(request))
@@ -449,6 +448,23 @@ void handleWebSerialPage(AsyncWebServerRequest *request)
     AsyncWebServerResponse *response = request->beginResponse(200, webSerialPage_html_gz_mime, webSerialPage_html_gz, webSerialPage_html_gz_len);
     response->addHeader("Content-Encoding", "gzip");
     request->send(response);
+}
+
+void handlePrinterList(AsyncWebServerRequest *request)
+{
+    JsonDocument doc;
+    JsonArray arr = doc.to<JsonArray>();
+
+    for (int i = 0; i < bblKnownPrinterCount; i++)
+    {
+        JsonObject obj = arr.add<JsonObject>();
+        obj["ip"] = bblLastKnownPrinters[i].ip.toString();
+        obj["usn"] = bblLastKnownPrinters[i].usn;
+    }
+
+    String json;
+    serializeJson(doc, json);
+    request->send(200, "application/json", json);
 }
 
 
@@ -536,6 +552,7 @@ void setupWebserver()
     webServer.on("/backuprestore", HTTP_GET, handleConfigPage);
     webServer.on("/configfile.json", HTTP_GET, handleDownloadConfigFile);
     webServer.on("/webserial", HTTP_GET, handleWebSerialPage);
+    webServer.on("/printerList", HTTP_GET, handlePrinterList);
     webServer.on("/configrestore", HTTP_POST, [](AsyncWebServerRequest *request)
                  {
         if (!isAuthorized(request)) {

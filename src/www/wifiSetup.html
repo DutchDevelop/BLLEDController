@@ -26,7 +26,11 @@
             <input type="password" id="password" autocomplete="new-password" required>
 
             <label for="printerIP">Printer IP</label>
-            <input type="text" id="printerIP" placeholder="e.g. 192.168.1.100">
+            <div style="display: flex; gap: 6px; align-items: center;">
+                <input type="text" id="printerIP" placeholder="e.g. 192.168.1.100" style="flex: 1;">
+                <button type="button" id="openPrinterList" title="Search printer"
+                    style="width: 28px; height: 28px; padding: 0; font-size: 16px; border: 1px solid #888; background: #eee; cursor: pointer;">🔍</button>
+            </div>
 
             <label for="printerSerial">Printer Serial Number</label>
             <input type="text" id="printerSerial" placeholder="e.g. BL123456789">
@@ -49,6 +53,30 @@
 
     <script src="particleCanvas.js"></script>
     <div id="toast"><span id="toast-icon">ℹ️</span><span id="toast-msg">Placeholder</span></div>
+    <div id="printerModal" style="
+    display: none;
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.4);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+">
+        <div style="
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        max-width: 400px;
+        width: 90%;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    ">
+            <h3 style="margin-top: 0;">Select Printer</h3>
+            <div id="printerList" style="max-height: 300px; overflow-y: auto;"></div>
+            <div style="text-align: right; margin-top: 10px;">
+                <button onclick="closePrinterModal()">Close</button>
+            </div>
+        </div>
+    </div>
     <script>
         function getSignalSVG(rssi) {
             let level = 0;
@@ -179,6 +207,55 @@
         }
         loadPrinterConfig();
         loadNetworks();
+
+        async function loadPrinters() {
+            const list = document.getElementById("printerList");
+            list.innerHTML = "Loading...";
+
+            try {
+                const res = await fetch("/printerList");
+                const printers = await res.json();
+
+                if (printers.length === 0) {
+                    list.innerHTML = "<p>No printers found.</p>";
+                    return;
+                }
+
+                list.innerHTML = "";
+                printers.forEach(printer => {
+                    const div = document.createElement("div");
+                    div.textContent = `${printer.ip} (${printer.usn})`;
+                    div.style.padding = "6px";
+                    div.style.borderBottom = "1px solid #ddd";
+                    div.style.cursor = "pointer";
+
+                    div.addEventListener("click", () => {
+                        document.getElementById("printerIP").value = printer.ip;
+                        document.getElementById("printerSerial").value = printer.usn;
+                        closePrinterModal();
+                        alertToast("success", "Printer selected");
+                    });
+
+                    list.appendChild(div);
+                });
+
+            } catch (err) {
+                list.innerHTML = "<p>Failed to load printers.</p>";
+                console.error(err);
+            }
+        }
+
+        function openPrinterModal() {
+            loadPrinters();
+            document.getElementById("printerModal").style.display = "flex";
+        }
+
+        function closePrinterModal() {
+            document.getElementById("printerModal").style.display = "none";
+        }
+
+        document.getElementById("openPrinterList").addEventListener("click", openPrinterModal);
+
     </script>
 
 </body>

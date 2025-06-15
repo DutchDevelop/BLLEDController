@@ -132,7 +132,7 @@ void tweenToColor(String strTargetColor, short ww_value = 0, short cw_value = 0)
     tweenToColor(targetcolor.r, targetcolor.g, targetcolor.b, targetcolor.ww, targetcolor.cw);
 }
 // Example:  tweenToColor(0xFFACA5)
-void tweenToColor(int hexValue, short ww_value = 0, short cw_value = 0)
+/* void tweenToColor(int hexValue, short ww_value = 0, short cw_value = 0)
 {
     COLOR targetcolor;
     targetcolor.r = ((hexValue >> 16) & 0xFF) / 255.0;
@@ -141,8 +141,17 @@ void tweenToColor(int hexValue, short ww_value = 0, short cw_value = 0)
     targetcolor.ww = ww_value;
     targetcolor.cw = cw_value;
     tweenToColor(targetcolor.r, targetcolor.g, targetcolor.b, targetcolor.ww, targetcolor.cw);
+} */
+void tweenToColor(int hexValue, short ww_value = 0, short cw_value = 0)
+{
+    COLOR targetcolor;
+    targetcolor.r = (hexValue >> 16) & 0xFF;
+    targetcolor.g = (hexValue >> 8) & 0xFF;
+    targetcolor.b = hexValue & 0xFF;
+    targetcolor.ww = ww_value;
+    targetcolor.cw = cw_value;
+    tweenToColor(targetcolor.r, targetcolor.g, targetcolor.b, targetcolor.ww, targetcolor.cw);
 }
-
 float hue = 0.0;
 
 void RGBCycle()
@@ -290,13 +299,23 @@ void updateleds()
     // From here the BBLP status sets the colors
     if (printerConfig.debuging == true)
     {
-        LogSerial.println(F("Updating LEDs"));
+/*         LogSerial.println(F("Updating LEDs"));
 
         LogSerial.println(printerVariables.stage);
         LogSerial.println(printerVariables.gcodeState);
         LogSerial.println(printerVariables.printerledstate);
         LogSerial.println(printerVariables.hmsstate);
-        LogSerial.println(printerVariables.parsedHMSlevel);
+        LogSerial.println(printerVariables.parsedHMSlevel); */
+
+    char ledDbgStr[128];
+    snprintf(ledDbgStr, sizeof(ledDbgStr),
+    "[LED] Stage:%d gcodeState:%s printerLedState:%s HMSErr:%s ParsedHMS:%s",
+    printerVariables.stage,
+    printerVariables.gcodeState.c_str(),
+    printerVariables.printerledstate ? "true" : "false",
+    printerVariables.hmsstate ? "true" : "false",
+    printerVariables.parsedHMSlevel.c_str());
+    LogSerial.println(ledDbgStr);
     }
 
     // Initial Boot
@@ -439,7 +458,7 @@ void updateleds()
     // OFF -- OFF -- OFF -- OFF
 
     // printer offline and MQTT disconnect more than 5 seconds.
-    if (printerVariables.online == false && (millis() - printerVariables.disconnectMQTTms) >= 5000)
+    if (printerVariables.online == false && (millis() - printerVariables.disconnectMQTTms) >= 30000)
     {
         tweenToColor(0, 0, 0, 0, 0); // OFF
         printLogs("Printer offline", 0, 0, 0, 0, 0);
