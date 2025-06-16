@@ -63,7 +63,7 @@ volatile bool mqttConnectInProgress = false;
         LogSerial.println(F("Connecting to mqtt..."));
         if (mqttClient.connect(clientId.c_str(), "bblp", printerConfig.accessCode))
         {
-            LogSerial.print(F("MQTT connected, subscribing to MQTT Topic:  "));
+            LogSerial.print(F("[MQTT] connected, subscribing to MQTT Topic:  "));
             LogSerial.println(report_topic);
             mqttClient.subscribe(report_topic.c_str());
             printerVariables.online = true;
@@ -116,7 +116,7 @@ void connectMqtt()
 
         if (mqttClient.connect(clientId.c_str(), "bblp", printerConfig.accessCode))
         {
-            Serial.print(F("MQTT connected, subscribing to MQTT Topic:  "));
+            Serial.print(F("[MQTT] connected, subscribing to MQTT Topic:  "));
             Serial.println(report_topic);
             mqttClient.subscribe(report_topic.c_str());
             printerVariables.online = true;
@@ -253,7 +253,7 @@ void ParseCallback(char *topic, byte *payload, unsigned int length)
 
         if (printerConfig.mqttdebug && (printerConfig.maintMode || printerConfig.testcolorEnabled || printerConfig.discoMode || printerConfig.debugwifi))
         {
-            LogSerial.print(F("MQTT Message Ignored while in "));
+            LogSerial.print(F("[MQTT] Message Ignored while in "));
             if (printerConfig.maintMode)
                 LogSerial.print(F("Maintenance"));
             if (printerConfig.testcolorEnabled)
@@ -281,7 +281,7 @@ void ParseCallback(char *topic, byte *payload, unsigned int length)
                 printerVariables.doorOpen = doorState;
 
                 if (printerConfig.debugingchange)
-                    LogSerial.print(F("MQTT Door "));
+                    LogSerial.print(F("[MQTT] Door "));
                 if (printerVariables.doorOpen)
                 {
                     printerVariables.lastdoorOpenms = millis();
@@ -311,7 +311,7 @@ void ParseCallback(char *topic, byte *payload, unsigned int length)
 
                 if (printerConfig.debugingchange || printerConfig.debuging)
                 {
-                    LogSerial.print(F("MQTT update - stg_cur now: "));
+                    LogSerial.print(F("[MQTT] update - stg_cur now: "));
                     LogSerial.println(printerVariables.stage);
                 }
                 Changed = true;
@@ -343,7 +343,7 @@ void ParseCallback(char *topic, byte *payload, unsigned int length)
 
                 if (printerConfig.debugingchange || printerConfig.debuging)
                 {
-                    LogSerial.print(F("MQTT update - gcode_state now: "));
+                    LogSerial.print(F("[MQTT] update - gcode_state now: "));
                     LogSerial.println(printerVariables.gcodeState);
                 }
                 Changed = true;
@@ -356,7 +356,7 @@ void ParseCallback(char *topic, byte *payload, unsigned int length)
             if (messageobject["print"]["command"] == "pause")
             {
                 lastMQTTupdate = millis();
-                LogSerial.println(F("MQTT update - manual PAUSE"));
+                LogSerial.println(F("[MQTT] update - manual PAUSE"));
                 printerVariables.gcodeState = "PAUSE";
                 Changed = true;
             }
@@ -377,7 +377,7 @@ void ParseCallback(char *topic, byte *payload, unsigned int length)
                         printerConfig.replicate_update = true;
                         if (printerConfig.debugingchange || printerConfig.debuging)
                         {
-                            LogSerial.print(F("MQTT chamber_light now: "));
+                            LogSerial.print(F("[MQTT] chamber_light now: "));
                             LogSerial.println(printerVariables.printerledstate);
                         }
                         if (printerVariables.waitingForDoor && printerConfig.finish_check)
@@ -403,7 +403,7 @@ void ParseCallback(char *topic, byte *payload, unsigned int length)
                     lastMQTTupdate = millis();
                     if (printerConfig.debugingchange || printerConfig.debuging)
                     {
-                        LogSerial.print(F("MQTT led_mode now: "));
+                        LogSerial.print(F("[MQTT] led_mode now: "));
                         LogSerial.println(printerVariables.printerledstate);
                     }
                     if (printerVariables.waitingForDoor && printerConfig.finish_check)
@@ -449,7 +449,7 @@ void ParseCallback(char *topic, byte *payload, unsigned int length)
 
                 if (printerConfig.debuging || printerConfig.debugingchange)
                 {
-                    LogSerial.print(F("MQTT update - parsedHMSlevel now: "));
+                    LogSerial.print(F("[MQTT] update - parsedHMSlevel now: "));
                     if (printerVariables.parsedHMSlevel.length() > 0)
                     {
                         LogSerial.print(printerVariables.parsedHMSlevel);
@@ -556,7 +556,7 @@ void setupMqtt()
 
         if (result == pdPASS)
         {
-            LogSerial.println(F("MQTT task successfully started"));
+            LogSerial.println(F("[MQTT] task successfully started"));
         }
         else
         {
@@ -581,7 +581,7 @@ void mqttloop()
         {
             printerVariables.disconnectMQTTms = millis();
             // Record last time MQTT dropped connection
-            LogSerial.println(F("MQTT dropped during mqttloop"));
+            LogSerial.println(F("[MQTT] dropped during mqttloop"));
             ParseMQTTState(mqttClient.state());
         }
         //delay(500);

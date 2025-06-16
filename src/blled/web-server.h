@@ -291,7 +291,6 @@ void sendJsonToAll(JsonDocument &doc)
     ws.textAll(jsonString);
 }
 
-
 void handleWiFiScan(AsyncWebServerRequest *request)
 {
     JsonDocument doc;
@@ -467,7 +466,6 @@ void handlePrinterList(AsyncWebServerRequest *request)
     serializeJson(doc, json);
     request->send(200, "application/json", json);
 }
-
 
 void handleUploadConfigFileData(AsyncWebServerRequest *request, const String &filename,
                                 size_t index, uint8_t *data, size_t len, bool final)
