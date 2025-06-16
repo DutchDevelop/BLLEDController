@@ -199,6 +199,7 @@ void handlePrinterConfigJson(AsyncWebServerRequest *request)
     doc["accessCode"] = printerConfig.accessCode;
     doc["webUser"] = securityVariables.HTTPUser;
     doc["webPass"] = securityVariables.HTTPPass;
+    doc["isAPMode"] = (WiFi.getMode() & WIFI_AP);
 
     String json;
     serializeJson(doc, json);
@@ -290,11 +291,11 @@ void sendJsonToAll(JsonDocument &doc)
     ws.textAll(jsonString);
 }
 
+
 void handleWiFiScan(AsyncWebServerRequest *request)
 {
     JsonDocument doc;
     JsonArray networks = doc["networks"].to<JsonArray>();
-
     int n = WiFi.scanNetworks();
     for (int i = 0; i < n; ++i)
     {

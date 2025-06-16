@@ -29,7 +29,7 @@
             <div style="display: flex; gap: 6px; align-items: center;">
                 <input type="text" id="printerIP" placeholder="e.g. 192.168.1.100" style="flex: 1;">
                 <button type="button" id="openPrinterList" title="Search printer"
-                    style="width: 28px; height: 28px; padding: 0; font-size: 16px; border: 1px solid #888; background: #eee; cursor: pointer;">🔍</button>
+                    style="width: 28px; height: 28px; padding: 0; font-size: 16px; margin-bottom: 8px; background: #eee; cursor: pointer; display: none;">🔍</button>
             </div>
 
             <label for="printerSerial">Printer Serial Number</label>
@@ -198,6 +198,11 @@
                 document.getElementById("password").value = config.pass || "";
                 document.getElementById("printerIP").value = config.printerIP || "";
                 document.getElementById("printerSerial").value = config.printerSerial || "";
+                if (config.isAPMode) {
+                    document.getElementById("openPrinterList").style.display = "none";
+                } else {
+                    document.getElementById("openPrinterList").style.display = "inline-block";
+                }
                 document.getElementById("accessCode").value = config.accessCode || "";
                 document.getElementById("webUser").value = config.webUser || "";
                 document.getElementById("webPass").value = config.webPass || "";
