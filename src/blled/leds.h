@@ -204,7 +204,7 @@ void RGBCycle()
     ledcWrite(coldChannel, currentCold);
 }
 
-void printLogs(String Desc, COLOR thisColor)
+/* void printLogs(String Desc, COLOR thisColor)
 {
     if (printerConfig.debuging || printerConfig.debugingchange)
     {
@@ -228,7 +228,42 @@ void printLogs(String Desc, COLOR thisColor)
         LogSerial.print(F(" Brightness: "));
         LogSerial.println(printerConfig.brightness);
     };
+} */
+void printLogs(String Desc, COLOR thisColor)
+{
+    static COLOR lastColor = {-1, -1, -1, -1, -1};
+    static String lastDesc = "";
+    static unsigned long lastPrintTime = 0;
+
+    // Skip if same state and printed less than 3 seconds ago
+    if (Desc == lastDesc &&
+        memcmp(&thisColor, &lastColor, sizeof(COLOR)) == 0 &&
+        millis() - lastPrintTime < 3000)
+    {
+        return;
+    }
+
+    if (printerConfig.debuging || printerConfig.debugingchange)
+    {
+        LogSerial.printf("%s - Turning LEDs to:", Desc.c_str());
+        if ((thisColor.r + thisColor.g + thisColor.b + thisColor.ww + thisColor.cw) == 0)
+        {
+            LogSerial.println(" OFF");
+        }
+        else
+        {
+            LogSerial.printf(" r:%d g:%d b:%d ww:%d cw:%d Brightness: %d\n",
+                             thisColor.r, thisColor.g, thisColor.b,
+                             thisColor.ww, thisColor.cw, printerConfig.brightness);
+        }
+    }
+
+    lastColor = thisColor;
+    lastDesc = Desc;
+    lastPrintTime = millis();
 }
+
+
 void printLogs(String Desc, short r, short g, short b, short ww, short cw)
 {
     COLOR tempColor;
