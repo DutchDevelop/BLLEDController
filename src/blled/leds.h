@@ -718,7 +718,12 @@ void ledsloop()
         // Opening or Closing the Door will turn LEDs back on and restart the timer.
         updateleds();
     }
-
+    // Periodic fallback update to ensure MQTT timeout or other updates are evaluated
+    static unsigned long lastPeriodicUpdate = 0;
+    if (millis() - lastPeriodicUpdate > 10000) { // every 10 seconds
+        updateleds();
+        lastPeriodicUpdate = millis();
+    }
     delay(10);
 }
 
