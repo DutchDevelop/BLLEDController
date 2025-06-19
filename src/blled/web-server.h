@@ -179,6 +179,9 @@ void handleGetConfig(AsyncWebServerRequest *request)
     doc["bedTempRGB"] = printerConfig.bedTempRGB.RGBhex;
     doc["bedTempWW"] = printerConfig.bedTempRGB.ww;
     doc["bedTempCW"] = printerConfig.bedTempRGB.cw;
+    //HMS Error Handling
+    doc["hmsIgnoreList"] = printerConfig.hmsIgnoreList;
+
 
     String jsonString;
     serializeJson(doc, jsonString);
@@ -271,6 +274,8 @@ void handleSubmitConfig(AsyncWebServerRequest *request)
     printerConfig.frontCoverRGB = hex2rgb(getSafeParamValue(request, "frontCoverRGB").c_str(), getSafeParamInt(request, "frontCoverWW"), getSafeParamInt(request, "frontCoverCW"));
     printerConfig.nozzleTempRGB = hex2rgb(getSafeParamValue(request, "nozzleTempRGB").c_str(), getSafeParamInt(request, "nozzleTempWW"), getSafeParamInt(request, "nozzleTempCW"));
     printerConfig.bedTempRGB = hex2rgb(getSafeParamValue(request, "bedTempRGB").c_str(), getSafeParamInt(request, "bedTempWW"), getSafeParamInt(request, "bedTempCW"));
+    //HMS Error handling
+    printerConfig.hmsIgnoreList = getSafeParamValue(request, "hmsIgnoreList");
 
     saveFileSystem();
     LogSerial.println(F("Packet received from setuppage"));

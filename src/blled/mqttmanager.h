@@ -92,7 +92,8 @@ volatile bool mqttConnectInProgress = false;
 } */
 void connectMqtt()
 {
-    if (mqttConnectInProgress) return;
+    if (mqttConnectInProgress)
+        return;
 
     mqttConnectInProgress = true;
 
@@ -111,7 +112,7 @@ void connectMqtt()
 
     if (!mqttClient.connected() && (millis() - mqttattempt) >= 3000)
     {
-        //tweenToColor(10, 10, 10, 10, 10);
+        // tweenToColor(10, 10, 10, 10, 10);
         Serial.println(F("Connecting to mqtt..."));
 
         if (mqttClient.connect(clientId.c_str(), "bblp", printerConfig.accessCode))
@@ -139,7 +140,6 @@ void connectMqtt()
 
     mqttConnectInProgress = false;
 }
-
 
 void mqttTask(void *parameter)
 {
@@ -188,12 +188,12 @@ void ParseCallback(char *topic, byte *payload, unsigned int length)
     // Rather than showing the entire message to Serial - grabbing only the pertinent bits for BLLED.
     // Device Status
 
-//sniped: implement to get layer num. for hms error, swap back to running state after layer change
-/*     "print": {
-        "3D": {
-            "layer_num": 0,
-            "total_layer_num": 191
-        } */
+    // sniped: implement to get layer num. for hms error, swap back to running state after layer change
+    /*     "print": {
+            "3D": {
+                "layer_num": 0,
+                "total_layer_num": 191
+            } */
 
     filter["print"]["command"] = true;
     filter["print"]["fail_reason"] = true;
@@ -229,8 +229,7 @@ void ParseCallback(char *topic, byte *payload, unsigned int length)
                 || messageobject["print"]["command"] == "clean_print_error" // During error (no info)
                 || messageobject["print"]["command"] == "resume"            // After error or pause
                 || messageobject["print"]["command"] == "get_accessories"   // After error or pause
-                || messageobject["print"]["command"] == "prepare"
-                || messageobject["print"]["command"] == "extrusion_cali_get")
+                || messageobject["print"]["command"] == "prepare" || messageobject["print"]["command"] == "extrusion_cali_get")
             { // 1 message per print
                 return;
             }
@@ -424,18 +423,63 @@ void ParseCallback(char *topic, byte *payload, unsigned int length)
 
             printerVariables.hmsstate = false;
             printerVariables.parsedHMSlevel = "";
+            /*             for (const auto &hms : messageobject["print"]["hms"].as<JsonArray>())
+                        {
+                            if (ParseHMSSeverity(hms["code"]) != "")
+                            {
+                                printerVariables.hmsstate = true;
+                                printerVariables.parsedHMSlevel = ParseHMSSeverity(hms["code"]);
+                                printerVariables.parsedHMScode = ((uint64_t)hms["attr"] << 32) + (uint64_t)hms["code"];
+                            }
+                        } */
             for (const auto &hms : messageobject["print"]["hms"].as<JsonArray>())
             {
+                uint64_t code = ((uint64_t)hms["attr"] << 32) + (uint64_t)hms["code"];
+
+                int chunk1 = (code >> 48);
+                int chunk2 = (code >> 32) & 0xFFFF;
+                int chunk3 = (code >> 16) & 0xFFFF;
+                int chunk4 = code & 0xFFFF;
+
+                char strHMScode[32];
+                sprintf(strHMScode, "HMS_%04X_%04X_%04X_%04X", chunk1, chunk2, chunk3, chunk4);
+
+                // Normalize input string (replace '-' with '_', remove whitespace)
+                String normalizedIgnoreList = printerConfig.hmsIgnoreList;
+                normalizedIgnoreList.replace("-", "_");
+                normalizedIgnoreList.replace(" ", "");
+                normalizedIgnoreList.replace("\r", "");
+                normalizedIgnoreList.replace("\n", ",");
+
+                // Check if code is in ignore list
+                if (("," + normalizedIgnoreList + ",").indexOf("," + String(strHMScode) + ",") >= 0)
+                {
+                    LogSerial.print(F("[MQTT] Ignored HMS Code: "));
+                    LogSerial.println(strHMScode);
+                    continue;
+                }
+
+                // Ignore if present in ignore list
+                if (printerConfig.hmsIgnoreList.indexOf(strHMScode) >= 0)
+                {
+                    LogSerial.print(F("[MQTT] HMS code ignored: "));
+                    LogSerial.println(strHMScode);
+                    continue;
+                }
+
                 if (ParseHMSSeverity(hms["code"]) != "")
                 {
                     printerVariables.hmsstate = true;
                     printerVariables.parsedHMSlevel = ParseHMSSeverity(hms["code"]);
-                    printerVariables.parsedHMScode = ((uint64_t)hms["attr"] << 32) + (uint64_t)hms["code"];
+                    printerVariables.parsedHMScode = code;
                 }
             }
+
             if (oldHMSlevel != printerVariables.parsedHMSlevel)
             {
-
+                // example, cap fall off
+                // Error Code: 0300_1200_0002_0001 **
+                //"hms":[{"attr":50336256,"code":131073}]
                 if (printerVariables.parsedHMScode == 0x0C0003000003000B)
                     printerVariables.overridestage = 10;
                 if (printerVariables.parsedHMScode == 0x0300120000020001)
@@ -453,7 +497,7 @@ void ParseCallback(char *topic, byte *payload, unsigned int length)
                     if (printerVariables.parsedHMSlevel.length() > 0)
                     {
                         LogSerial.print(printerVariables.parsedHMSlevel);
-                        LogSerial.print(F("      Error Code: "));
+                        LogSerial.print(F("      Error Code: HMS_"));
                         // LogSerial.println(F("https://wiki.bambulab.com/en/x1/troubleshooting/how-to-enter-the-specific-code-page"));
                         int chunk1 = (printerVariables.parsedHMScode >> 48);
                         int chunk2 = (printerVariables.parsedHMScode >> 32) & 0xFFFF;
@@ -533,26 +577,25 @@ void setupMqtt()
     {
         BaseType_t result;
 
-        #if CONFIG_FREERTOS_UNICORE
-            result = xTaskCreate(
-                mqttTask,
-                "mqttTask",
-                6144,
-                NULL,
-                1,
-                &mqttTaskHandle
-            );
-        #else
-            result = xTaskCreatePinnedToCore(
-                mqttTask,
-                "mqttTask",
-                6144,
-                NULL,
-                1,
-                &mqttTaskHandle,
-                1 // Core 1 (App Core)
-            );
-        #endif
+#if CONFIG_FREERTOS_UNICORE
+        result = xTaskCreate(
+            mqttTask,
+            "mqttTask",
+            6144,
+            NULL,
+            1,
+            &mqttTaskHandle);
+#else
+        result = xTaskCreatePinnedToCore(
+            mqttTask,
+            "mqttTask",
+            6144,
+            NULL,
+            1,
+            &mqttTaskHandle,
+            1 // Core 1 (App Core)
+        );
+#endif
 
         if (result == pdPASS)
         {
@@ -564,7 +607,6 @@ void setupMqtt()
         }
     }
 }
-
 
 void mqttloop()
 {
@@ -584,7 +626,7 @@ void mqttloop()
             LogSerial.println(F("[MQTT] dropped during mqttloop"));
             ParseMQTTState(mqttClient.state());
         }
-        //delay(500);
+        // delay(500);
         connectMqtt();
         delay(32);
         return;

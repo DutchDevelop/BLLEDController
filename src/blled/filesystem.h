@@ -120,6 +120,8 @@ void saveFileSystem()
     json["bedTempRGB"] = printerConfig.bedTempRGB.RGBhex;
     json["bedTempWW"] = printerConfig.bedTempRGB.ww;
     json["bedTempCW"] = printerConfig.bedTempRGB.cw;
+    //HMS Error handling
+    json["hmsIgnoreList"] = printerConfig.hmsIgnoreList;
 
     File configFile = LittleFS.open(configPath, "w");
     if (!configFile)
@@ -222,6 +224,9 @@ void loadFileSystem()
         printerConfig.frontCoverRGB = hex2rgb(json["frontCoverRGB"], json["frontCoverWW"], json["frontCoverCW"]);
         printerConfig.nozzleTempRGB = hex2rgb(json["nozzleTempRGB"], json["nozzleTempWW"], json["nozzleTempCW"]);
         printerConfig.bedTempRGB = hex2rgb(json["bedTempRGB"], json["bedTempWW"], json["bedTempCW"]);
+        // HMS Error handling
+        printerConfig.hmsIgnoreList = json["hmsIgnoreList"] | "";
+
         LogSerial.println(F("[Filesystem] Loaded config"));
     }
     else

@@ -118,8 +118,9 @@ extern "C"
         COLOR frontCoverRGB;
         COLOR nozzleTempRGB;
         COLOR bedTempRGB;
+        // HMS Error Handling
+        String hmsIgnoreList; // comma-separated list of HMS_XXXX_XXXX_XXXX_XXXX codes to ignore
 
-        //char webpagePassword[8];
     } PrinterConfig;
 
     PrinterConfig printerConfig;
