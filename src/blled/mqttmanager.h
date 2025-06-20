@@ -90,6 +90,7 @@ volatile bool mqttConnectInProgress = false;
         }
     }
 } */
+
 void connectMqtt()
 {
     if (mqttConnectInProgress)
@@ -327,6 +328,11 @@ void ParseCallback(char *topic, byte *payload, unsigned int length)
                 // Never turn off light (due to idle timer) while in this state
                 printerConfig.inactivityStartms = millis();
             }
+            if (mqttgcodeState == "RUNNING" && printerConfig.controlChamberLight && printerVariables.printerledstate == false)
+            {
+                controlChamberLight(true); // Turn chamber light ON at print start
+                LogSerial.println(F("[MQTT] Print started – Chamber Light ON requested"));
+            }
 
             // Onchange of gcodeState...
             if (printerVariables.gcodeState != mqttgcodeState)
@@ -552,6 +558,45 @@ void mqttCallback(char *topic, byte *payload, unsigned int length)
 {
     ParseCallback(topic, (byte *)stream.get_buffer(), stream.current_length());
     stream.flush();
+}
+
+void controlChamberLight(bool on)
+{
+    static bool lastState = false;
+    if (lastState == on)
+        return; // Skip sending if state hasn't changed
+    lastState = on;
+
+    if (!printerConfig.controlChamberLight)
+        return;
+
+    if (!mqttClient.connected())
+    {
+        LogSerial.println(F("[MQTT] Skipped chamber_light control – MQTT not connected"));
+        return;
+    }
+
+    JsonDocument doc;
+    JsonObject system = doc["system"].to<JsonObject>();
+    system["command"] = "ledctrl";
+    system["sequence_id"] = "blled_auto";
+    system["led_node"] = "chamber_light";
+    system["led_mode"] = on ? "on" : "off";
+    system["led_on_time"] = 500;
+    system["led_off_time"] = 500;
+    system["loop_times"] = 0;
+    system["interval_time"] = 1000;
+
+    String payload;
+    serializeJson(doc, payload);
+
+    String topic = String("device/") + printerConfig.serialNumber + "/request";
+    mqttClient.publish(topic.c_str(), payload.c_str());
+
+    LogSerial.print(F("[MQTT] Chamber Light "));
+    LogSerial.print(on ? F("ON") : F("OFF"));
+    LogSerial.print(F(" sent to topic: "));
+    LogSerial.println(topic);
 }
 
 void setupMqtt()

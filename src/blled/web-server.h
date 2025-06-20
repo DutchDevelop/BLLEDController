@@ -181,6 +181,8 @@ void handleGetConfig(AsyncWebServerRequest *request)
     doc["bedTempCW"] = printerConfig.bedTempRGB.cw;
     //HMS Error Handling
     doc["hmsIgnoreList"] = printerConfig.hmsIgnoreList;
+    //control chamber light
+    doc["controlChamberLight"] = printerConfig.controlChamberLight;
 
 
     String jsonString;
@@ -276,6 +278,8 @@ void handleSubmitConfig(AsyncWebServerRequest *request)
     printerConfig.bedTempRGB = hex2rgb(getSafeParamValue(request, "bedTempRGB").c_str(), getSafeParamInt(request, "bedTempWW"), getSafeParamInt(request, "bedTempCW"));
     //HMS Error handling
     printerConfig.hmsIgnoreList = getSafeParamValue(request, "hmsIgnoreList");
+    //Control Chamber Light
+    printerConfig.controlChamberLight = request->hasParam("controlChamberLight", true);
 
     saveFileSystem();
     LogSerial.println(F("Packet received from setuppage"));
@@ -472,6 +476,20 @@ void handlePrinterList(AsyncWebServerRequest *request)
     request->send(200, "application/json", json);
 }
 
+void handleFactoryReset(AsyncWebServerRequest *request)
+{
+    if (!isAuthorized(request))
+        return request->requestAuthentication();
+
+    LogSerial.println(F("[FactoryReset] Performing full reset..."));
+
+    deleteFileSystem();  // delete LittleFS config
+    request->send(200, "text/plain", "Factory reset complete. Restarting...");
+    
+    shouldRestart = true;
+    restartRequestTime = millis();
+}
+
 void handleUploadConfigFileData(AsyncWebServerRequest *request, const String &filename,
                                 size_t index, uint8_t *data, size_t len, bool final)
 {
@@ -557,6 +575,7 @@ void setupWebserver()
     webServer.on("/configfile.json", HTTP_GET, handleDownloadConfigFile);
     webServer.on("/webserial", HTTP_GET, handleWebSerialPage);
     webServer.on("/printerList", HTTP_GET, handlePrinterList);
+    webServer.on("/factoryreset", HTTP_GET, handleFactoryReset);
     webServer.on("/configrestore", HTTP_POST, [](AsyncWebServerRequest *request)
                  {
         if (!isAuthorized(request)) {

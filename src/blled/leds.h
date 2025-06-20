@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include "mqttparsingutility.h"
+void controlChamberLight(bool on);  // Forward declaration
 
 const int redPin = 19;
 const int greenPin = 18;
@@ -374,7 +375,7 @@ void updateleds()
 
     // TOGGLE LIGHTS via DOOR
     // If door is closed twice in 6 seconds, it will flip the state of the lights
-    if (printerVariables.doorSwitchTriggered == true)
+/*     if (printerVariables.doorSwitchTriggered == true)
     {
         if (printerConfig.debugingchange)
         {
@@ -402,7 +403,62 @@ void updateleds()
         }
         printerVariables.doorSwitchTriggered = false;
         return;
+    } */
+   if (printerVariables.doorSwitchTriggered == true)
+{
+    bool ledsAreOff = (currentWarm == 0 && currentCold == 0);
+    bool chamberLightIsOff = (printerVariables.printerledstate == false);
+
+    if (printerConfig.debugingchange)
+    {
+        LogSerial.print(F("Door closed twice within 6 seconds - "));
+
+        if (ledsAreOff)
+            LogSerial.print(F("Turning LEDs ON"));
+        else
+            LogSerial.print(F("Turning LEDs OFF"));
+
+        if (printerConfig.controlChamberLight)
+        {
+            if (ledsAreOff && chamberLightIsOff)
+                LogSerial.println(F(" + Chamber Light ON"));
+            else if (!ledsAreOff)
+                LogSerial.println(F(" + Chamber Light OFF"));
+            else
+                LogSerial.println();
+        }
+        else
+        {
+            LogSerial.println();
+        }
     }
+
+    if (ledsAreOff)
+    {
+        tweenToColor(0, 0, 0, 255, 255); // WHITE
+        printerConfig.isIdleOFFActive = false;
+
+        if (printerConfig.controlChamberLight && chamberLightIsOff)
+        {
+            controlChamberLight(true);  // Turn ON chamber light only if off
+        }
+    }
+    else
+    {
+        tweenToColor(0, 0, 0, 0, 0); // OFF
+        printerConfig.isIdleOFFActive = true;
+        printerConfig.inactivityStartms = millis() - printerConfig.inactivityTimeOut;
+
+        if (printerConfig.controlChamberLight)
+        {
+            controlChamberLight(false); // Always OFF on manual off
+        }
+    }
+
+    printerVariables.doorSwitchTriggered = false;
+    return;
+}
+
 
     // RED -- RED -- RED -- RED
 
@@ -697,6 +753,7 @@ void ledsloop()
         printerConfig.inactivityStartms = millis();
         printerConfig.isIdleOFFActive = false;
         updateleds();
+        controlChamberLight(false);  // Turn off chamber light via MQTT
     }
 
     if ((printerConfig.finish_check && printerConfig.finishindication && printerConfig.finishExit == false && ((millis() - printerConfig.finishStartms) > printerConfig.finishTimeOut)))
@@ -709,6 +766,7 @@ void ledsloop()
         printerConfig.inactivityStartms = millis();
         printerConfig.isIdleOFFActive = false;
         updateleds();
+        controlChamberLight(false);  // Turn off chamber light via MQTT
     }
 
     // Need an trigger action to run updateleds() so lights turn off

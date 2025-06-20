@@ -90,6 +90,7 @@ extern "C"
         bool finish_check = false;    //When updateleds() is run, should the TEST LEDS be set?
         unsigned long finishStartms = 0;    // Time the finish countdown is measured from
         int finishTimeOut = 600000;     //300000 = 5 mins
+        bool controlChamberLight = false;                //control chamber light
 
         //Inactivity Timout
         bool inactivityEnabled = true;

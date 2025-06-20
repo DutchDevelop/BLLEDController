@@ -65,6 +65,7 @@ void saveFileSystem()
     json["finishTimerMins"] = printerConfig.finishTimeOut;
     json["inactivityEnabled"] = printerConfig.inactivityEnabled;
     json["inactivityTimeOut"] = printerConfig.inactivityTimeOut;
+    json["controlChamberLight"] = printerConfig.controlChamberLight; //control chamber light
     // Debugging
     json["debuging"] = printerConfig.debuging;
     json["debugingchange"] = printerConfig.debugingchange;
@@ -199,6 +200,7 @@ void loadFileSystem()
         printerConfig.finish_check = json["finish_check"];
         printerConfig.inactivityEnabled = json["inactivityEnabled"];
         printerConfig.inactivityTimeOut = json["inactivityTimeOut"];
+        printerConfig.controlChamberLight = json["controlChamberLight"]; //control chamber light
         // Debugging
         printerConfig.debuging = json["debuging"];
         printerConfig.debugingchange = json["debugingchange"];
