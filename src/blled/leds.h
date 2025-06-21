@@ -617,6 +617,7 @@ void updateleds()
     if ((printerVariables.stage == -1 || printerVariables.stage == 255) && !((printerConfig.finishExit && printerVariables.waitingForDoor) || (printerConfig.finishExit == false && ((millis() - printerConfig.finishStartms) < printerConfig.finishTimeOut))) && (millis() - printerConfig.inactivityStartms) > printerConfig.inactivityTimeOut && printerConfig.isIdleOFFActive == false && printerConfig.inactivityEnabled)
     {
         tweenToColor(0, 0, 0, 0, 0); // OFF
+        controlChamberLight(false);  // Turn off chamber light via MQTT
         printerConfig.isIdleOFFActive = true;
         if (printerConfig.debuging || printerConfig.debugingchange)
         {

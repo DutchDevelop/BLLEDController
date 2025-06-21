@@ -562,11 +562,7 @@ void mqttCallback(char *topic, byte *payload, unsigned int length)
 
 void controlChamberLight(bool on)
 {
-    static bool lastState = false;
-    if (lastState == on)
-        return; // Skip sending if state hasn't changed
-    lastState = on;
-
+    LogSerial.printf("[DEBUG] controlChamberLight called with: %s\n", on ? "true" : "false");
     if (!printerConfig.controlChamberLight)
         return;
 
