@@ -64,11 +64,6 @@ These are used while the replicate mode is active and printer light is on.
 
 ---
 
-Möchtest du, dass ich weitermache mit:
-- 🧪 Test Color Mode
-- 📶 Wifi Strength Display
-- 🎬 Finish Indication
-
 ### 🧪 Color Test Mode
 
 **ID:** `showtestcolor`  
