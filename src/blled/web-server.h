@@ -179,11 +179,10 @@ void handleGetConfig(AsyncWebServerRequest *request)
     doc["bedTempRGB"] = printerConfig.bedTempRGB.RGBhex;
     doc["bedTempWW"] = printerConfig.bedTempRGB.ww;
     doc["bedTempCW"] = printerConfig.bedTempRGB.cw;
-    //HMS Error Handling
+    // HMS Error Handling
     doc["hmsIgnoreList"] = printerConfig.hmsIgnoreList;
-    //control chamber light
+    // control chamber light
     doc["controlChamberLight"] = printerConfig.controlChamberLight;
-
 
     String jsonString;
     serializeJson(doc, jsonString);
@@ -276,9 +275,9 @@ void handleSubmitConfig(AsyncWebServerRequest *request)
     printerConfig.frontCoverRGB = hex2rgb(getSafeParamValue(request, "frontCoverRGB").c_str(), getSafeParamInt(request, "frontCoverWW"), getSafeParamInt(request, "frontCoverCW"));
     printerConfig.nozzleTempRGB = hex2rgb(getSafeParamValue(request, "nozzleTempRGB").c_str(), getSafeParamInt(request, "nozzleTempWW"), getSafeParamInt(request, "nozzleTempCW"));
     printerConfig.bedTempRGB = hex2rgb(getSafeParamValue(request, "bedTempRGB").c_str(), getSafeParamInt(request, "bedTempWW"), getSafeParamInt(request, "bedTempCW"));
-    //HMS Error handling
+    // HMS Error handling
     printerConfig.hmsIgnoreList = getSafeParamValue(request, "hmsIgnoreList");
-    //Control Chamber Light
+    // Control Chamber Light
     printerConfig.controlChamberLight = request->hasParam("controlChamberLight", true);
 
     saveFileSystem();
@@ -309,6 +308,7 @@ void handleWiFiScan(AsyncWebServerRequest *request)
     {
         JsonObject net = networks.add<JsonObject>();
         net["ssid"] = WiFi.SSID(i);
+        net["bssid"] = WiFi.BSSIDstr(i);
         net["rssi"] = WiFi.RSSI(i);
         net["enc"] = (WiFi.encryptionType(i) == WIFI_AUTH_OPEN) ? false : true;
     }
@@ -335,6 +335,10 @@ void handleSubmitWiFi(AsyncWebServerRequest *request)
     {
         String ssid = request->getParam("ssid", true)->value();
         String pass = request->getParam("pass", true)->value();
+        String bssid = request->hasParam("bssid", true) ? request->getParam("bssid", true)->value() : "";
+        if (bssid.length() > 0)
+            strlcpy(printerConfig.BSSID, bssid.c_str(), sizeof(printerConfig.BSSID));
+
         ssid.trim();
         pass.trim();
 
@@ -483,9 +487,9 @@ void handleFactoryReset(AsyncWebServerRequest *request)
 
     LogSerial.println(F("[FactoryReset] Performing full reset..."));
 
-    deleteFileSystem();  // delete LittleFS config
+    deleteFileSystem(); // delete LittleFS config
     request->send(200, "text/plain", "Factory reset complete. Restarting...");
-    
+
     shouldRestart = true;
     restartRequestTime = millis();
 }

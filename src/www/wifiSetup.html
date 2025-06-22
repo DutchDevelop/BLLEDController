@@ -21,7 +21,7 @@
         <form id="wifiForm">
             <label for="ssid">SSID</label>
             <input type="text" id="ssid" autocomplete="off" required>
-
+            <input type="hidden" id="bssid" name="bssid">
             <label for="password">Password</label>
             <input type="password" id="password" autocomplete="new-password" required>
 
@@ -145,15 +145,24 @@
                 const data = await res.json();
                 const container = document.getElementById("networks");
                 container.innerHTML = "";
+
                 data.networks.forEach(net => {
+                    net.bssid = net.bssid || "";
+
                     const div = document.createElement("div");
                     div.className = "network";
                     div.innerHTML = `
-                        ${getSignalSVG(net.rssi)} ${getSignalPercent(net.rssi)} ${net.ssid} ${getLockIcon(net.enc)}
-                    `;
+                ${getSignalSVG(net.rssi)} ${getSignalPercent(net.rssi)} ${net.ssid} <span style="font-size: 11px;">(${net.bssid})</span> ${getLockIcon(net.enc)}
+            `;
+                    div.style.cursor = "pointer";
+                    div.style.padding = "4px 8px";
+                    div.style.borderBottom = "1px solid #ddd";
+
                     div.addEventListener("click", () => {
                         document.getElementById("ssid").value = net.ssid;
+                        document.getElementById("bssid").value = net.bssid;  // ← BSSID übernehmen
                     });
+
                     container.appendChild(div);
                 });
             } catch (err) {
@@ -163,21 +172,24 @@
             }
         }
 
+
         document.getElementById("wifiForm").addEventListener("submit", async (e) => {
             e.preventDefault();
             const ssid = document.getElementById("ssid").value;
             const pass = document.getElementById("password").value;
+            const bssid = document.getElementById("bssid").value;
             const printerIP = document.getElementById("printerIP").value;
             const printerSerial = document.getElementById("printerSerial").value;
             const accessCode = document.getElementById("accessCode").value;
             const webUser = document.getElementById("webUser").value;
             const webPass = document.getElementById("webPass").value;
-
+            
             try {
                 const res = await fetch("/submitWiFi", {
                     method: "POST",
                     headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                    body: `ssid=${encodeURIComponent(ssid)}&pass=${encodeURIComponent(pass)}&printerIP=${encodeURIComponent(printerIP)}&printerSerial=${encodeURIComponent(printerSerial)}&accessCode=${encodeURIComponent(accessCode)}&webUser=${encodeURIComponent(webUser)}&webPass=${encodeURIComponent(webPass)}`
+                    body: `ssid=${encodeURIComponent(ssid)}&pass=${encodeURIComponent(pass)}&bssid=${encodeURIComponent(bssid)}&printerIP=${encodeURIComponent(printerIP)}&printerSerial=${encodeURIComponent(printerSerial)}&accessCode=${encodeURIComponent(accessCode)}&webUser=${encodeURIComponent(webUser)}&webPass=${encodeURIComponent(webPass)}`
+
                 });
 
                 if (res.ok) {

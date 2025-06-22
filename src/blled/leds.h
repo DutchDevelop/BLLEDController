@@ -754,7 +754,6 @@ void ledsloop()
         printerConfig.inactivityStartms = millis();
         printerConfig.isIdleOFFActive = false;
         updateleds();
-        controlChamberLight(false);  // Turn off chamber light via MQTT
     }
 
     if ((printerConfig.finish_check && printerConfig.finishindication && printerConfig.finishExit == false && ((millis() - printerConfig.finishStartms) > printerConfig.finishTimeOut)))
