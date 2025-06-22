@@ -38,17 +38,6 @@ void handleSetup(AsyncWebServerRequest *request)
     request->send(response);
 }
 
-void handleOldSetup(AsyncWebServerRequest *request)
-{
-    if (!isAuthorized(request))
-    {
-        return request->requestAuthentication();
-    }
-    AsyncWebServerResponse *response = request->beginResponse(200, setupPageOld_html_gz_mime, setupPageOld_html_gz, setupPageOld_html_gz_len);
-    response->addHeader("Content-Encoding", "gzip");
-    request->send(response);
-}
-
 void handleUpdatePage(AsyncWebServerRequest *request)
 {
     if (!isAuthorized(request))
@@ -561,9 +550,7 @@ void setupWebserver()
         request->redirect("/wifi");
     } else {
         handleSetup(request);
-        //handleOldSetup(request);
     } });
-    webServer.on("/old", HTTP_GET, handleOldSetup);
     webServer.on("/fwupdate", HTTP_GET, handleUpdatePage);
     webServer.on("/getConfig", HTTP_GET, handleGetConfig);
     webServer.on("/submitConfig", HTTP_POST, handleSubmitConfig);
