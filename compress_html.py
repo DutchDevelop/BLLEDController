@@ -38,7 +38,7 @@ def compress_and_append_file(input_file, f):
     compressed_file = input_file + ".gz"
 
     with open(input_file, "rb") as infile:
-        with gzip.open(compressed_file, "wb", compresslevel=6) as outfile:
+        with gzip.open(compressed_file, "wb", compresslevel=9) as outfile:
             outfile.write(infile.read())
 
     with open(compressed_file, "rb") as cf:
