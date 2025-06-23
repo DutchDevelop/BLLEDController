@@ -12,8 +12,6 @@ The BL Led Controller is an ESP32 based device that connects to your Bambulab X1
 7. Select your WiFi and Enter passwort, Optional enter all the Printer informations
 8. enjoy :)
 
-Questions? Read the [Docs](https://github.com/softwarecrash/BLLEDController-NG/blob/main/docs/manual.md)
-
 ![main setup_LED](https://github.com/user-attachments/assets/52778d28-98cd-496e-bfce-aca49cd4de89)
 ![main_setup_printer](https://github.com/user-attachments/assets/1969e4bd-0887-4a0c-a965-8ec575e23396)
 ![main_setup_error](https://github.com/user-attachments/assets/b026260c-5c33-4f5c-922a-fcc601cb9be1)
