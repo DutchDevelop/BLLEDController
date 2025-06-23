@@ -2,14 +2,16 @@
 bool shouldRestart = false;
 unsigned long restartRequestTime = 0;
 #include "./blled/logSerial.h"
-#include "./blled/web-server.h"
-#include "./blled/mqttmanager.h"
+#include "./blled/leds.h"
 #include "./blled/filesystem.h"
 #include "./blled/types.h"
-#include "./blled/leds.h"
+#include "./blled/bblPrinterDiscovery.h"
+#include "./blled/web-server.h"
+#include "./blled/mqttmanager.h"
 #include "./blled/serialmanager.h"
 #include "./blled/wifi-manager.h"
 #include "./blled/ssdp.h"
+
 
 int wifi_reconnect_count = 0;
 
@@ -136,6 +138,10 @@ void loop()
         if (WiFi.getMode() == WIFI_AP)
         {
             dnsServer.processNextRequest();
+        }
+        if(WiFi.status() == WL_CONNECTED && WiFi.getMode() != WIFI_AP)
+        {
+            bblSearchPrinters();
         }
     }
     if (printerConfig.rescanWiFiNetwork)

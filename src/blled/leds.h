@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include "mqttparsingutility.h"
+void controlChamberLight(bool on);  // Forward declaration
 
 const int redPin = 19;
 const int greenPin = 18;
@@ -132,7 +133,7 @@ void tweenToColor(String strTargetColor, short ww_value = 0, short cw_value = 0)
     tweenToColor(targetcolor.r, targetcolor.g, targetcolor.b, targetcolor.ww, targetcolor.cw);
 }
 // Example:  tweenToColor(0xFFACA5)
-void tweenToColor(int hexValue, short ww_value = 0, short cw_value = 0)
+/* void tweenToColor(int hexValue, short ww_value = 0, short cw_value = 0)
 {
     COLOR targetcolor;
     targetcolor.r = ((hexValue >> 16) & 0xFF) / 255.0;
@@ -141,8 +142,17 @@ void tweenToColor(int hexValue, short ww_value = 0, short cw_value = 0)
     targetcolor.ww = ww_value;
     targetcolor.cw = cw_value;
     tweenToColor(targetcolor.r, targetcolor.g, targetcolor.b, targetcolor.ww, targetcolor.cw);
+} */
+void tweenToColor(int hexValue, short ww_value = 0, short cw_value = 0)
+{
+    COLOR targetcolor;
+    targetcolor.r = (hexValue >> 16) & 0xFF;
+    targetcolor.g = (hexValue >> 8) & 0xFF;
+    targetcolor.b = hexValue & 0xFF;
+    targetcolor.ww = ww_value;
+    targetcolor.cw = cw_value;
+    tweenToColor(targetcolor.r, targetcolor.g, targetcolor.b, targetcolor.ww, targetcolor.cw);
 }
-
 float hue = 0.0;
 
 void RGBCycle()
@@ -195,7 +205,7 @@ void RGBCycle()
     ledcWrite(coldChannel, currentCold);
 }
 
-void printLogs(String Desc, COLOR thisColor)
+/* void printLogs(String Desc, COLOR thisColor)
 {
     if (printerConfig.debuging || printerConfig.debugingchange)
     {
@@ -219,7 +229,42 @@ void printLogs(String Desc, COLOR thisColor)
         LogSerial.print(F(" Brightness: "));
         LogSerial.println(printerConfig.brightness);
     };
+} */
+void printLogs(String Desc, COLOR thisColor)
+{
+    static COLOR lastColor = {-1, -1, -1, -1, -1};
+    static String lastDesc = "";
+    static unsigned long lastPrintTime = 0;
+
+    // Skip if same state and printed less than 3 seconds ago
+    if (Desc == lastDesc &&
+        memcmp(&thisColor, &lastColor, sizeof(COLOR)) == 0 &&
+        millis() - lastPrintTime < 3000)
+    {
+        return;
+    }
+
+    if (printerConfig.debuging || printerConfig.debugingchange)
+    {
+        LogSerial.printf("%s - Turning LEDs to:", Desc.c_str());
+        if ((thisColor.r + thisColor.g + thisColor.b + thisColor.ww + thisColor.cw) == 0)
+        {
+            LogSerial.println(" OFF");
+        }
+        else
+        {
+            LogSerial.printf(" r:%d g:%d b:%d ww:%d cw:%d Brightness: %d\n",
+                             thisColor.r, thisColor.g, thisColor.b,
+                             thisColor.ww, thisColor.cw, printerConfig.brightness);
+        }
+    }
+
+    lastColor = thisColor;
+    lastDesc = Desc;
+    lastPrintTime = millis();
 }
+
+
 void printLogs(String Desc, short r, short g, short b, short ww, short cw)
 {
     COLOR tempColor;
@@ -290,13 +335,23 @@ void updateleds()
     // From here the BBLP status sets the colors
     if (printerConfig.debuging == true)
     {
-        LogSerial.println(F("Updating LEDs"));
+/*         LogSerial.println(F("Updating LEDs"));
 
         LogSerial.println(printerVariables.stage);
         LogSerial.println(printerVariables.gcodeState);
         LogSerial.println(printerVariables.printerledstate);
         LogSerial.println(printerVariables.hmsstate);
-        LogSerial.println(printerVariables.parsedHMSlevel);
+        LogSerial.println(printerVariables.parsedHMSlevel); */
+
+    char ledDbgStr[128];
+    snprintf(ledDbgStr, sizeof(ledDbgStr),
+    "[LED] Stage:%d gcodeState:%s printerLedState:%s HMSErr:%s ParsedHMS:%s",
+    printerVariables.stage,
+    printerVariables.gcodeState.c_str(),
+    printerVariables.printerledstate ? "true" : "false",
+    printerVariables.hmsstate ? "true" : "false",
+    printerVariables.parsedHMSlevel.c_str());
+    LogSerial.println(ledDbgStr);
     }
 
     // Initial Boot
@@ -320,7 +375,7 @@ void updateleds()
 
     // TOGGLE LIGHTS via DOOR
     // If door is closed twice in 6 seconds, it will flip the state of the lights
-    if (printerVariables.doorSwitchTriggered == true)
+/*     if (printerVariables.doorSwitchTriggered == true)
     {
         if (printerConfig.debugingchange)
         {
@@ -348,7 +403,62 @@ void updateleds()
         }
         printerVariables.doorSwitchTriggered = false;
         return;
+    } */
+   if (printerVariables.doorSwitchTriggered == true)
+{
+    bool ledsAreOff = (currentWarm == 0 && currentCold == 0);
+    bool chamberLightIsOff = (printerVariables.printerledstate == false);
+
+    if (printerConfig.debugingchange)
+    {
+        LogSerial.print(F("Door closed twice within 6 seconds - "));
+
+        if (ledsAreOff)
+            LogSerial.print(F("Turning LEDs ON"));
+        else
+            LogSerial.print(F("Turning LEDs OFF"));
+
+        if (printerConfig.controlChamberLight)
+        {
+            if (ledsAreOff && chamberLightIsOff)
+                LogSerial.println(F(" + Chamber Light ON"));
+            else if (!ledsAreOff)
+                LogSerial.println(F(" + Chamber Light OFF"));
+            else
+                LogSerial.println();
+        }
+        else
+        {
+            LogSerial.println();
+        }
     }
+
+    if (ledsAreOff)
+    {
+        tweenToColor(0, 0, 0, 255, 255); // WHITE
+        printerConfig.isIdleOFFActive = false;
+
+        if (printerConfig.controlChamberLight && chamberLightIsOff)
+        {
+            controlChamberLight(true);  // Turn ON chamber light only if off
+        }
+    }
+    else
+    {
+        tweenToColor(0, 0, 0, 0, 0); // OFF
+        printerConfig.isIdleOFFActive = true;
+        printerConfig.inactivityStartms = millis() - printerConfig.inactivityTimeOut;
+
+        if (printerConfig.controlChamberLight)
+        {
+            controlChamberLight(false); // Always OFF on manual off
+        }
+    }
+
+    printerVariables.doorSwitchTriggered = false;
+    return;
+}
+
 
     // RED -- RED -- RED -- RED
 
@@ -439,7 +549,7 @@ void updateleds()
     // OFF -- OFF -- OFF -- OFF
 
     // printer offline and MQTT disconnect more than 5 seconds.
-    if (printerVariables.online == false && (millis() - printerVariables.disconnectMQTTms) >= 5000)
+    if (printerVariables.online == false && (millis() - printerVariables.disconnectMQTTms) >= 30000)
     {
         tweenToColor(0, 0, 0, 0, 0); // OFF
         printLogs("Printer offline", 0, 0, 0, 0, 0);
@@ -507,6 +617,7 @@ void updateleds()
     if ((printerVariables.stage == -1 || printerVariables.stage == 255) && !((printerConfig.finishExit && printerVariables.waitingForDoor) || (printerConfig.finishExit == false && ((millis() - printerConfig.finishStartms) < printerConfig.finishTimeOut))) && (millis() - printerConfig.inactivityStartms) > printerConfig.inactivityTimeOut && printerConfig.isIdleOFFActive == false && printerConfig.inactivityEnabled)
     {
         tweenToColor(0, 0, 0, 0, 0); // OFF
+        controlChamberLight(false);  // Turn off chamber light via MQTT
         printerConfig.isIdleOFFActive = true;
         if (printerConfig.debuging || printerConfig.debugingchange)
         {
@@ -655,6 +766,7 @@ void ledsloop()
         printerConfig.inactivityStartms = millis();
         printerConfig.isIdleOFFActive = false;
         updateleds();
+        controlChamberLight(false);  // Turn off chamber light via MQTT
     }
 
     // Need an trigger action to run updateleds() so lights turn off
@@ -664,7 +776,13 @@ void ledsloop()
         // Opening or Closing the Door will turn LEDs back on and restart the timer.
         updateleds();
     }
-
+    //disabled, need testing for future use
+/*     // Periodic fallback update to ensure MQTT timeout or other updates are evaluated
+    static unsigned long lastPeriodicUpdate = 0;
+    if (millis() - lastPeriodicUpdate > 10000) { // every 10 seconds
+        updateleds();
+        lastPeriodicUpdate = millis();
+    } */
     delay(10);
 }
 

@@ -3,7 +3,7 @@
 
 #include <WiFi.h>
 #include "FS.h"
-
+#include <ArduinoJson.h>
 #include <Arduino.h>
 #include <LittleFS.h>
 #include "types.h"
@@ -28,7 +28,7 @@ char *generateRandomString(int length)
 
 void saveFileSystem()
 {
-    LogSerial.println(F("Saving config"));
+    LogSerial.println(F("[Filesystem] Saving config"));
 
     JsonDocument json;
     json["ssid"] = globalVariables.SSID;
@@ -65,6 +65,7 @@ void saveFileSystem()
     json["finishTimerMins"] = printerConfig.finishTimeOut;
     json["inactivityEnabled"] = printerConfig.inactivityEnabled;
     json["inactivityTimeOut"] = printerConfig.inactivityTimeOut;
+    json["controlChamberLight"] = printerConfig.controlChamberLight; //control chamber light
     // Debugging
     json["debuging"] = printerConfig.debuging;
     json["debugingchange"] = printerConfig.debugingchange;
@@ -120,21 +121,23 @@ void saveFileSystem()
     json["bedTempRGB"] = printerConfig.bedTempRGB.RGBhex;
     json["bedTempWW"] = printerConfig.bedTempRGB.ww;
     json["bedTempCW"] = printerConfig.bedTempRGB.cw;
+    //HMS Error handling
+    json["hmsIgnoreList"] = printerConfig.hmsIgnoreList;
 
     File configFile = LittleFS.open(configPath, "w");
     if (!configFile)
     {
-        LogSerial.println(F("Failed to save config"));
+        LogSerial.println(F("[Filesystem] Failed to save config"));
         return;
     }
     serializeJson(json, configFile);
     configFile.close();
-    LogSerial.println(F("Config Saved"));
+    LogSerial.println(F("[Filesystem] Config Saved"));
 }
 
 void loadFileSystem()
 {
-    LogSerial.println(F("Loading config"));
+    LogSerial.println(F("[Filesystem] Loading config"));
 
     File configFile;
     int attempts = 0;
@@ -146,16 +149,16 @@ void loadFileSystem()
             break;
         }
         attempts++;
-        LogSerial.println(F("Failed to open config file, retrying.."));
+        LogSerial.println(F("[Filesystem] Failed to open config file, retrying.."));
         delay(2000);
     }
     if (!configFile)
     {
-        LogSerial.print(F("Failed to open config file after "));
+        LogSerial.print(F("[Filesystem] Failed to open config file after "));
         LogSerial.print(attempts);
         LogSerial.println(F(" retries"));
 
-        LogSerial.println(F("Clearing config"));
+        LogSerial.println(F("[Filesystem] Clearing config"));
         // LittleFS.remove(configPath);
         saveFileSystem();
         return;
@@ -197,6 +200,7 @@ void loadFileSystem()
         printerConfig.finish_check = json["finish_check"];
         printerConfig.inactivityEnabled = json["inactivityEnabled"];
         printerConfig.inactivityTimeOut = json["inactivityTimeOut"];
+        printerConfig.controlChamberLight = json["controlChamberLight"]; //control chamber light
         // Debugging
         printerConfig.debuging = json["debuging"];
         printerConfig.debugingchange = json["debugingchange"];
@@ -222,12 +226,15 @@ void loadFileSystem()
         printerConfig.frontCoverRGB = hex2rgb(json["frontCoverRGB"], json["frontCoverWW"], json["frontCoverCW"]);
         printerConfig.nozzleTempRGB = hex2rgb(json["nozzleTempRGB"], json["nozzleTempWW"], json["nozzleTempCW"]);
         printerConfig.bedTempRGB = hex2rgb(json["bedTempRGB"], json["bedTempWW"], json["bedTempCW"]);
-        LogSerial.println(F("Loaded config"));
+        // HMS Error handling
+        printerConfig.hmsIgnoreList = json["hmsIgnoreList"] | "";
+
+        LogSerial.println(F("[Filesystem] Loaded config"));
     }
     else
     {
-        LogSerial.println(F("Failed loading config"));
-        LogSerial.println(F("Clearing config"));
+        LogSerial.println(F("[Filesystem] Failed loading config"));
+        LogSerial.println(F("[Filesystem] Clearing config"));
         LittleFS.remove(configPath);
 
         // LogSerial.println(F("Generating new password"));
@@ -240,7 +247,7 @@ void loadFileSystem()
 
 void deleteFileSystem()
 {
-    LogSerial.println(F("Deleting LittleFS"));
+    LogSerial.println(F("[Filesystem] Deleting LittleFS"));
     LittleFS.remove(configPath);
 }
 
@@ -251,17 +258,17 @@ bool hasFileSystem()
 
 void setupFileSystem()
 {
-    LogSerial.println(F("Mounting LittleFS"));
+    LogSerial.println(F("[Filesystem] Mounting LittleFS"));
     if (!LittleFS.begin())
     {
-        LogSerial.println(F("Failed to mount LittleFS"));
+        LogSerial.println(F("[Filesystem] Failed to mount LittleFS"));
         LittleFS.format();
-        LogSerial.println(F("Formatting LittleFS"));
-        LogSerial.println(F("Restarting Device"));
+        LogSerial.println(F("[Filesystem] Formatting LittleFS"));
+        LogSerial.println(F("[Filesystem] Restarting Device"));
         delay(1000);
         ESP.restart();
     }
-    LogSerial.println(F("Mounted LittleFS"));
+    LogSerial.println(F("[Filesystem] Mounted LittleFS"));
 };
 
 #endif

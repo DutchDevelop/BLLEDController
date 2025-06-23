@@ -122,8 +122,7 @@
                                 <span class="slider"></span>
                             </label>
                             <span>Replicate State</span>
-                            <div id="runningcolorchoice" class="input-inline-group"
-                                style="margin-left: auto;">
+                            <div id="runningcolorchoice" class="input-inline-group" style="margin-left: auto;">
                                 <input type="color" id="runningRGB" name="runningRGB" value="#000000">
                                 <label for="runningWW">WW</label>
                                 <input type="number" id="runningWW" name="runningWW" value="255" min="0" max="255"
@@ -141,8 +140,7 @@
                                 <span class="slider"></span>
                             </label>
                             <span>Color Test (Always On)</span>
-                            <div id="testcolorchoice" class="input-inline-group"
-                                style="margin-left: auto;">
+                            <div id="testcolorchoice" class="input-inline-group" style="margin-left: auto;">
                                 <input type="color" id="testRGB" name="testRGB" value="#3F3CFB">
                                 <label for="testWW">WW</label>
                                 <input type="number" id="testWW" name="testWW" value="255" min="0" max="255" step="1">
@@ -170,8 +168,7 @@
                             </label>
                             <span>Finish Indication</span>
 
-                            <div class="input-inline-group" id="finishcolorchoice"
-                                style="margin-left: auto;">
+                            <div class="input-inline-group" id="finishcolorchoice" style="margin-left: auto;">
                                 <input type="color" id="finishColor" name="finishColor" value="#00FF00">
                                 <label for="finishWW">WW</label>
                                 <input type="number" id="finishWW" name="finishWW" value="255" min="0" max="255"
@@ -215,13 +212,20 @@
                                 <span class="slider"></span>
                             </label>
                             <span>Inactivity Timeout (Minutes)</span>
-                            <div class="input-inline-group" id="inactivityMinsDiv"
-                                style="margin-left: auto;">
+                            <div class="input-inline-group" id="inactivityMinsDiv" style="margin-left: auto;">
                                 <label for="inactivityMins">Min.</label>
                                 <input type="text" id="inactivityMins" name="inactivityMins" value='1' maxlength='3'
                                     size='3'>
                             </div>
                         </div>
+                        <!-- Control Chamber Light -->
+<div class="toggle-switch">
+    <label class="switch">
+        <input type="checkbox" id="controlChamberLight" name="controlChamberLight">
+        <span class="slider"></span>
+    </label>
+    <span>Control Chamber Light</span>
+</div>
                     </div>
                 </details>
                 <!-- Printer Dependant Page -->
@@ -444,6 +448,12 @@
                                         step="1">
                                 </div>
                             </div>
+                            <div class="toggle-switch">
+                                <span>Ignore HMS Codes (one per line)</span>
+                                <textarea name="hmsIgnoreList" id="hmsIgnoreList" rows="4"
+                                    style="width:50%; resize:vertical;"
+                                    placeholder="HMS_XXXX_XXXX_XXXX_XXXX&#10;HMS_0300_1200_0002_0001"></textarea>
+                            </div>
                         </div>
                     </div>
                 </details>
@@ -483,7 +493,7 @@
                     <summary>Navigation</summary>
                     <div>
                         </br>
-                        <button type="button" onclick="location.href='/wifi'">WiFi Setup</button>
+                        <button type="button" onclick="location.href='/wifi'">WiFi & Printer Setup</button>
                         <button type="button" onclick="location.href='/fwupdate'">Firmware Update</button>
                         <button type="button" onclick="location.href='/backuprestore'">backup & Restore</button>
                         <button type="button" onclick="window.open('/webserial','_blank')">Web Serial Log</button>
@@ -784,6 +794,7 @@
                             document.getElementById('finishTimerMins').value = configData.finishTimerMins || 10;
                             document.getElementById('inactivityEnabled').checked = configData.inactivityEnabled || false;
                             document.getElementById('inactivityMins').value = configData.inactivityMins || 30;
+                            document.getElementById('controlChamberLight').checked = configData.controlChamberLight || false;
                             document.getElementById('debuging').checked = configData.debuging || false;
                             document.getElementById('debugingchange').checked = configData.debugingchange || false;
                             document.getElementById('mqttdebug').checked = configData.mqttdebug || false;
@@ -835,6 +846,8 @@
                             document.getElementById('bedTempRGB').value = configData.bedTempRGB || '';
                             document.getElementById('bedTempWW').value = configData.bedTempWW || 0;
                             document.getElementById('bedTempCW').value = configData.bedTempCW || 0;
+                            //HMS Error handling
+                            document.getElementById('hmsIgnoreList').value = configData.hmsIgnoreList || '';
 
                             updateIdle();
                             showhideOptions();

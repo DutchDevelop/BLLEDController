@@ -171,7 +171,7 @@ void startAPMode() {
     WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
     dnsServer.start(53, "*", apIP);
 
-    Serial.println(F("[WiFiManager] AP gestartet auf IP: "));
+    Serial.print(F("[WiFiManager] AP started on IP: "));
     Serial.println(WiFi.softAPIP());
 }
 

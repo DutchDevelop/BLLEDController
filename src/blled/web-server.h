@@ -38,17 +38,6 @@ void handleSetup(AsyncWebServerRequest *request)
     request->send(response);
 }
 
-void handleOldSetup(AsyncWebServerRequest *request)
-{
-    if (!isAuthorized(request))
-    {
-        return request->requestAuthentication();
-    }
-    AsyncWebServerResponse *response = request->beginResponse(200, setupPageOld_html_gz_mime, setupPageOld_html_gz, setupPageOld_html_gz_len);
-    response->addHeader("Content-Encoding", "gzip");
-    request->send(response);
-}
-
 void handleUpdatePage(AsyncWebServerRequest *request)
 {
     if (!isAuthorized(request))
@@ -179,6 +168,10 @@ void handleGetConfig(AsyncWebServerRequest *request)
     doc["bedTempRGB"] = printerConfig.bedTempRGB.RGBhex;
     doc["bedTempWW"] = printerConfig.bedTempRGB.ww;
     doc["bedTempCW"] = printerConfig.bedTempRGB.cw;
+    // HMS Error Handling
+    doc["hmsIgnoreList"] = printerConfig.hmsIgnoreList;
+    // control chamber light
+    doc["controlChamberLight"] = printerConfig.controlChamberLight;
 
     String jsonString;
     serializeJson(doc, jsonString);
@@ -199,6 +192,7 @@ void handlePrinterConfigJson(AsyncWebServerRequest *request)
     doc["accessCode"] = printerConfig.accessCode;
     doc["webUser"] = securityVariables.HTTPUser;
     doc["webPass"] = securityVariables.HTTPPass;
+    doc["isAPMode"] = (WiFi.getMode() & WIFI_AP);
 
     String json;
     serializeJson(doc, json);
@@ -270,6 +264,10 @@ void handleSubmitConfig(AsyncWebServerRequest *request)
     printerConfig.frontCoverRGB = hex2rgb(getSafeParamValue(request, "frontCoverRGB").c_str(), getSafeParamInt(request, "frontCoverWW"), getSafeParamInt(request, "frontCoverCW"));
     printerConfig.nozzleTempRGB = hex2rgb(getSafeParamValue(request, "nozzleTempRGB").c_str(), getSafeParamInt(request, "nozzleTempWW"), getSafeParamInt(request, "nozzleTempCW"));
     printerConfig.bedTempRGB = hex2rgb(getSafeParamValue(request, "bedTempRGB").c_str(), getSafeParamInt(request, "bedTempWW"), getSafeParamInt(request, "bedTempCW"));
+    // HMS Error handling
+    printerConfig.hmsIgnoreList = getSafeParamValue(request, "hmsIgnoreList");
+    // Control Chamber Light
+    printerConfig.controlChamberLight = request->hasParam("controlChamberLight", true);
 
     saveFileSystem();
     LogSerial.println(F("Packet received from setuppage"));
@@ -294,12 +292,12 @@ void handleWiFiScan(AsyncWebServerRequest *request)
 {
     JsonDocument doc;
     JsonArray networks = doc["networks"].to<JsonArray>();
-
     int n = WiFi.scanNetworks();
     for (int i = 0; i < n; ++i)
     {
         JsonObject net = networks.add<JsonObject>();
         net["ssid"] = WiFi.SSID(i);
+        net["bssid"] = WiFi.BSSIDstr(i);
         net["rssi"] = WiFi.RSSI(i);
         net["enc"] = (WiFi.encryptionType(i) == WIFI_AUTH_OPEN) ? false : true;
     }
@@ -326,6 +324,10 @@ void handleSubmitWiFi(AsyncWebServerRequest *request)
     {
         String ssid = request->getParam("ssid", true)->value();
         String pass = request->getParam("pass", true)->value();
+        String bssid = request->hasParam("bssid", true) ? request->getParam("bssid", true)->value() : "";
+        if (bssid.length() > 0)
+            strlcpy(printerConfig.BSSID, bssid.c_str(), sizeof(printerConfig.BSSID));
+
         ssid.trim();
         pass.trim();
 
@@ -441,7 +443,6 @@ void handleDownloadConfigFile(AsyncWebServerRequest *request)
     request->send(response);
 }
 
-
 void handleWebSerialPage(AsyncWebServerRequest *request)
 {
     if (!isAuthorized(request))
@@ -451,6 +452,36 @@ void handleWebSerialPage(AsyncWebServerRequest *request)
     request->send(response);
 }
 
+void handlePrinterList(AsyncWebServerRequest *request)
+{
+    JsonDocument doc;
+    JsonArray arr = doc.to<JsonArray>();
+
+    for (int i = 0; i < bblKnownPrinterCount; i++)
+    {
+        JsonObject obj = arr.add<JsonObject>();
+        obj["ip"] = bblLastKnownPrinters[i].ip.toString();
+        obj["usn"] = bblLastKnownPrinters[i].usn;
+    }
+
+    String json;
+    serializeJson(doc, json);
+    request->send(200, "application/json", json);
+}
+
+void handleFactoryReset(AsyncWebServerRequest *request)
+{
+    if (!isAuthorized(request))
+        return request->requestAuthentication();
+
+    LogSerial.println(F("[FactoryReset] Performing full reset..."));
+
+    deleteFileSystem(); // delete LittleFS config
+    request->send(200, "text/plain", "Factory reset complete. Restarting...");
+
+    shouldRestart = true;
+    restartRequestTime = millis();
+}
 
 void handleUploadConfigFileData(AsyncWebServerRequest *request, const String &filename,
                                 size_t index, uint8_t *data, size_t len, bool final)
@@ -519,9 +550,7 @@ void setupWebserver()
         request->redirect("/wifi");
     } else {
         handleSetup(request);
-        //handleOldSetup(request);
     } });
-    webServer.on("/old", HTTP_GET, handleOldSetup);
     webServer.on("/fwupdate", HTTP_GET, handleUpdatePage);
     webServer.on("/getConfig", HTTP_GET, handleGetConfig);
     webServer.on("/submitConfig", HTTP_POST, handleSubmitConfig);
@@ -536,6 +565,8 @@ void setupWebserver()
     webServer.on("/backuprestore", HTTP_GET, handleConfigPage);
     webServer.on("/configfile.json", HTTP_GET, handleDownloadConfigFile);
     webServer.on("/webserial", HTTP_GET, handleWebSerialPage);
+    webServer.on("/printerList", HTTP_GET, handlePrinterList);
+    webServer.on("/factoryreset", HTTP_GET, handleFactoryReset);
     webServer.on("/configrestore", HTTP_POST, [](AsyncWebServerRequest *request)
                  {
         if (!isAuthorized(request)) {

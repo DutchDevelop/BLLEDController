@@ -90,6 +90,7 @@ extern "C"
         bool finish_check = false;    //When updateleds() is run, should the TEST LEDS be set?
         unsigned long finishStartms = 0;    // Time the finish countdown is measured from
         int finishTimeOut = 600000;     //300000 = 5 mins
+        bool controlChamberLight = false;                //control chamber light
 
         //Inactivity Timout
         bool inactivityEnabled = true;
@@ -118,8 +119,9 @@ extern "C"
         COLOR frontCoverRGB;
         COLOR nozzleTempRGB;
         COLOR bedTempRGB;
+        // HMS Error Handling
+        String hmsIgnoreList; // comma-separated list of HMS_XXXX_XXXX_XXXX_XXXX codes to ignore
 
-        //char webpagePassword[8];
     } PrinterConfig;
 
     PrinterConfig printerConfig;
