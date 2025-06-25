@@ -93,7 +93,8 @@ void setup()
 
     tweenToColor(34, 224, 238, 0, 0); // CYAN
     setupMqtt();
-
+    // >>> Fix: prevent false offline after 30s
+    printerVariables.disconnectMQTTms = millis();
     Serial.println();
     Serial.print(F("** BLLED Controller started "));
     Serial.print(F("using firmware version: "));
