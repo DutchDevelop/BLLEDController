@@ -276,6 +276,12 @@ void printLogs(String Desc, short r, short g, short b, short ww, short cw)
 }
 void updateleds()
 {
+    // Prevent replicate OFF immediately after door event
+if ((millis() - printerVariables.lastdoorOpenms) < 1000 || (millis() - printerVariables.lastdoorClosems) < 1000)
+{
+    printerConfig.replicate_update = false;
+}
+
     // Maintenance Mode - White lights on regardless of printer power, WiFi or MQTT connection
     // priortised over Wifi Strength Display or Custom TEST color
     if (printerConfig.maintMode && printerConfig.maintMode_update)
@@ -612,7 +618,12 @@ void updateleds()
     }
 
     // Idle Timeout (Has to be enabled)
-    if ((printerVariables.stage == -1 || printerVariables.stage == 255) && !((printerConfig.finishExit && printerVariables.waitingForDoor) || (printerConfig.finishExit == false && ((millis() - printerConfig.finishStartms) < printerConfig.finishTimeOut))) && (millis() - printerConfig.inactivityStartms) > printerConfig.inactivityTimeOut && printerConfig.isIdleOFFActive == false && printerConfig.inactivityEnabled)
+    if ((printerVariables.stage == -1 || printerVariables.stage == 255) 
+    && !((printerConfig.finishExit && printerVariables.waitingForDoor) 
+    || (printerConfig.finishExit == false && ((millis() - printerConfig.finishStartms) < printerConfig.finishTimeOut))) 
+    && (millis() - printerConfig.inactivityStartms) > printerConfig.inactivityTimeOut 
+    && printerConfig.isIdleOFFActive == false 
+    && printerConfig.inactivityEnabled)
     {
         tweenToColor(0, 0, 0, 0, 0); // OFF
         controlChamberLight(false);  // Turn off chamber light via MQTT
