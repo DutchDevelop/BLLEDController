@@ -302,60 +302,59 @@ void ParseCallback(char *topic, byte *payload, unsigned int length)
                     }
                 } */
         // Check for Door Status
-if (!messageobject["print"]["home_flag"].isNull())
-{
-    long homeFlag = messageobject["print"]["home_flag"];
-    bool doorState = bitRead(homeFlag, 23); // Extract door status
-
-    if (printerVariables.doorOpen != doorState)
-    {
-        printerVariables.doorOpen = doorState;
-
-        if (printerConfig.debugingchange)
+        if (!messageobject["print"]["home_flag"].isNull())
         {
-            LogSerial.print(F("[MQTT] Door "));
-            LogSerial.println(doorState ? F("Opened") : F("Closed"));
-        }
+            long homeFlag = messageobject["print"]["home_flag"];
+            bool doorState = bitRead(homeFlag, 23); // Extract door status
 
-        if (doorState) // Door opened
-        {
-            printerVariables.lastdoorOpenms = millis();
-
-            // Force chamber light ON if configured
-            if (printerConfig.controlChamberLight && !printerVariables.printerledstate)
+            if (printerVariables.doorOpen != doorState)
             {
-                printerVariables.printerledstate = true;
-                printerConfig.replicate_update = false; // Prevent unwanted OFF
-                controlChamberLight(true);
-                LogSerial.println(F("[MQTT] Door opened – Light forced ON"));
+                printerVariables.doorOpen = doorState;
+
+                if (printerConfig.debugingchange)
+                {
+                    LogSerial.print(F("[MQTT] Door "));
+                    LogSerial.println(doorState ? F("Opened") : F("Closed"));
+                }
+
+                if (doorState) // Door opened
+                {
+                    printerVariables.lastdoorOpenms = millis();
+
+                    // Force chamber light ON if configured
+                    if (printerConfig.controlChamberLight && !printerVariables.printerledstate)
+                    {
+                        printerVariables.printerledstate = true;
+                        printerConfig.replicate_update = false; // Prevent unwanted OFF
+                        controlChamberLight(true);
+                        LogSerial.println(F("[MQTT] Door opened – Light forced ON"));
+                    }
+
+                    printerConfig.inactivityStartms = millis();
+                    printerConfig.isIdleOFFActive = false;
+
+                    Changed = true;
+                    updateleds(); // Apply LED state after variables are set
+                }
+                else // Door closed
+                {
+                    printerVariables.lastdoorClosems = millis();
+
+                    // Start inactivity timer on door close
+                    printerConfig.inactivityStartms = millis();
+                    printerConfig.isIdleOFFActive = false;
+
+                    // Detect double-close for manual toggle
+                    if ((millis() - printerVariables.lastdoorOpenms) < 6000)
+                    {
+                        printerVariables.doorSwitchTriggered = true;
+                    }
+
+                    Changed = true;
+                    updateleds();
+                }
             }
-
-            printerConfig.inactivityStartms = millis();
-            printerConfig.isIdleOFFActive = false;
-
-            Changed = true;
-            updateleds(); // Apply LED state after variables are set
         }
-        else // Door closed
-        {
-            printerVariables.lastdoorClosems = millis();
-
-            // Start inactivity timer on door close
-            printerConfig.inactivityStartms = millis();
-            printerConfig.isIdleOFFActive = false;
-
-            // Detect double-close for manual toggle
-            if ((millis() - printerVariables.lastdoorOpenms) < 6000)
-            {
-                printerVariables.doorSwitchTriggered = true;
-            }
-
-            Changed = true;
-            updateleds();
-        }
-    }
-}
-
 
         // Check BBLP Stage
         if (!messageobject["print"]["stg_cur"].isNull())
@@ -392,6 +391,11 @@ if (!messageobject["print"]["home_flag"].isNull())
             // Onchange of gcodeState...
             if (printerVariables.gcodeState != mqttgcodeState)
             {
+                if (mqttgcodeState == "RUNNING")
+                {
+                    printerVariables.overridestage = 999; // Reset after special HMS override
+                }
+                
                 if (mqttgcodeState == "FINISH")
                 {
                     printerVariables.finished = true;

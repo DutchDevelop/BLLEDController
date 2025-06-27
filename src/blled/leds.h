@@ -57,11 +57,17 @@ void tweenToColor(int targetRed, int targetGreen, int targetBlue, int targetWarm
 
     float brightness = (float)printerConfig.brightness / 100.0;
 
-    int brightenedRed = round(targetRed * brightness);
-    int brightenedGreen = round(targetGreen * brightness);
-    int brightenedBlue = round(targetBlue * brightness);
-    int brightenedWarm = round(targetWarm * brightness);
-    int brightenedCold = round(targetCold * brightness);
+    /*     int brightenedRed = round(targetRed * brightness);
+        int brightenedGreen = round(targetGreen * brightness);
+        int brightenedBlue = round(targetBlue * brightness);
+        int brightenedWarm = round(targetWarm * brightness);
+        int brightenedCold = round(targetCold * brightness); */
+    //round implizit downward
+    int brightenedRed = (int)(targetRed * brightness);
+    int brightenedGreen = (int)(targetGreen * brightness);
+    int brightenedBlue = (int)(targetBlue * brightness);
+    int brightenedWarm = (int)(targetWarm * brightness);
+    int brightenedCold = (int)(targetCold * brightness);
 
     if (brightenedRed == currentRed && brightenedGreen == currentGreen && brightenedBlue == currentBlue && brightenedWarm == currentWarm && brightenedCold == currentCold)
     {
@@ -277,10 +283,10 @@ void printLogs(String Desc, short r, short g, short b, short ww, short cw)
 void updateleds()
 {
     // Prevent replicate OFF immediately after door event
-if ((millis() - printerVariables.lastdoorOpenms) < 1000 || (millis() - printerVariables.lastdoorClosems) < 1000)
-{
-    printerConfig.replicate_update = false;
-}
+    if ((millis() - printerVariables.lastdoorOpenms) < 1000 || (millis() - printerVariables.lastdoorClosems) < 1000)
+    {
+        printerConfig.replicate_update = false;
+    }
 
     // Maintenance Mode - White lights on regardless of printer power, WiFi or MQTT connection
     // priortised over Wifi Strength Display or Custom TEST color
@@ -618,12 +624,7 @@ if ((millis() - printerVariables.lastdoorOpenms) < 1000 || (millis() - printerVa
     }
 
     // Idle Timeout (Has to be enabled)
-    if ((printerVariables.stage == -1 || printerVariables.stage == 255) 
-    && !((printerConfig.finishExit && printerVariables.waitingForDoor) 
-    || (printerConfig.finishExit == false && ((millis() - printerConfig.finishStartms) < printerConfig.finishTimeOut))) 
-    && (millis() - printerConfig.inactivityStartms) > printerConfig.inactivityTimeOut 
-    && printerConfig.isIdleOFFActive == false 
-    && printerConfig.inactivityEnabled)
+    if ((printerVariables.stage == -1 || printerVariables.stage == 255) && !((printerConfig.finishExit && printerVariables.waitingForDoor) || (printerConfig.finishExit == false && ((millis() - printerConfig.finishStartms) < printerConfig.finishTimeOut))) && (millis() - printerConfig.inactivityStartms) > printerConfig.inactivityTimeOut && printerConfig.isIdleOFFActive == false && printerConfig.inactivityEnabled)
     {
         tweenToColor(0, 0, 0, 0, 0); // OFF
         controlChamberLight(false);  // Turn off chamber light via MQTT
