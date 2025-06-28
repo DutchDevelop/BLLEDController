@@ -250,6 +250,14 @@
                             </label>
                             <span>Stages with Lidar in use (if installed)</span>
                         </div>
+                        <!-- Turn on/off light with the door -->
+                        <div class="toggle-switch" id="allowTurnOnLightWhenDoorIsOpen">
+                            <label class="switch">
+                                <input type="checkbox" id='turnOnLightWhenDoorIsOpen' name='turnOnLightWhenDoorIsOpen' class="PrinterOptions">
+                                <span class="slider"></span>
+                            </label>
+                            <span>Turn on the light when the door is open?</span>
+                        </div>
                         <!-- splitt line -->
                         <div class="detailSplitter">LED Actions</div>
                         <!-- Cleaning Nozzle -->
@@ -707,7 +715,9 @@
         function hasP1() {
             if (document.getElementById('p1Printer').checked) {
                 document.getElementById("doorSwitch").checked = false;
+                document.getElementById("turnOnLightWhenDoorIsOpen").checked = false;
                 document.getElementById("AllowDoorSwitch").style.display = 'none';
+                document.getElementById("allowTurnOnLightWhenDoorIsOpen").style.display = 'none';
 
                 document.getElementById("stage14WW").value = 255;
                 document.getElementById("stage1WW").value = 255;
@@ -731,6 +741,7 @@
             } else {
                 document.getElementById("doorSwitch").checked = true;
                 document.getElementById("AllowDoorSwitch").style.display = '';
+                document.getElementById("allowTurnOnLightWhenDoorIsOpen").style.display = '';
 
                 document.getElementById("stage14RGB").value = '#000000';
                 document.getElementById("stage1RGB").value = '#000000';
@@ -781,6 +792,7 @@
                             document.getElementById('testCW').value = configData.testCW || 0;
                             document.getElementById('debugwifi').checked = configData.debugwifi || false;
                             document.getElementById('finishIndication').checked = configData.finishindication || false;
+                            document.getElementById('turnOnLightWhenDoorIsOpen').checked = configData.turnOnLightWhenDoorIsOpen || false;
                             document.getElementById('finishColor').value = configData.finishColor || '';
                             document.getElementById('finishWW').value = configData.finishWW || 0;
                             document.getElementById('finishCW').value = configData.finishCW || 0;

@@ -57,6 +57,7 @@ void saveFileSystem()
     json["debugwifi"] = printerConfig.debugwifi;
     // Options
     json["finishindication"] = printerConfig.finishindication;
+    json["turnOnLightWhenDoorIsOpen"] = printerConfig.turnOnLightWhenDoorIsOpen;
     json["finishColor"] = printerConfig.finishColor.RGBhex;
     json["finishWW"] = printerConfig.finishColor.ww;
     json["finishCW"] = printerConfig.finishColor.cw;
@@ -194,6 +195,7 @@ void loadFileSystem()
         printerConfig.debugwifi = json["debugwifi"];
         // Options
         printerConfig.finishindication = json["finishindication"];
+        printerConfig.turnOnLightWhenDoorIsOpen = json["turnOnLightWhenDoorIsOpen"];
         printerConfig.finishColor = hex2rgb(json["finishColor"], json["finishWW"], json["finishCW"]);
         printerConfig.finishExit = json["finishExit"];
         printerConfig.finishTimeOut = json["finishTimerMins"];

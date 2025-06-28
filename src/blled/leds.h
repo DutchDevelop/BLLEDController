@@ -374,6 +374,44 @@ void updateleds()
     }
 
     // TOGGLE LIGHTS via DOOR
+    // Activate printer light upon door opening if currently off
+    if (printerConfig.turnOnLightWhenDoorIsOpen) {
+        if (printerVariables.doorOpen && printerVariables.printerledstate == false) {
+            if (printerConfig.debuging || printerConfig.debugingchange)
+            {
+                LogSerial.println(F("Updating from finishloop after Door interaction - Turn on/off light -> Turn on light"));
+            }
+            tweenToColor(0, 0, 0, 255, 255); // ON
+            printerVariables.printerledstateFromDoor = true;
+            printerConfig.isIdleOFFActive = false;
+            if (printerConfig.controlChamberLight)
+            {
+                controlChamberLight(true);
+            }
+            return;
+        }
+        if (printerVariables.doorOpen == false && printerVariables.printerledstateFromDoor == true) {
+            if (printerConfig.debuging || printerConfig.debugingchange)
+            {
+                LogSerial.println(F("Updating from finishloop after Door interaction - Turn on/off light -> Turn off light"));
+            }
+            printerVariables.printerledstateFromDoor = false;
+            // Before to turn off the led we need to check if the printer light is not turn on
+            if (printerVariables.printerledstate == false) {
+                tweenToColor(0, 0, 0, 0, 0); // OFF
+                printerConfig.isIdleOFFActive = true;
+                printerConfig.inactivityStartms = millis() - printerConfig.inactivityTimeOut;
+                if (printerConfig.controlChamberLight)
+                {
+                    controlChamberLight(false);
+                }
+            }
+            return;
+        }
+    }
+
+
+
     // If door is closed twice in 6 seconds, it will flip the state of the lights
 /*     if (printerVariables.doorSwitchTriggered == true)
     {
