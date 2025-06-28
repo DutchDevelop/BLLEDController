@@ -25,6 +25,7 @@ extern "C"
         int stage = 0;
         int overridestage = 999;
         bool printerledstate = true;
+        bool printerledstateFromDoor = false;
         bool hmsstate = false;
         bool online = false;
         bool finished = false;
@@ -91,6 +92,7 @@ extern "C"
         unsigned long finishStartms = 0;    // Time the finish countdown is measured from
         int finishTimeOut = 600000;     //300000 = 5 mins
         bool controlChamberLight = false;                //control chamber light
+        bool turnOnLightWhenDoorIsOpen = false;          //control the light when the door is close open
 
         //Inactivity Timout
         bool inactivityEnabled = true;
