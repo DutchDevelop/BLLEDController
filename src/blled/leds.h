@@ -386,7 +386,7 @@ void updateleds()
             printerConfig.isIdleOFFActive = false;
             if (printerConfig.controlChamberLight)
             {
-                controlChamberLight(true); // Always OFF on manual on
+                controlChamberLight(true);
             }
             return;
         }
@@ -403,7 +403,7 @@ void updateleds()
                 printerConfig.inactivityStartms = millis() - printerConfig.inactivityTimeOut;
                 if (printerConfig.controlChamberLight)
                 {
-                    controlChamberLight(false); // Always OFF on manual off
+                    controlChamberLight(false);
                 }
             }
             return;

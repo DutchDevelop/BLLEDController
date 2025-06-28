@@ -110,6 +110,7 @@ void handleGetConfig(AsyncWebServerRequest *request)
     doc["testCW"] = printerConfig.testColor.cw;
     doc["debugwifi"] = printerConfig.debugwifi;
     doc["finishindication"] = printerConfig.finishindication;
+    doc["turnOnLightWhenDoorIsOpen"] = printerConfig.turnOnLightWhenDoorIsOpen;
     doc["finishColor"] = printerConfig.finishColor.RGBhex;
     doc["finishWW"] = printerConfig.finishColor.ww;
     doc["finishCW"] = printerConfig.finishColor.cw;
@@ -237,6 +238,7 @@ void handleSubmitConfig(AsyncWebServerRequest *request)
     printerConfig.testColor = hex2rgb(getSafeParamValue(request, "testRGB").c_str(), getSafeParamInt(request, "testWW"), getSafeParamInt(request, "testCW"));
     printerConfig.debugwifi = request->hasParam("debugwifi", true);
     printerConfig.finishindication = request->hasParam("finishIndication", true);
+    printerConfig.turnOnLightWhenDoorIsOpen = request->hasParam("turnOnLightWhenDoorIsOpen", true);
     printerConfig.finishColor = hex2rgb(getSafeParamValue(request, "finishColor").c_str(), getSafeParamInt(request, "finishWW"), getSafeParamInt(request, "finishCW"));
     printerConfig.finishExit = !request->hasParam("finishEndTimer", true);
     printerConfig.finishTimeOut = getSafeParamInt(request, "finishTimerMins") * 60000;
