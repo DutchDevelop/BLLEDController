@@ -799,6 +799,18 @@ void ledsloop()
             updateleds();
             lastPeriodicUpdate = millis();
         } */
+
+        // Auto turn off chamber light after timeout when door is closed
+if (printerVariables.chamberLightLocked &&
+    !printerVariables.doorOpen &&
+    (millis() - printerConfig.inactivityStartms > printerConfig.inactivityTimeOut))
+{
+    controlChamberLight(false);
+    printerVariables.chamberLightLocked = false;
+
+    if (printerConfig.debugingchange)
+        LogSerial.println(F("[LED] Timeout – Chamber light OFF and lock released"));
+}
     delay(10);
 }
 
