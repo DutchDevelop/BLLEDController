@@ -302,59 +302,75 @@ void ParseCallback(char *topic, byte *payload, unsigned int length)
                     }
                 } */
         // Check for Door Status
-        if (!messageobject["print"]["home_flag"].isNull())
+if (!messageobject["print"]["home_flag"].isNull())
+{
+    long homeFlag = messageobject["print"]["home_flag"];
+    bool doorState = bitRead(homeFlag, 23); // Bit 23 = door open
+
+    if (printerVariables.doorOpen != doorState)
+    {
+        printerVariables.doorOpen = doorState;
+
+        if (printerConfig.debugingchange)
         {
-            long homeFlag = messageobject["print"]["home_flag"];
-            bool doorState = bitRead(homeFlag, 23); // Extract door status
-
-            if (printerVariables.doorOpen != doorState)
-            {
-                printerVariables.doorOpen = doorState;
-
-                if (printerConfig.debugingchange)
-                {
-                    LogSerial.print(F("[MQTT] Door "));
-                    LogSerial.println(doorState ? F("Opened") : F("Closed"));
-                }
-
-                if (doorState) // Door opened
-                {
-                    printerVariables.lastdoorOpenms = millis();
-
-                    // Force chamber light ON if configured
-                    if (printerConfig.controlChamberLight && !printerVariables.printerledstate)
-                    {
-                        printerVariables.printerledstate = true;
-                        printerConfig.replicate_update = false; // Prevent unwanted OFF
-                        controlChamberLight(true);
-                        LogSerial.println(F("[MQTT] Door opened – Light forced ON"));
-                    }
-
-                    printerConfig.inactivityStartms = millis();
-                    printerConfig.isIdleOFFActive = false;
-
-                    Changed = true;
-                    updateleds(); // Apply LED state after variables are set
-                }
-                else // Door closed
-                {
-                    printerVariables.lastdoorClosems = millis();
-
-                    // Start inactivity timer on door close
-                    printerConfig.inactivityStartms = millis();
-                    printerConfig.isIdleOFFActive = false;
-
-                    // Detect double-close for manual toggle
-                    if ((millis() - printerVariables.lastdoorOpenms) < 6000)
-                    {
-                        printerVariables.doorSwitchTriggered = true;
-                    }
-
-                    Changed = true;
-                    updateleds();
-                }
-            }
+            LogSerial.print(F("[MQTT] Door "));
+            LogSerial.println(doorState ? F("Opened") : F("Closed"));
         }
+
+        // Door opened
+        if (doorState)
+        {
+            printerVariables.lastdoorOpenms = millis();
+
+            // If light is off, turn it on and lock it
+            if (printerConfig.controlChamberLight && !printerVariables.printerledstate)
+            {
+                printerVariables.chamberLightLocked = true;
+                printerVariables.printerledstate = true;
+                printerConfig.replicate_update = false;
+                controlChamberLight(true);
+                LogSerial.println(F("[MQTT] Door opened – Light forced ON"));
+            }
+
+            // Restart inactivity timer
+            printerConfig.inactivityStartms = millis();
+            printerConfig.isIdleOFFActive = false;
+
+            Changed = true;
+            updateleds();
+        }
+
+        // Door closed
+        else
+        {
+            printerVariables.lastdoorClosems = millis();
+
+            // If light was forced on by door, turn it off now
+            if (printerVariables.chamberLightLocked)
+            {
+                printerVariables.chamberLightLocked = false;
+                printerVariables.printerledstate = false;
+                controlChamberLight(false);
+                LogSerial.println(F("[MQTT] Door closed – Light OFF and lock released"));
+            }
+
+            // Restart inactivity timer
+            printerConfig.inactivityStartms = millis();
+            printerConfig.isIdleOFFActive = false;
+
+            // Detect double-close toggle
+            if ((millis() - printerVariables.lastdoorOpenms) < 6000)
+            {
+                printerVariables.doorSwitchTriggered = true;
+            }
+
+            Changed = true;
+            updateleds();
+        }
+    }
+}
+
+
 
         // Check BBLP Stage
         if (!messageobject["print"]["stg_cur"].isNull())
@@ -395,7 +411,7 @@ void ParseCallback(char *topic, byte *payload, unsigned int length)
                 {
                     printerVariables.overridestage = 999; // Reset after special HMS override
                 }
-                
+
                 if (mqttgcodeState == "FINISH")
                 {
                     printerVariables.finished = true;
@@ -624,7 +640,7 @@ void controlChamberLight(bool on)
     LogSerial.printf("[DEBUG] controlChamberLight called with: %s\n", on ? "true" : "false");
     if (!printerConfig.controlChamberLight)
         return;
-
+    printerVariables.printerledstate = on; // <-- Set state flag to avoid replicate overwrite
     if (!mqttClient.connected())
     {
         LogSerial.println(F("[MQTT] Skipped chamber_light control – MQTT not connected"));
