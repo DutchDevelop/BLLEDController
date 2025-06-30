@@ -98,10 +98,15 @@ def send_payload(payload):
 
 def send_status(stage=None, gcode_state=None, door_open=None, hms_code=None):
     payload = {"print": {}}
-    payload["print"]["stg_cur"] = stage if stage is not None else 0
-    payload["print"]["gcode_state"] = gcode_state if gcode_state is not None else "IDLE"
+
+    if stage is not None:
+        payload["print"]["stg_cur"] = stage
+    if gcode_state is not None:
+        payload["print"]["gcode_state"] = gcode_state
+
     payload["print"]["home_flag"] = (1 << 23) if door_open_state.get() else 0
     payload["print"]["lights_report"] = [{"node": "chamber_light", "mode": "on" if chamber_light_state.get() == "ON" else "off"}]
+
     current_hms = parsed_hms_code.get()
     if current_hms != "None":
         try:
@@ -111,15 +116,19 @@ def send_status(stage=None, gcode_state=None, door_open=None, hms_code=None):
             payload["print"]["hms"] = [{"attr": 0x00000000, "code": hms_code_val}]
         except:
             pass
+
     send_payload(payload)
 
 def simulate_print():
+    if simulation_running.get():
+        return
     simulation_running.set(True)
     simulate_btn.config(state=tk.DISABLED, text="Simulating...")
     steps = [
         (1, "RUNNING", "Bed Leveling"),
-        (2, "RUNNING", "Preheating"),
+        (14, "RUNNING", "Cleaning Nozzle"),
         (8, "RUNNING", "Extrusion Calibration"),
+        (2, "RUNNING", "Preheating"),
         (0, "RUNNING", "Printing"),
         (10, "RUNNING", "First Layer Inspection"),
         (16, "PAUSE", "Paused"),
@@ -130,7 +139,7 @@ def simulate_print():
     for s, state, desc in steps:
         log_message(f"→ {desc}")
         send_status(stage=s, gcode_state=state)
-        time.sleep(1.2)
+        time.sleep(5)
     simulate_btn.config(state=tk.NORMAL, text="Simulate Print")
     simulation_running.set(False)
 
@@ -206,8 +215,7 @@ tk.Button(root, text="Connect", command=update_config).grid(row=2, column=3)
 button_frame = tk.Frame(root)
 button_frame.grid(row=3, column=0, columnspan=4, pady=5)
 
-simulate_btn = tk.Button(button_frame, text="Simulate Print", command=simulate_print_thread)
-simulate_btn.grid(row=0, column=5, padx=3)
+
 
 buttons = [
     ("Door Open", lambda: door_open_state.set(True)),
@@ -219,8 +227,14 @@ buttons = [
     ("Simulate Light OFF", simulate_light_off),
     ("Clear HMS", lambda: parsed_hms_code.set("None"))
 ]
+buttons.insert(5, ("Simulate Print", simulate_print_thread))
 for i, (txt, cmd) in enumerate(buttons):
-    tk.Button(button_frame, text=txt, command=cmd).grid(row=0, column=i, padx=3)
+    if txt == "Simulate Print":
+        global simulate_btn
+        simulate_btn = tk.Button(button_frame, text=txt, command=cmd)
+        simulate_btn.grid(row=0, column=i, padx=3)
+    else:
+        tk.Button(button_frame, text=txt, command=cmd).grid(row=0, column=i, padx=3)
 
 # HMS List
 hms_frame = tk.Frame(root)
