@@ -760,94 +760,150 @@
         }
 
         function updateConfig() {
-            var xhr = new XMLHttpRequest();
+            const xhr = new XMLHttpRequest();
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === 4) {
                     if (xhr.status === 200) {
                         try {
-                            var configData = JSON.parse(xhr.responseText);
-                            document.getElementById("firmwareversion").textContent = "Firmware Version: " + (configData.firmwareversion || "Unknown version");
-                            document.getElementById('brightnessslider').value = configData.brightness || 100;
-                            document.getElementById("brightnesssliderDisplay").textContent = "Brightness: " + (configData.brightness || 100) + "%";
-                            document.getElementById('maintMode').checked = configData.maintMode || false;
-                            document.getElementById('discoMode').checked = configData.discoMode || false;
-                            document.getElementById('replicateLedState').checked = configData.replicateled || false;
-                            document.getElementById('runningRGB').value = configData.runningRGB || '';
-                            document.getElementById('runningWW').value = configData.runningWW || 255;
-                            document.getElementById('runningCW').value = configData.runningCW || 255;
-                            document.getElementById('showtestcolor').checked = configData.showtestcolor || false;
-                            document.getElementById('testRGB').value = configData.testRGB || '';
-                            document.getElementById('testWW').value = configData.testWW || 0;
-                            document.getElementById('testCW').value = configData.testCW || 0;
-                            document.getElementById('debugwifi').checked = configData.debugwifi || false;
-                            document.getElementById('finishIndication').checked = configData.finishindication || false;
-                            document.getElementById('finishColor').value = configData.finishColor || '';
-                            document.getElementById('finishWW').value = configData.finishWW || 0;
-                            document.getElementById('finishCW').value = configData.finishCW || 0;
-                            if (configData.finishExit) {
-                                document.getElementById('finishEndDoor').checked = true;
-                                setFinishExit(document.getElementById('finishEndDoor'));
-                            } else {
-                                document.getElementById('finishEndTimer').checked = true;
-                                setFinishExit(document.getElementById('finishEndTimer'));
+                            const configData = JSON.parse(xhr.responseText);
+                            const configDefault = {
+                                firmwareversion: "Unknown version",
+                                brightness: 100,
+                                maintMode: false,
+                                discoMode: false,
+                                replicateled: false,
+                                runningRGB: "",
+                                runningWW: 255,
+                                runningCW: 255,
+                                showtestcolor: false,
+                                testRGB: "",
+                                testWW: 0,
+                                testCW: 0,
+                                debugwifi: false,
+                                finishindication: false,
+                                finishColor: "",
+                                finishWW: 0,
+                                finishCW: 0,
+                                finishExit: true, // Default to timer
+                                finishTimerMins: 10,
+                                inactivityEnabled: false,
+                                inactivityMins: 30,
+                                controlChamberLight: false,
+                                debuging: false,
+                                debugingchange: false,
+                                mqttdebug: false,
+                                p1Printer: false,
+                                doorSwitch: false,
+                                stage14RGB: "",
+                                stage14WW: 0,
+                                stage14CW: 0,
+                                stage1RGB: "",
+                                stage1WW: 0,
+                                stage1CW: 0,
+                                stage8RGB: "",
+                                stage8WW: 0,
+                                stage8CW: 0,
+                                stage9RGB: "",
+                                stage9WW: 0,
+                                stage9CW: 0,
+                                stage10RGB: "",
+                                stage10WW: 0,
+                                stage10CW: 0,
+                                errordetection: false,
+                                wifiRGB: "",
+                                wifiWW: 0,
+                                wifiCW: 0,
+                                pauseRGB: "",
+                                pauseWW: 0,
+                                pauseCW: 0,
+                            };
+                            for (const key in configDefault) {
+                                if (configData[key] === undefined) {
+                                    configData[key] = configDefault[key];
+                                }
                             }
-                            document.getElementById('finishTimerMins').value = configData.finishTimerMins || 10;
-                            document.getElementById('inactivityEnabled').checked = configData.inactivityEnabled || false;
-                            document.getElementById('inactivityMins').value = configData.inactivityMins || 30;
-                            document.getElementById('controlChamberLight').checked = configData.controlChamberLight || false;
-                            document.getElementById('debuging').checked = configData.debuging || false;
-                            document.getElementById('debugingchange').checked = configData.debugingchange || false;
-                            document.getElementById('mqttdebug').checked = configData.mqttdebug || false;
-                            document.getElementById('p1Printer').checked = configData.p1Printer || false;
-                            document.getElementById('doorSwitch').checked = configData.doorSwitch || false;
-                            document.getElementById('stage14RGB').value = configData.stage14RGB || '';
-                            document.getElementById('stage14WW').value = configData.stage14WW || 0;
-                            document.getElementById('stage14CW').value = configData.stage14CW || 0;
-                            document.getElementById('stage1RGB').value = configData.stage1RGB || '';
-                            document.getElementById('stage1WW').value = configData.stage1WW || 0;
-                            document.getElementById('stage1CW').value = configData.stage1CW || 0;
-                            document.getElementById('stage8RGB').value = configData.stage8RGB || '';
-                            document.getElementById('stage8WW').value = configData.stage8WW || 0;
-                            document.getElementById('stage8CW').value = configData.stage8CW || 0;
-                            document.getElementById('stage9RGB').value = configData.stage9RGB || '';
-                            document.getElementById('stage9WW').value = configData.stage9WW || 0;
-                            document.getElementById('stage9CW').value = configData.stage9CW || 0;
-                            document.getElementById('stage10RGB').value = configData.stage10RGB || '';
-                            document.getElementById('stage10WW').value = configData.stage10WW || 0;
-                            document.getElementById('stage10CW').value = configData.stage10CW || 0;
-                            document.getElementById('errorDetection').checked = configData.errordetection || false;
-                            document.getElementById('wifiRGB').value = configData.wifiRGB || '';
-                            document.getElementById('wifiWW').value = configData.wifiWW || 0;
-                            document.getElementById('wifiCW').value = configData.wifiCW || 0;
-                            document.getElementById('pauseRGB').value = configData.pauseRGB || '';
-                            document.getElementById('pauseWW').value = configData.pauseWW || 0;
-                            document.getElementById('pauseCW').value = configData.pauseCW || 0;
-                            document.getElementById('firstlayerRGB').value = configData.firstlayerRGB || '';
-                            document.getElementById('firstlayerWW').value = configData.firstlayerWW || 0;
-                            document.getElementById('firstlayerCW').value = configData.firstlayerCW || 0;
-                            document.getElementById('nozzleclogRGB').value = configData.nozzleclogRGB || '';
-                            document.getElementById('nozzleclogWW').value = configData.nozzleclogWW || 0;
-                            document.getElementById('nozzleclogCW').value = configData.nozzleclogCW || 0;
-                            document.getElementById('hmsSeriousRGB').value = configData.hmsSeriousRGB || '';
-                            document.getElementById('hmsSeriousWW').value = configData.hmsSeriousWW || 0;
-                            document.getElementById('hmsSeriousCW').value = configData.hmsSeriousCW || 0;
-                            document.getElementById('hmsFatalRGB').value = configData.hmsFatalRGB || '';
-                            document.getElementById('hmsFatalWW').value = configData.hmsFatalWW || 0;
-                            document.getElementById('hmsFatalCW').value = configData.hmsFatalCW || 0;
-                            document.getElementById('filamentRunoutRGB').value = configData.filamentRunoutRGB || '';
-                            document.getElementById('filamentRunoutWW').value = configData.filamentRunoutWW || 0;
-                            document.getElementById('filamentRunoutCW').value = configData.filamentRunoutCW || 0;
-                            document.getElementById('frontCoverRGB').value = configData.frontCoverRGB || '';
-                            document.getElementById('frontCoverWW').value = configData.frontCoverWW || 0;
-                            document.getElementById('frontCoverCW').value = configData.frontCoverCW || 0;
-                            document.getElementById('nozzleTempRGB').value = configData.nozzleTempRGB || '';
-                            document.getElementById('nozzleTempWW').value = configData.nozzleTempWW || 0;
-                            document.getElementById('nozzleTempCW').value = configData.nozzleTempCW || 0;
-                            document.getElementById('bedTempRGB').value = configData.bedTempRGB || '';
-                            document.getElementById('bedTempWW').value = configData.bedTempWW || 0;
-                            document.getElementById('bedTempCW').value = configData.bedTempCW || 0;
+                            document.getElementById("firmwareversion").textContent = "Firmware Version: " + configData.firmwareversion;
+                            document.getElementById("brightnessslider").value = configData.brightness;
+                            document.getElementById("brightnesssliderDisplay").textContent = "Brightness: " + configData.brightness + "%";
+                            document.getElementById("maintMode").checked = configData.maintMode;
+                            document.getElementById("discoMode").checked = configData.discoMode;
+                            document.getElementById("replicateLedState").checked = configData.replicateled;
+                            document.getElementById("runningRGB").value = configData.runningRGB;
+                            document.getElementById("runningWW").value = configData.runningWW;
+                            document.getElementById("runningCW").value = configData.runningCW;
+                            document.getElementById("showtestcolor").checked = configData.showtestcolor;
+                            document.getElementById("testRGB").value = configData.testRGB;
+                            document.getElementById("testWW").value = configData.testWW;
+                            document.getElementById("testCW").value = configData.testCW;
+                            document.getElementById("debugwifi").checked = configData.debugwifi;
+                            document.getElementById("finishIndication").checked = configData.finishindication;
+                            document.getElementById("finishColor").value = configData.finishColor;
+                            document.getElementById("finishWW").value = configData.finishWW;
+                            document.getElementById("finishCW").value = configData.finishCW;
+                            if (configData.finishExit) {
+                                document.getElementById("finishEndDoor").checked = true;
+                                setFinishExit(document.getElementById("finishEndDoor"));
+                            } else {
+                                document.getElementById("finishEndTimer").checked = true;
+                                setFinishExit(document.getElementById("finishEndTimer"));
+                            }
+                            document.getElementById("finishTimerMins").value = configData.finishTimerMins;
+                            document.getElementById("inactivityEnabled").checked = configData.inactivityEnabled;
+                            document.getElementById("inactivityMins").value = configData.inactivityMins;
+                            document.getElementById("controlChamberLight").checked = configData.controlChamberLight;
+                            document.getElementById("debuging").checked = configData.debuging;
+                            document.getElementById("debugingchange").checked = configData.debugingchange;
+                            document.getElementById("mqttdebug").checked = configData.mqttdebug;
+                            document.getElementById("p1Printer").checked = configData.p1Printer;
+                            document.getElementById("doorSwitch").checked = configData.doorSwitch;
+                            document.getElementById("stage14RGB").value = configData.stage14RGB;
+                            document.getElementById("stage14WW").value = configData.stage14WW;
+                            document.getElementById("stage14CW").value = configData.stage14CW;
+                            document.getElementById("stage1RGB").value = configData.stage1RGB;
+                            document.getElementById("stage1WW").value = configData.stage1WW;
+                            document.getElementById("stage1CW").value = configData.stage1CW;
+                            document.getElementById("stage8RGB").value = configData.stage8RGB;
+                            document.getElementById("stage8WW").value = configData.stage8WW;
+                            document.getElementById("stage8CW").value = configData.stage8CW;
+                            document.getElementById("stage9RGB").value = configData.stage9RGB;
+                            document.getElementById("stage9WW").value = configData.stage9WW;
+                            document.getElementById("stage9CW").value = configData.stage9CW;
+                            document.getElementById("stage10RGB").value = configData.stage10RGB;
+                            document.getElementById("stage10WW").value = configData.stage10WW;
+                            document.getElementById("stage10CW").value = configData.stage10CW;
+                            document.getElementById("errorDetection").checked = configData.errordetection;
+                            document.getElementById("wifiRGB").value = configData.wifiRGB;
+                            document.getElementById("wifiWW").value = configData.wifiWW;
+                            document.getElementById("wifiCW").value = configData.wifiCW;
+                            document.getElementById("pauseRGB").value = configData.pauseRGB;
+                            document.getElementById("pauseWW").value = configData.pauseWW;
+                            document.getElementById("pauseCW").value = configData.pauseCW;
+                            document.getElementById("firstlayerRGB").value = configData.firstlayerRGB;
+                            document.getElementById("firstlayerWW").value = configData.firstlayerWW;
+                            document.getElementById("firstlayerCW").value = configData.firstlayerCW;
+                            document.getElementById("nozzleclogRGB").value = configData.nozzleclogRGB;
+                            document.getElementById("nozzleclogWW").value = configData.nozzleclogWW;
+                            document.getElementById("nozzleclogCW").value = configData.nozzleclogCW;
+                            document.getElementById("hmsSeriousRGB").value = configData.hmsSeriousRGB;
+                            document.getElementById("hmsSeriousWW").value = configData.hmsSeriousWW;
+                            document.getElementById("hmsSeriousCW").value = configData.hmsSeriousCW;
+                            document.getElementById("hmsFatalRGB").value = configData.hmsFatalRGB;
+                            document.getElementById("hmsFatalWW").value = configData.hmsFatalWW;
+                            document.getElementById("hmsFatalCW").value = configData.hmsFatalCW;
+                            document.getElementById("filamentRunoutRGB").value = configData.filamentRunoutRGB;
+                            document.getElementById("filamentRunoutWW").value = configData.filamentRunoutWW;
+                            document.getElementById("filamentRunoutCW").value = configData.filamentRunoutCW;
+                            document.getElementById("frontCoverRGB").value = configData.frontCoverRGB;
+                            document.getElementById("frontCoverWW").value = configData.frontCoverWW;
+                            document.getElementById("frontCoverCW").value = configData.frontCoverCW;
+                            document.getElementById("nozzleTempRGB").value = configData.nozzleTempRGB;
+                            document.getElementById("nozzleTempWW").value = configData.nozzleTempWW;
+                            document.getElementById("nozzleTempCW").value = configData.nozzleTempCW;
+                            document.getElementById("bedTempRGB").value = configData.bedTempRGB;
+                            document.getElementById("bedTempWW").value = configData.bedTempWW;
+                            document.getElementById("bedTempCW").value = configData.bedTempCW;
                             //HMS Error handling
-                            document.getElementById('hmsIgnoreList').value = configData.hmsIgnoreList || '';
+                            document.getElementById("hmsIgnoreList").value = configData.hmsIgnoreList;
 
                             updateIdle();
                             showhideOptions();
