@@ -767,8 +767,8 @@
                         try {
                             var configData = JSON.parse(xhr.responseText);
                             document.getElementById("firmwareversion").textContent = "Firmware Version: " + (configData.firmwareversion || "Unknown version");
-                            document.getElementById('brightnessslider').value = configData.brightness || 100;
-                            document.getElementById("brightnesssliderDisplay").textContent = "Brightness: " + (configData.brightness || 100) + "%";
+                            document.getElementById('brightnessslider').value = (configData.brightness !== undefined) ? configData.brightness : 100;
+                            document.getElementById("brightnesssliderDisplay").textContent = "Brightness: " + ((configData.brightness !== undefined) ? configData.brightness : 100) + "%";
                             document.getElementById('maintMode').checked = configData.maintMode || false;
                             document.getElementById('discoMode').checked = configData.discoMode || false;
                             document.getElementById('replicateLedState').checked = configData.replicateled || false;
