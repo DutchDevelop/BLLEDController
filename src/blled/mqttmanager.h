@@ -359,7 +359,7 @@ if (!messageobject["print"]["home_flag"].isNull())
             printerConfig.isIdleOFFActive = false;
 
             // Detect double-close toggle
-            if ((millis() - printerVariables.lastdoorOpenms) < 6000)
+            if ((millis() - printerVariables.lastdoorOpenms) < 2000)
             {
                 printerVariables.doorSwitchTriggered = true;
             }

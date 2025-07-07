@@ -422,7 +422,7 @@ void updateleds()
 
         if (printerConfig.debugingchange)
         {
-            LogSerial.print(F("Door closed twice within 6 seconds - "));
+            LogSerial.print(F("Door closed twice within 2 seconds - "));
 
             if (ledsAreOff)
                 LogSerial.print(F("Turning LEDs ON"));
