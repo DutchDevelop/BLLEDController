@@ -329,6 +329,7 @@ if (!messageobject["print"]["home_flag"].isNull())
                 printerVariables.printerledstate = true;
                 printerConfig.replicate_update = false;
                 controlChamberLight(true);
+                printerVariables.stage = 255;
                 LogSerial.println(F("[MQTT] Door opened – Light forced ON"));
             }
 
@@ -340,33 +341,44 @@ if (!messageobject["print"]["home_flag"].isNull())
             updateleds();
         }
 
-        // Door closed
-        else
-        {
-            printerVariables.lastdoorClosems = millis();
+else // Door closed
+{
+    printerVariables.lastdoorClosems = millis();
 
-            // If light was forced on by door, turn it off now
-            if (printerVariables.chamberLightLocked)
-            {
-                printerVariables.chamberLightLocked = false;
-                printerVariables.printerledstate = false;
-                controlChamberLight(false);
-                LogSerial.println(F("[MQTT] Door closed – Light OFF and lock released"));
-            }
+    // Turn off chamber light if enabled
+    if (printerConfig.controlChamberLight)
+    {
+        //controlChamberLight(false);
+        printerVariables.chamberLightLocked = false;
+        //LogSerial.println(F("[MQTT] Door closed – Chamber light OFF"));
+    }
 
-            // Restart inactivity timer
-            printerConfig.inactivityStartms = millis();
-            printerConfig.isIdleOFFActive = false;
+    if (!printerConfig.inactivityEnabled)
+    {
+        // Turn off LED bar immediately
+        printerVariables.printerledstate = false;
+        printerConfig.replicate_update = false;
+        printerVariables.stage = 999;
+        tweenToColor(0,0,0,0,0);
+        controlChamberLight(false);
+        LogSerial.println(F("[MQTT] Door closed – LED bar OFF (inactivity disabled)"));
+    }
 
-            // Detect double-close toggle
-            if ((millis() - printerVariables.lastdoorOpenms) < 2000)
-            {
-                printerVariables.doorSwitchTriggered = true;
-            }
+    // Reset inactivity timer
+    printerConfig.inactivityStartms = millis();
+    printerConfig.isIdleOFFActive = false;
 
-            Changed = true;
-            updateleds();
-        }
+    // Double-close detection
+    if ((millis() - printerVariables.lastdoorOpenms) < 2000)
+    {
+        printerVariables.doorSwitchTriggered = true;
+    }
+
+    Changed = true;
+     updateleds();
+
+}
+
     }
 }
 
