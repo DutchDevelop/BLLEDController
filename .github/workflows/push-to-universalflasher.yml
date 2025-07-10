@@ -1,0 +1,80 @@
+name: Push Firmware to Universal-Flasher
+
+on:
+  release:
+    types: [published, edited]
+
+env:
+  TARGET_DIR: BLLED
+
+jobs:
+  push-firmware:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout this firmware repo
+        uses: actions/checkout@v3
+
+      - name: Download .bin from current release
+        uses: actions/github-script@v6
+        env:
+          TARGET_DIR: ${{ env.TARGET_DIR }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const release = context.payload.release;
+            const assets = release.assets.filter(a => a.name.endsWith('.bin'));
+
+            if (assets.length === 0) {
+              core.setFailed("❌ No .bin files found in release");
+              return;
+            }
+
+            const targetDir = path.join('firmware', process.env.TARGET_DIR);
+            fs.mkdirSync(targetDir, { recursive: true });
+
+            for (const asset of assets) {
+              const dl = await github.rest.repos.getReleaseAsset({
+                owner,
+                repo,
+                asset_id: asset.id,
+                headers: { Accept: 'application/octet-stream' }
+              });
+
+              const filePath = path.join(targetDir, asset.name);
+              fs.writeFileSync(filePath, Buffer.from(dl.data));
+              console.log(`✅ Downloaded: ${filePath}`);
+            }
+
+      - name: Clone BLLED-Flasher repo
+        run: |
+          git clone https://x-access-token:${{ secrets.BLLED_FLASHER_TOKEN }}@github.com/DutchDevelop/blledsetup.git flasher
+
+      - name: Copy firmware to Flasher repo
+        run: |
+          mkdir -p flasher/firmware/${{ env.TARGET_DIR }}
+          cp -r firmware/${{ env.TARGET_DIR }}/* flasher/firmware/${{ env.TARGET_DIR }}/
+
+      - name: Generate manifests and firmware.json
+        run: |
+          cd flasher
+          node generateRelease.js
+
+      - name: Commit and Push to BLLED-Flasher
+        run: |
+          cd flasher
+          git config user.name "BLLED Release Bot"
+          git config user.email "actions@github.com"
+          git fetch origin
+          git add firmware/
+          if git diff --cached --quiet; then
+            echo "✅ No changes to commit."
+          else
+            git commit -m "📦 Add firmware from release ${{ github.event.release.tag_name }} into ${{ env.TARGET_DIR }}"
+            git push
+          fi
