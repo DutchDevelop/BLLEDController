@@ -72,6 +72,7 @@ The BL Led Controller is released under Creative Commons Attribution-NonCommerci
 - **[Modbot](https://github.com/Modbot)**: Tester for X1C, P1P & P1S
 - **[xps3riments](https://github.com/xps3riments)**: Inspiration for the foundation of the code
 - **[longrackslabs](https://github.com/longrackslabs)**: Build process, documentation, developer & community support
+- **[SoftWareCrash](https://github.com/softwarecrash)**: Any small unimportant changes
 
 ### Author
 
