@@ -188,14 +188,6 @@ void ParseCallback(char *topic, byte *payload, unsigned int length)
     JsonDocument filter;
     // Rather than showing the entire message to Serial - grabbing only the pertinent bits for BLLED.
     // Device Status
-
-    // sniped: implement to get layer num. for hms error, swap back to running state after layer change
-    /*     "print": {
-            "3D": {
-                "layer_num": 0,
-                "total_layer_num": 191
-            } */
-
     filter["print"]["command"] = true;
     filter["print"]["fail_reason"] = true;
     filter["print"]["gcode_state"] = true;
@@ -245,7 +237,7 @@ void ParseCallback(char *topic, byte *payload, unsigned int length)
         if (printerConfig.mqttdebug)
         {
             LogSerial.print(F("(Filtered) MQTT payload, ["));
-            LogSerial.print(millis());
+            LogSerial.print(stream.current_length());
             LogSerial.print(F("], "));
             serializeJson(messageobject, LogSerial);
             LogSerial.println();
@@ -692,8 +684,8 @@ void setupMqtt()
     report_topic = device_topic + String("/report");
 
     wifiSecureClient.setInsecure();
-    wifiSecureClient.setTimeout(10);
-    mqttClient.setSocketTimeout(10);
+    wifiSecureClient.setTimeout(15);
+    mqttClient.setSocketTimeout(17);
     mqttClient.setBufferSize(1024);
     mqttClient.setServer(printerConfig.printerIP, 8883);
     mqttClient.setStream(stream);
