@@ -759,118 +759,103 @@
             }
         }
 
-        function updateConfig() {
-            var xhr = new XMLHttpRequest();
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4) {
-                    if (xhr.status === 200) {
-                        try {
-                            var configData = JSON.parse(xhr.responseText);
-                            document.getElementById("firmwareversion").textContent = "Firmware Version: " + (configData.firmwareversion || "Unknown version");
-                            document.getElementById('brightnessslider').value = (configData.brightness !== undefined) ? configData.brightness : 100;
-                            document.getElementById("brightnesssliderDisplay").textContent = "Brightness: " + ((configData.brightness !== undefined) ? configData.brightness : 100) + "%";
-                            document.getElementById('maintMode').checked = configData.maintMode || false;
-                            document.getElementById('discoMode').checked = configData.discoMode || false;
-                            document.getElementById('replicateLedState').checked = configData.replicateled || false;
-                            document.getElementById('runningRGB').value = configData.runningRGB || '';
-                            document.getElementById('runningWW').value = configData.runningWW || 255;
-                            document.getElementById('runningCW').value = configData.runningCW || 255;
-                            document.getElementById('showtestcolor').checked = configData.showtestcolor || false;
-                            document.getElementById('testRGB').value = configData.testRGB || '';
-                            document.getElementById('testWW').value = configData.testWW || 0;
-                            document.getElementById('testCW').value = configData.testCW || 0;
-                            document.getElementById('debugwifi').checked = configData.debugwifi || false;
-                            document.getElementById('finishIndication').checked = configData.finishindication || false;
-                            document.getElementById('finishColor').value = configData.finishColor || '';
-                            document.getElementById('finishWW').value = configData.finishWW || 0;
-                            document.getElementById('finishCW').value = configData.finishCW || 0;
-                            if (configData.finishExit) {
-                                document.getElementById('finishEndDoor').checked = true;
-                                setFinishExit(document.getElementById('finishEndDoor'));
-                            } else {
-                                document.getElementById('finishEndTimer').checked = true;
-                                setFinishExit(document.getElementById('finishEndTimer'));
-                            }
-                            document.getElementById('finishTimerMins').value = configData.finishTimerMins || 10;
-                            document.getElementById('inactivityEnabled').checked = configData.inactivityEnabled || false;
-                            document.getElementById('inactivityMins').value = configData.inactivityMins || 30;
-                            document.getElementById('controlChamberLight').checked = configData.controlChamberLight || false;
-                            document.getElementById('debuging').checked = configData.debuging || false;
-                            document.getElementById('debugingchange').checked = configData.debugingchange || false;
-                            document.getElementById('mqttdebug').checked = configData.mqttdebug || false;
-                            document.getElementById('p1Printer').checked = configData.p1Printer || false;
-                            document.getElementById('doorSwitch').checked = configData.doorSwitch || false;
-                            document.getElementById('stage14RGB').value = configData.stage14RGB || '';
-                            document.getElementById('stage14WW').value = configData.stage14WW || 0;
-                            document.getElementById('stage14CW').value = configData.stage14CW || 0;
-                            document.getElementById('stage1RGB').value = configData.stage1RGB || '';
-                            document.getElementById('stage1WW').value = configData.stage1WW || 0;
-                            document.getElementById('stage1CW').value = configData.stage1CW || 0;
-                            document.getElementById('stage8RGB').value = configData.stage8RGB || '';
-                            document.getElementById('stage8WW').value = configData.stage8WW || 0;
-                            document.getElementById('stage8CW').value = configData.stage8CW || 0;
-                            document.getElementById('stage9RGB').value = configData.stage9RGB || '';
-                            document.getElementById('stage9WW').value = configData.stage9WW || 0;
-                            document.getElementById('stage9CW').value = configData.stage9CW || 0;
-                            document.getElementById('stage10RGB').value = configData.stage10RGB || '';
-                            document.getElementById('stage10WW').value = configData.stage10WW || 0;
-                            document.getElementById('stage10CW').value = configData.stage10CW || 0;
-                            document.getElementById('errorDetection').checked = configData.errordetection || false;
-                            document.getElementById('wifiRGB').value = configData.wifiRGB || '';
-                            document.getElementById('wifiWW').value = configData.wifiWW || 0;
-                            document.getElementById('wifiCW').value = configData.wifiCW || 0;
-                            document.getElementById('pauseRGB').value = configData.pauseRGB || '';
-                            document.getElementById('pauseWW').value = configData.pauseWW || 0;
-                            document.getElementById('pauseCW').value = configData.pauseCW || 0;
-                            document.getElementById('firstlayerRGB').value = configData.firstlayerRGB || '';
-                            document.getElementById('firstlayerWW').value = configData.firstlayerWW || 0;
-                            document.getElementById('firstlayerCW').value = configData.firstlayerCW || 0;
-                            document.getElementById('nozzleclogRGB').value = configData.nozzleclogRGB || '';
-                            document.getElementById('nozzleclogWW').value = configData.nozzleclogWW || 0;
-                            document.getElementById('nozzleclogCW').value = configData.nozzleclogCW || 0;
-                            document.getElementById('hmsSeriousRGB').value = configData.hmsSeriousRGB || '';
-                            document.getElementById('hmsSeriousWW').value = configData.hmsSeriousWW || 0;
-                            document.getElementById('hmsSeriousCW').value = configData.hmsSeriousCW || 0;
-                            document.getElementById('hmsFatalRGB').value = configData.hmsFatalRGB || '';
-                            document.getElementById('hmsFatalWW').value = configData.hmsFatalWW || 0;
-                            document.getElementById('hmsFatalCW').value = configData.hmsFatalCW || 0;
-                            document.getElementById('filamentRunoutRGB').value = configData.filamentRunoutRGB || '';
-                            document.getElementById('filamentRunoutWW').value = configData.filamentRunoutWW || 0;
-                            document.getElementById('filamentRunoutCW').value = configData.filamentRunoutCW || 0;
-                            document.getElementById('frontCoverRGB').value = configData.frontCoverRGB || '';
-                            document.getElementById('frontCoverWW').value = configData.frontCoverWW || 0;
-                            document.getElementById('frontCoverCW').value = configData.frontCoverCW || 0;
-                            document.getElementById('nozzleTempRGB').value = configData.nozzleTempRGB || '';
-                            document.getElementById('nozzleTempWW').value = configData.nozzleTempWW || 0;
-                            document.getElementById('nozzleTempCW').value = configData.nozzleTempCW || 0;
-                            document.getElementById('bedTempRGB').value = configData.bedTempRGB || '';
-                            document.getElementById('bedTempWW').value = configData.bedTempWW || 0;
-                            document.getElementById('bedTempCW').value = configData.bedTempCW || 0;
-                            //HMS Error handling
-                            document.getElementById('hmsIgnoreList').value = configData.hmsIgnoreList || '';
+        function getSafeNumber(val, fallback) {
+    return (val !== undefined) ? val : fallback;
+}
 
-                            updateIdle();
-                            showhideOptions();
-                            showcustomColors();
-                            setFinishColor();
-                            setFinishChoice();
-                            showMessage("Success", "Configuration loaded successfully!");
-                        } catch (e) {
-                            console.log(e);
-                            showMessage("Error", "Invalid server response! (" + e + ").");
-                        }
-                    } else if (xhr.status >= 400 && xhr.status < 500) {
-                        showMessage("Error", "Client Error (" + xhr.status + "): " + (xhr.responseText || "Request failed."));
-                    } else if (xhr.status >= 500) {
-                        showMessage("Error", "Server Error (" + xhr.status + "): " + (xhr.responseText || "Internal server error."));
+function updateConfig() {
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                try {
+                    var configData = JSON.parse(xhr.responseText);
+
+                    document.getElementById("firmwareversion").textContent = "Firmware Version: " + (configData.firmwareversion || "Unknown version");
+                    document.getElementById('brightnessslider').value = getSafeNumber(configData.brightness, 100);
+                    document.getElementById("brightnesssliderDisplay").textContent = "Brightness: " + getSafeNumber(configData.brightness, 100) + "%";
+
+                    document.getElementById('maintMode').checked = configData.maintMode || false;
+                    document.getElementById('discoMode').checked = configData.discoMode || false;
+                    document.getElementById('replicateLedState').checked = configData.replicateled || false;
+
+                    document.getElementById('runningRGB').value = configData.runningRGB || '';
+                    document.getElementById('runningWW').value = getSafeNumber(configData.runningWW, 255);
+                    document.getElementById('runningCW').value = getSafeNumber(configData.runningCW, 255);
+
+                    document.getElementById('showtestcolor').checked = configData.showtestcolor || false;
+                    document.getElementById('testRGB').value = configData.testRGB || '';
+                    document.getElementById('testWW').value = getSafeNumber(configData.testWW, 0);
+                    document.getElementById('testCW').value = getSafeNumber(configData.testCW, 0);
+
+                    document.getElementById('debugwifi').checked = configData.debugwifi || false;
+                    document.getElementById('finishIndication').checked = configData.finishindication || false;
+                    document.getElementById('finishColor').value = configData.finishColor || '';
+                    document.getElementById('finishWW').value = getSafeNumber(configData.finishWW, 0);
+                    document.getElementById('finishCW').value = getSafeNumber(configData.finishCW, 0);
+
+                    if (configData.finishExit) {
+                        document.getElementById('finishEndDoor').checked = true;
+                        setFinishExit(document.getElementById('finishEndDoor'));
                     } else {
-                        showMessage("Error", "Unexpected response (" + xhr.status + ").");
+                        document.getElementById('finishEndTimer').checked = true;
+                        setFinishExit(document.getElementById('finishEndTimer'));
                     }
+
+                    document.getElementById('finishTimerMins').value = getSafeNumber(configData.finishTimerMins, 10);
+                    document.getElementById('inactivityEnabled').checked = configData.inactivityEnabled || false;
+                    document.getElementById('inactivityMins').value = getSafeNumber(configData.inactivityMins, 30);
+
+                    document.getElementById('controlChamberLight').checked = configData.controlChamberLight || false;
+                    document.getElementById('debuging').checked = configData.debuging || false;
+                    document.getElementById('debugingchange').checked = configData.debugingchange || false;
+                    document.getElementById('mqttdebug').checked = configData.mqttdebug || false;
+                    document.getElementById('p1Printer').checked = configData.p1Printer || false;
+                    document.getElementById('doorSwitch').checked = configData.doorSwitch || false;
+
+                    const stages = ['stage14', 'stage1', 'stage8', 'stage9', 'stage10'];
+                    for (const s of stages) {
+                        document.getElementById(`${s}RGB`).value = configData[`${s}RGB`] || '';
+                        document.getElementById(`${s}WW`).value = getSafeNumber(configData[`${s}WW`], 0);
+                        document.getElementById(`${s}CW`).value = getSafeNumber(configData[`${s}CW`], 0);
+                    }
+
+                    document.getElementById('errorDetection').checked = configData.errordetection || false;
+
+                    const errorTypes = [
+                        'wifi', 'pause', 'firstlayer', 'nozzleclog', 'hmsSerious', 'hmsFatal',
+                        'filamentRunout', 'frontCover', 'nozzleTemp', 'bedTemp'
+                    ];
+                    for (const e of errorTypes) {
+                        document.getElementById(`${e}RGB`).value = configData[`${e}RGB`] || '';
+                        document.getElementById(`${e}WW`).value = getSafeNumber(configData[`${e}WW`], 0);
+                        document.getElementById(`${e}CW`).value = getSafeNumber(configData[`${e}CW`], 0);
+                    }
+
+                    document.getElementById('hmsIgnoreList').value = configData.hmsIgnoreList || '';
+
+                    updateIdle();
+                    showhideOptions();
+                    showcustomColors();
+                    setFinishColor();
+                    setFinishChoice();
+                    showMessage("Success", "Configuration loaded successfully!");
+                } catch (e) {
+                    console.log(e);
+                    showMessage("Error", "Invalid server response! (" + e + ").");
                 }
-            };
-            xhr.open('GET', '/getConfig', true);
-            xhr.send();
+            } else if (xhr.status >= 400 && xhr.status < 500) {
+                showMessage("Error", "Client Error (" + xhr.status + "): " + (xhr.responseText || "Request failed."));
+            } else if (xhr.status >= 500) {
+                showMessage("Error", "Server Error (" + xhr.status + "): " + (xhr.responseText || "Internal server error."));
+            } else {
+                showMessage("Error", "Unexpected response (" + xhr.status + ").");
+            }
         }
+    };
+    xhr.open('GET', '/getConfig', true);
+    xhr.send();
+}
         window.onload = function () {
             document.getElementById("brightnessslider").addEventListener("input", function (e) {
                 document.getElementById("brightnesssliderDisplay").textContent = "Brightness: " + e.target.value + "%";

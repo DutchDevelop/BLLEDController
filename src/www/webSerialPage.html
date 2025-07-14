@@ -244,7 +244,7 @@ h2 {
     let websocket;
     let textArea = document.getElementById("record");
     let enableFlowLock = false;
-    let enableTimestamp = false;
+    let enableTimestamp = true;
     let pingTimeout;
     let connectTimeout;
     let commandHistory = [];
@@ -346,7 +346,7 @@ h2 {
     function terminalWrite(raw) {
         if (enableTimestamp) {
             let now = new Date();
-            raw = "[" + now.toLocaleTimeString() + "] " + raw + "\n";
+            raw = "[" + now.toLocaleTimeString() + "] " + raw /*+ "\n"*/;
         }
         textArea.value += raw + "\n";
         if (!enableFlowLock) {
