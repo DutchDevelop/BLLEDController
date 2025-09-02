@@ -1,6 +1,8 @@
 #ifndef _MQTTMANAGER
 #define _MQTTMANAGER
 
+#define TASK_RAM 20480 // 20kB for MQTT Task Stack Size
+
 #include <Arduino.h>
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
@@ -180,6 +182,7 @@ void mqttTask(void *parameter)
 
     mqttTaskRunning = false;
     vTaskDelete(NULL);
+    LogSerial.printf("[MQTT Task] HighWaterMark: %d bytes\n", uxTaskGetStackHighWaterMark(NULL));
 }
 
 void ParseCallback(char *topic, byte *payload, unsigned int length)
@@ -701,7 +704,7 @@ void setupMqtt()
         result = xTaskCreate(
             mqttTask,
             "mqttTask",
-            6144,
+            TASK_RAM,
             NULL,
             1,
             &mqttTaskHandle);
@@ -709,7 +712,7 @@ void setupMqtt()
         result = xTaskCreatePinnedToCore(
             mqttTask,
             "mqttTask",
-            6144,
+            TASK_RAM,
             NULL,
             1,
             &mqttTaskHandle,
