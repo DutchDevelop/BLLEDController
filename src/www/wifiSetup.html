@@ -25,12 +25,25 @@
             <label for="password">Password</label>
             <input type="password" id="password" autocomplete="new-password" required>
 
-            <label for="printerIP">Printer IP</label>
+<!--             <label for="printerIP">Printer IP</label>
             <div style="display: flex; gap: 6px; align-items: center;">
                 <input type="text" id="printerIP" placeholder="e.g. 192.168.1.100" style="flex: 1;">
                 <button type="button" id="openPrinterList" title="Search printer"
                     style="width: 28px; height: 28px; padding: 0; font-size: 16px; margin-bottom: 8px; background: #eee; cursor: pointer; display: none;">🔍</button>
-            </div>
+            </div> -->
+
+<label for="printerIP">Printer IP</label>
+<div style="display: flex; gap: 6px; align-items: center;">
+  <!-- Eingabefeld kürzer gemacht -->
+  <input type="text" id="printerIP" placeholder="e.g. 192.168.1.100" style="flex: 2;">
+
+  <!-- Statt Icon jetzt klarer Button -->
+  <button type="button" id="openPrinterList" title="Search printer"
+    style="flex: 1; margin-bottom: 8px; background-color: #28a745; cursor: pointer; display: none; width: 29px; height: 29px; padding: 0;">
+    Printer Discovery
+  </button>
+</div>
+
 
             <label for="printerSerial">Printer Serial Number</label>
             <input type="text" id="printerSerial" placeholder="e.g. BL123456789">
