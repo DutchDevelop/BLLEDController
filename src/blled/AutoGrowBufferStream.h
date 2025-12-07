@@ -6,6 +6,7 @@
 #include <Stream.h>
 
 #define BUFFER_INCREMENTS 128
+#define MAX_BUFFER_SIZE 65536
 
 class AutoGrowBufferStream : public Stream
 {
@@ -26,6 +27,11 @@ public:
     }
 
     virtual size_t write(uint8_t byte) {
+        if (this->_len + 1 > MAX_BUFFER_SIZE) {
+            LogSerial.println(F("Max buffer size reached — flushing"));
+            this->flush();
+            return 0;
+        }
         if (this->_len + 1 > this->buffer_size) {
             auto tmp = (char*)realloc(this->_buffer, this->buffer_size + BUFFER_INCREMENTS);
             if (tmp == NULL) {

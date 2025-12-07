@@ -42,7 +42,9 @@ extern "C"
         unsigned long lastdoorClosems = 0;      // Last time door was opened
         unsigned long lastdoorOpenms = 0;       // Last time door was closed
         bool chamberLightLocked = false;  // blocks replicate while true
+        bool ledWasForcedByDoor = false;
     } PrinterVariables;
+    PrinterVariables printerVariables;
 
     typedef struct SecurityVariables{
                 // Security
@@ -51,7 +53,7 @@ extern "C"
     }SecurityVariables;
     SecurityVariables securityVariables;
 
-    PrinterVariables printerVariables;
+
 
     typedef struct GlobalVariablesStruct{
         char SSID[32];

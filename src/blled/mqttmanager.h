@@ -1,6 +1,8 @@
 #ifndef _MQTTMANAGER
 #define _MQTTMANAGER
 
+#define TASK_RAM 20480 // 20kB for MQTT Task Stack Size
+
 #include <Arduino.h>
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
@@ -180,6 +182,7 @@ void mqttTask(void *parameter)
 
     mqttTaskRunning = false;
     vTaskDelete(NULL);
+    LogSerial.printf("[MQTT Task] HighWaterMark: %d bytes\n", uxTaskGetStackHighWaterMark(NULL));
 }
 
 void ParseCallback(char *topic, byte *payload, unsigned int length)
@@ -188,14 +191,6 @@ void ParseCallback(char *topic, byte *payload, unsigned int length)
     JsonDocument filter;
     // Rather than showing the entire message to Serial - grabbing only the pertinent bits for BLLED.
     // Device Status
-
-    // sniped: implement to get layer num. for hms error, swap back to running state after layer change
-    /*     "print": {
-            "3D": {
-                "layer_num": 0,
-                "total_layer_num": 191
-            } */
-
     filter["print"]["command"] = true;
     filter["print"]["fail_reason"] = true;
     filter["print"]["gcode_state"] = true;
@@ -245,7 +240,7 @@ void ParseCallback(char *topic, byte *payload, unsigned int length)
         if (printerConfig.mqttdebug)
         {
             LogSerial.print(F("(Filtered) MQTT payload, ["));
-            LogSerial.print(millis());
+            LogSerial.print(stream.current_length());
             LogSerial.print(F("], "));
             serializeJson(messageobject, LogSerial);
             LogSerial.println();
@@ -329,6 +324,7 @@ if (!messageobject["print"]["home_flag"].isNull())
                 printerVariables.printerledstate = true;
                 printerConfig.replicate_update = false;
                 controlChamberLight(true);
+                printerVariables.stage = 255;
                 LogSerial.println(F("[MQTT] Door opened – Light forced ON"));
             }
 
@@ -340,33 +336,44 @@ if (!messageobject["print"]["home_flag"].isNull())
             updateleds();
         }
 
-        // Door closed
-        else
-        {
-            printerVariables.lastdoorClosems = millis();
+else // Door closed
+{
+    printerVariables.lastdoorClosems = millis();
 
-            // If light was forced on by door, turn it off now
-            if (printerVariables.chamberLightLocked)
-            {
-                printerVariables.chamberLightLocked = false;
-                printerVariables.printerledstate = false;
-                controlChamberLight(false);
-                LogSerial.println(F("[MQTT] Door closed – Light OFF and lock released"));
-            }
+    // Turn off chamber light if enabled
+    if (printerConfig.controlChamberLight)
+    {
+        //controlChamberLight(false);
+        printerVariables.chamberLightLocked = false;
+        //LogSerial.println(F("[MQTT] Door closed – Chamber light OFF"));
+    }
 
-            // Restart inactivity timer
-            printerConfig.inactivityStartms = millis();
-            printerConfig.isIdleOFFActive = false;
+    if (!printerConfig.inactivityEnabled)
+    {
+        // Turn off LED bar immediately
+        printerVariables.printerledstate = false;
+        printerConfig.replicate_update = false;
+        printerVariables.stage = 999;
+        tweenToColor(0,0,0,0,0);
+        controlChamberLight(false);
+        LogSerial.println(F("[MQTT] Door closed – LED bar OFF (inactivity disabled)"));
+    }
 
-            // Detect double-close toggle
-            if ((millis() - printerVariables.lastdoorOpenms) < 6000)
-            {
-                printerVariables.doorSwitchTriggered = true;
-            }
+    // Reset inactivity timer
+    printerConfig.inactivityStartms = millis();
+    printerConfig.isIdleOFFActive = false;
 
-            Changed = true;
-            updateleds();
-        }
+    // Double-close detection
+    if ((millis() - printerVariables.lastdoorOpenms) < 2000)
+    {
+        printerVariables.doorSwitchTriggered = true;
+    }
+
+    Changed = true;
+     updateleds();
+
+}
+
     }
 }
 
@@ -680,8 +687,8 @@ void setupMqtt()
     report_topic = device_topic + String("/report");
 
     wifiSecureClient.setInsecure();
-    wifiSecureClient.setTimeout(10);
-    mqttClient.setSocketTimeout(10);
+    wifiSecureClient.setTimeout(15);
+    mqttClient.setSocketTimeout(17);
     mqttClient.setBufferSize(1024);
     mqttClient.setServer(printerConfig.printerIP, 8883);
     mqttClient.setStream(stream);
@@ -697,7 +704,7 @@ void setupMqtt()
         result = xTaskCreate(
             mqttTask,
             "mqttTask",
-            6144,
+            TASK_RAM,
             NULL,
             1,
             &mqttTaskHandle);
@@ -705,7 +712,7 @@ void setupMqtt()
         result = xTaskCreatePinnedToCore(
             mqttTask,
             "mqttTask",
-            6144,
+            TASK_RAM,
             NULL,
             1,
             &mqttTaskHandle,
