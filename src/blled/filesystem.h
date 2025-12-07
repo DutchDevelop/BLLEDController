@@ -35,6 +35,7 @@ void saveFileSystem()
     json["appw"] = globalVariables.APPW;
     json["HTTPUser"] = securityVariables.HTTPUser;
     json["HTTPPass"] = securityVariables.HTTPPass;
+    json["host"] = globalVariables.Host;
     json["printerIp"] = printerConfig.printerIP;
     json["accessCode"] = printerConfig.accessCode;
     json["serialNumber"] = printerConfig.serialNumber;
@@ -159,7 +160,6 @@ void loadFileSystem()
         LogSerial.println(F(" retries"));
 
         LogSerial.println(F("[Filesystem] Clearing config"));
-        // LittleFS.remove(configPath);
         saveFileSystem();
         return;
     }
@@ -174,12 +174,14 @@ void loadFileSystem()
     {
         strcpy(globalVariables.SSID, json["ssid"]);
         strcpy(globalVariables.APPW, json["appw"]);
+        const char *hostValue = json["host"] | "BLLED";
+        globalVariables.Host = hostValue;
+
         strlcpy(securityVariables.HTTPUser, json["HTTPUser"] | "", sizeof(securityVariables.HTTPUser));
         strlcpy(securityVariables.HTTPPass, json["HTTPPass"] | "", sizeof(securityVariables.HTTPPass));
         strcpy(printerConfig.printerIP, json["printerIp"]);
         strcpy(printerConfig.accessCode, json["accessCode"]);
         strcpy(printerConfig.serialNumber, json["serialNumber"]);
-        // strcpy(printerConfig.webpagePassword, json["webpagePassword"]);
         strcpy(printerConfig.BSSID, json["bssi"]);
         printerConfig.brightness = json["brightness"];
         // LED Behaviour (Choose One)

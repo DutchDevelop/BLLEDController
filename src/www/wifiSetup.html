@@ -25,24 +25,19 @@
             <label for="password">Password</label>
             <input type="password" id="password" autocomplete="new-password" required>
 
-<!--             <label for="printerIP">Printer IP</label>
+            <label for="deviceName">Controller Name (mDNS)</label>
+            <input type="text" id="deviceName" name="deviceName" maxlength="32" placeholder="BLLED">
+
+            <label for="printerIP">Printer IP</label>
             <div style="display: flex; gap: 6px; align-items: center;">
-                <input type="text" id="printerIP" placeholder="e.g. 192.168.1.100" style="flex: 1;">
+
+                <input type="text" id="printerIP" placeholder="e.g. 192.168.1.100" style="flex: 2;">
+
                 <button type="button" id="openPrinterList" title="Search printer"
-                    style="width: 28px; height: 28px; padding: 0; font-size: 16px; margin-bottom: 8px; background: #eee; cursor: pointer; display: none;">🔍</button>
-            </div> -->
-
-<label for="printerIP">Printer IP</label>
-<div style="display: flex; gap: 6px; align-items: center;">
-  <!-- Eingabefeld kürzer gemacht -->
-  <input type="text" id="printerIP" placeholder="e.g. 192.168.1.100" style="flex: 2;">
-
-  <!-- Statt Icon jetzt klarer Button -->
-  <button type="button" id="openPrinterList" title="Search printer"
-    style="flex: 1; margin-bottom: 8px; background-color: #28a745; cursor: pointer; display: none; width: 29px; height: 29px; padding: 0;">
-    Printer Discovery
-  </button>
-</div>
+                    style="flex: 1; margin-bottom: 8px; background-color: #28a745; cursor: pointer; display: none; width: 29px; height: 29px; padding: 0;">
+                    Printer Discovery
+                </button>
+            </div>
 
 
             <label for="printerSerial">Printer Serial Number</label>
@@ -190,19 +185,19 @@
             e.preventDefault();
             const ssid = document.getElementById("ssid").value;
             const pass = document.getElementById("password").value;
+            const host = document.getElementById("deviceName").value || "BLLED";
             const bssid = document.getElementById("bssid").value;
             const printerIP = document.getElementById("printerIP").value;
-            //const printerSerial = document.getElementById("printerSerial").value;
             const printerSerial = document.getElementById("printerSerial").value.trim().toUpperCase();
             const accessCode = document.getElementById("accessCode").value;
             const webUser = document.getElementById("webUser").value;
             const webPass = document.getElementById("webPass").value;
-            
+
             try {
                 const res = await fetch("/submitWiFi", {
                     method: "POST",
                     headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                    body: `ssid=${encodeURIComponent(ssid)}&pass=${encodeURIComponent(pass)}&bssid=${encodeURIComponent(bssid)}&printerIP=${encodeURIComponent(printerIP)}&printerSerial=${encodeURIComponent(printerSerial)}&accessCode=${encodeURIComponent(accessCode)}&webUser=${encodeURIComponent(webUser)}&webPass=${encodeURIComponent(webPass)}`
+                    body: `ssid=${encodeURIComponent(ssid)}&pass=${encodeURIComponent(pass)}&bssid=${encodeURIComponent(bssid)}&host=${encodeURIComponent(host)}&printerIP=${encodeURIComponent(printerIP)}&printerSerial=${encodeURIComponent(printerSerial)}&accessCode=${encodeURIComponent(accessCode)}&webUser=${encodeURIComponent(webUser)}&webPass=${encodeURIComponent(webPass)}`
 
                 });
 
@@ -222,6 +217,7 @@
                 const config = await res.json();
                 document.getElementById("ssid").value = config.ssid || "";
                 document.getElementById("password").value = config.pass || "";
+                document.getElementById("deviceName").value = config.host || "BLLED";
                 document.getElementById("printerIP").value = config.printerIP || "";
                 document.getElementById("printerSerial").value = config.printerSerial || "";
                 if (config.isAPMode) {
