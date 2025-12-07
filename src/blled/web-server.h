@@ -93,6 +93,7 @@ void handleGetConfig(AsyncWebServerRequest *request)
 
     doc["firmwareversion"] = globalVariables.FWVersion.c_str();
     doc["wifiStrength"] = WiFi.RSSI();
+    doc["host"] = globalVariables.Host;
     doc["ip"] = printerConfig.printerIP;
     doc["code"] = printerConfig.accessCode;
     doc["id"] = printerConfig.serialNumber;
@@ -187,6 +188,7 @@ void handlePrinterConfigJson(AsyncWebServerRequest *request)
     JsonDocument doc;
     doc["ssid"] = globalVariables.SSID;
     doc["pass"] = globalVariables.APPW;
+    doc["host"] = globalVariables.Host;
     doc["printerIP"] = printerConfig.printerIP;
     doc["printerSerial"] = printerConfig.serialNumber;
     doc["accessCode"] = printerConfig.accessCode;
@@ -226,6 +228,37 @@ void handleSubmitConfig(AsyncWebServerRequest *request)
     {
         return req->hasParam(name, true) ? req->getParam(name, true)->value().toInt() : fallback;
     };
+
+
+    
+        String newHost = getSafeParamValue(request, "deviceName", globalVariables.Host.c_str());
+        newHost.trim();
+        if (newHost.length() == 0)
+        {
+            newHost = "BLLED";
+        }
+
+        if (newHost != globalVariables.Host)
+        {
+            LogSerial.print(F("[MDNS] Updating hostname from "));
+            LogSerial.print(globalVariables.Host);
+            LogSerial.print(F(" to "));
+            LogSerial.println(newHost);
+
+            globalVariables.Host = newHost;
+
+            MDNS.end();
+            if (!MDNS.begin(globalVariables.Host.c_str()))
+            {
+                LogSerial.println(F("[MDNS] Error resetting MDNS responder!"));
+            }
+            else
+            {
+                LogSerial.print(F("[MDNS] Hostname now: "));
+                LogSerial.println(globalVariables.Host);
+            }
+        }
+    
 
     printerConfig.brightness = getSafeParamInt(request, "brightnessslider");
     printerConfig.rescanWiFiNetwork = request->hasParam("rescanWiFiNetwork", true);
@@ -352,12 +385,14 @@ void handleSubmitWiFi(AsyncWebServerRequest *request)
         LogSerial.println(F("[WiFiSetup] No SSID or PASS provided → keeping existing WiFi credentials."));
     }
 
-    // Optional other fields (printerIP, printerSerial, etc.)
+    globalVariables.Host = request->hasParam("host", true) ? request->getParam("host", true)->value() : "";
+
     String printerIP = request->hasParam("printerIP", true) ? request->getParam("printerIP", true)->value() : "";
     String printerSerial = request->hasParam("printerSerial", true) ? request->getParam("printerSerial", true)->value() : "";
     String accessCode = request->hasParam("accessCode", true) ? request->getParam("accessCode", true)->value() : "";
     String webUser = request->hasParam("webUser", true) ? request->getParam("webUser", true)->value() : "";
     String webPass = request->hasParam("webPass", true) ? request->getParam("webPass", true)->value() : "";
+
 
     if (printerIP.length() > 0)
         strlcpy(printerConfig.printerIP, printerIP.c_str(), sizeof(printerConfig.printerIP));
