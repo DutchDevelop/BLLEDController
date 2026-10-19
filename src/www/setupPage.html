@@ -915,6 +915,7 @@
             var xhr = new XMLHttpRequest();
             xhr.open('POST', '/submitConfig', true);
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.setRequestHeader('X-BLLED', '1');
 
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === 4) {

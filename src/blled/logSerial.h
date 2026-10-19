@@ -28,6 +28,11 @@ public:
     webSerial.onMessage(cb);
   }
 
+  // Must be called before begin(): protects the log WebSocket with the WebUI login.
+  void setAuthentication(const char* user, const char* pass) {
+    webSerial.setAuthentication(user, pass);
+  }
+
   void setBuffer(size_t size) {
     webSerial.setBuffer(size);
   }

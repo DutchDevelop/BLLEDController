@@ -53,6 +53,7 @@
 
       const xhr = new XMLHttpRequest();
       xhr.open("POST", "/configrestore", true);
+      xhr.setRequestHeader("X-BLLED", "1");
 
       xhr.onload = function () {
         if (xhr.status === 200) {

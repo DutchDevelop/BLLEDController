@@ -163,26 +163,24 @@ void loadFileSystem()
         saveFileSystem();
         return;
     }
-    size_t size = configFile.size();
-    std::unique_ptr<char[]> buf(new char[size]);
-    configFile.readBytes(buf.get(), size);
-
     JsonDocument json;
-    auto deserializeError = deserializeJson(json, buf.get());
+    auto deserializeError = deserializeJson(json, configFile);
 
     if (!deserializeError)
     {
-        strcpy(globalVariables.SSID, json["ssid"]);
-        strcpy(globalVariables.APPW, json["appw"]);
+        // strlcpy + "| \"\"": a missing key or an over-long value must not crash or
+        // overflow at boot (that would be a boot loop needing a USB reflash).
+        strlcpy(globalVariables.SSID, json["ssid"] | "", sizeof(globalVariables.SSID));
+        strlcpy(globalVariables.APPW, json["appw"] | "", sizeof(globalVariables.APPW));
         const char *hostValue = json["host"] | "BLLED";
         globalVariables.Host = hostValue;
 
         strlcpy(securityVariables.HTTPUser, json["HTTPUser"] | "", sizeof(securityVariables.HTTPUser));
         strlcpy(securityVariables.HTTPPass, json["HTTPPass"] | "", sizeof(securityVariables.HTTPPass));
-        strcpy(printerConfig.printerIP, json["printerIp"]);
-        strcpy(printerConfig.accessCode, json["accessCode"]);
-        strcpy(printerConfig.serialNumber, json["serialNumber"]);
-        strcpy(printerConfig.BSSID, json["bssi"]);
+        strlcpy(printerConfig.printerIP, json["printerIp"] | "", sizeof(printerConfig.printerIP));
+        strlcpy(printerConfig.accessCode, json["accessCode"] | "", sizeof(printerConfig.accessCode));
+        strlcpy(printerConfig.serialNumber, json["serialNumber"] | "", sizeof(printerConfig.serialNumber));
+        strlcpy(printerConfig.BSSID, json["bssi"] | "", sizeof(printerConfig.BSSID));
         printerConfig.brightness = json["brightness"];
         // LED Behaviour (Choose One)
         printerConfig.maintMode = json["maintMode"];
