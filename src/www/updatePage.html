@@ -83,6 +83,7 @@
             ajax.addEventListener("error", errorHandler, false);
             ajax.addEventListener("abort", abortHandler, false);
             ajax.open("POST", "/update");
+            ajax.setRequestHeader("X-BLLED", "1");
             ajax.send(formdata);
         }
 

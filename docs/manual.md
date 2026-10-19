@@ -336,6 +336,7 @@ Name of the WiFi network the device should connect to.
 **Type:** Password (required)  
 **Description:**  
 WiFi password. Will be stored encrypted in the local config.
+Once saved, it is never shown again: leave the field blank to keep it. A new network needs its password.
 
 > You can view available networks via the 🔍 Scan button.
 
@@ -366,6 +367,7 @@ The unique serial number (USN) of your printer, used in MQTT topic handling.
 **Placeholder:** `e.g. Access123`  
 **Description:**  
 Used for MQTT authentication with your printer. Obtain this from the Bambu app or device.
+Once saved, it is never shown again: leave the field blank to keep it.
 
 ---
 
@@ -376,12 +378,14 @@ Used for MQTT authentication with your printer. Obtain this from the Bambu app o
 **ID:** `username`  
 **Type:** Text  
 Default is blank. If set, it will enable HTTP Basic Auth for accessing the web interface.
+Clear it to remove the login.
 
 #### 🔑 Password
 
 **ID:** `userpassword`  
 **Type:** Password  
 Used with the above username for securing access to all pages.
+Once saved, it is never shown again: leave the field blank to keep it.
 
 ---
 
@@ -527,6 +531,6 @@ Performs a full reset of the BLLED controller:
 - 🌐 You’ll need to reconnect and reconfigure via the setup page
 
 **How to trigger:**  
-Open your browser and navigate to: http://[device-ip]/factoryreset
+Open your browser and navigate to: http://[device-ip]/factoryreset and press **Erase all settings**.
 
 

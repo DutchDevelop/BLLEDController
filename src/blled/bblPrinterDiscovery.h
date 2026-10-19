@@ -133,7 +133,16 @@ void bblSearchPrinters()
           strcmp(printerConfig.serialNumber, usnStr.c_str()) == 0)
       {
         String currentIP = senderIP.toString();
-        if (String(printerConfig.printerIP) != currentIP)
+        // Only follow an IP change when the configured printer has been unreachable for a
+        // while. Any device on the LAN can answer SSDP with the printer's serial, and the
+        // MQTT login (the access code) would then be sent to it.
+        bool printerUnreachable = !printerVariables.online && printerVariables.disconnectMQTTms != 0 &&
+                                  (millis() - printerVariables.disconnectMQTTms) > 120000UL;
+        if (String(printerConfig.printerIP) != currentIP && !printerUnreachable)
+        {
+          LogSerial.printf("[BBLScan] Printer serial answered from %s, but the configured printer is online - ignoring\n", currentIP.c_str());
+        }
+        else if (String(printerConfig.printerIP) != currentIP)
         {
           LogSerial.printf("[BBLScan] Detected matching USN with updated IP (%s → %s). Saving...\n", printerConfig.printerIP, currentIP.c_str());
           strlcpy(printerConfig.printerIP, currentIP.c_str(), sizeof(printerConfig.printerIP));
